@@ -1,0 +1,53 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '9.3.0'
+}
+
+group = 'com.muhdfdeen'
+version = '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "papermc-repo"
+        url = "https://repo.papermc.io/repository/maven-public/"
+    }
+    maven {
+        url = uri("https://repo.opencollab.dev/main/")
+    }
+    maven {
+        url = uri("https://repo.codemc.io/repository/creatorfromhell/")
+    }
+}
+
+dependencies {
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    implementation("de.exlll:configlib-paper:4.6.4")
+    implementation("org.bstats:bstats-bukkit:3.1.0")
+}
+
+tasks.named('shadowJar') {
+  relocate 'de.exlll.configlib', 'com.muhdfdeen.partyanimals.libs.configlib'
+  relocate 'org.bstats', 'com.muhdfdeen.partyanimals.libs.bstats'
+  minimize()
+  archiveClassifier.set('')
+}
+
+build.dependsOn shadowJar
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('paper-plugin.yml') {
+        expand props
+    }
+}
