@@ -92,7 +92,7 @@ public class PinataListener implements Listener {
         pinata.setNoDamageTicks(0);
 
         int currentHits = pinata.getPersistentDataContainer().getOrDefault(pinataManager.getHealthKey(),
-                PersistentDataType.INTEGER, 5);
+                PersistentDataType.INTEGER, 1);
         currentHits--;
         log.debug("Pinata Health: " + currentHits);
 
@@ -102,7 +102,9 @@ public class PinataListener implements Listener {
             pinata.getPersistentDataContainer().set(pinataManager.getHealthKey(), PersistentDataType.INTEGER,
                     currentHits);
             pinataManager.playEffect(config.getMainConfig().pinata.effects().hit(), pinata.getLocation());
-            pinata.playHurtAnimation(0);
+            if (config.getMainConfig().pinata.effects().damageFlash()) {
+                pinata.playHurtAnimation(0);
+            }
             CommandUtils.process(player, config.getMainConfig().pinata.commands().hit(), plugin);
             String hitMessage = config.getMessageConfig().messages.pinataMessages().pinataHit();
             if (hitMessage != null && !hitMessage.isEmpty()) {

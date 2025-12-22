@@ -119,7 +119,17 @@ public final class MainConfig {
                         @Comment( {
                                         "Whether the pinata AI is enabled.",
                                         "If true, the pinata moves around. Otherwise, it remains stationary." }) boolean enabled,
+                        @Comment("The knockback resistance of the pinata.") double knockbackResistance,
                         @Comment("Multiplier for the pinata's movement speed.") double movementSpeedMultiplier){
+        }
+
+        public record PinataEffectSettings(
+                        @Comment("Whether the pinata should have a glowing outline.") boolean glowing,
+                        @Comment("The color of the glowing outline.") String glowColor,
+                        @Comment("Whether the pinata should flash red when hit.") boolean damageFlash,
+                        @Comment("Effects triggered when the pinata is hit.") VisualAudioEffect hit,
+                        @Comment("Effects triggered when the pinata spawns.") VisualAudioEffect spawn,
+                        @Comment("Effects triggered when the pinata dies.") VisualAudioEffect death) {
         }
 
         public record SoundEffect(
@@ -136,14 +146,6 @@ public final class MainConfig {
         public record VisualAudioEffect(
                         SoundEffect sound,
                         ParticleEffect particle) {
-        }
-
-        public record PinataEffectSettings(
-                        @Comment("Whether the pinata should have a glowing outline.") boolean glowing,
-                        @Comment("The color of the glowing outline.") String glowColor,
-                        @Comment("Effects triggered when the pinata is hit.") VisualAudioEffect hit,
-                        @Comment("Effects triggered when the pinata spawns.") VisualAudioEffect spawn,
-                        @Comment("Effects triggered when the pinata dies.") VisualAudioEffect death) {
         }
 
         public record PinataCommands(
@@ -176,11 +178,12 @@ public final class MainConfig {
                                 new PinataAppearanceSettings(List.of("LLAMA"), "<green>Pinata", 1.5),
                                 new PinataDisplaySettings(true, "GREEN", "PROGRESS", true, "RED", "PROGRESS"),
                                 new PinataHealthSettings(10, true, 1),
-                                new PinataCooldownSettings(0.5, true),
-                                new PinataAISettings(true, 1.0),
+                                new PinataCooldownSettings(0.75, true),
+                                new PinataAISettings(true, 1.0, 1.5),
                                 new PinataEffectSettings(
                                                 true,
                                                 "WHITE",
+                                                false,
                                                 new VisualAudioEffect(
                                                                 new SoundEffect("entity.player.hurt", 1.0f, 1.0f),
                                                                 new ParticleEffect("HIT_PARTICLE", 10)),

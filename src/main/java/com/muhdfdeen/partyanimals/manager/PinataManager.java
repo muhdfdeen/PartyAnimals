@@ -134,11 +134,15 @@ public class PinataManager {
                 livingEntity.getAttribute(Attribute.SCALE).setBaseValue(scale);
                 if (config.getMainConfig().pinata.ai().enabled()) {
                     livingEntity.setAI(true);
-                    var movementSpeed = livingEntity.getAttribute(Attribute.MOVEMENT_SPEED);
-                    if (movementSpeed != null) {
-                        double baseSpeed = movementSpeed.getBaseValue();
+                    var knockbackAttribute = livingEntity.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
+                    if (knockbackAttribute != null) {
+                        knockbackAttribute.setBaseValue(config.getMainConfig().pinata.ai().knockbackResistance());
+                    }
+                    var movementSpeedAttribute = livingEntity.getAttribute(Attribute.MOVEMENT_SPEED);
+                    if (movementSpeedAttribute != null) {
+                        double baseSpeed = movementSpeedAttribute.getBaseValue();
                         double movementSpeedMultiplier = config.getMainConfig().pinata.ai().movementSpeedMultiplier();
-                        movementSpeed.setBaseValue(baseSpeed * movementSpeedMultiplier);
+                        movementSpeedAttribute.setBaseValue(baseSpeed * movementSpeedMultiplier);
                     }
                 } else {
                     livingEntity.setAI(false);
