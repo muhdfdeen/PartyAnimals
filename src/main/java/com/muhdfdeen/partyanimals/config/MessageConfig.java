@@ -42,6 +42,8 @@ public final class MessageConfig {
         String pinataLastHit,
         @Comment("Message displayed when a pinata is downed.")
         String pinataDowned,
+        @Comment("Message displayed when a pinata is removed due to timeout.")
+        String pinataTimeout,
         @Comment("Boss bar countdown message format.")
         String bossBarCountdown,
         @Comment("Boss bar message format while the pinata is active.")
@@ -65,6 +67,7 @@ public final class MessageConfig {
                 "<yellow>You hit the pinata!</yellow>",
                 "<gold>{player} last hit the pinata!</gold>",
                 "<yellow>A pinata has been downed!</yellow>",
+                "<red>The pinata has escaped due to timeout.</red>",
                 "Pinata spawning in: {seconds}s",
                 "<green>Pinata Health:</green> {health} <red>❤</red>",
                 "<green>Spawn location <white>{location_name}</white> has been added!</green>"

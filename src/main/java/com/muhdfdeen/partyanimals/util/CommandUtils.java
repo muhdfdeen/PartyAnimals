@@ -58,9 +58,8 @@ public class CommandUtils {
         }
 
         if (player != null) {
-            parsed = parsed.replace("%player%", player.getName())
+            parsed = parsed
                     .replace("{player}", player.getName())
-                    .replace("%uuid%", player.getUniqueId().toString())
                     .replace("{uuid}", player.getUniqueId().toString());
         }
 

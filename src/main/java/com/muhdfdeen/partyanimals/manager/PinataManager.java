@@ -58,7 +58,6 @@ public class PinataManager {
 
         BossBar bossBar = BossBar.bossBar(
                 mm.deserialize(bossBarCountdown
-                        .replace("%seconds%", String.valueOf((int) countdownSeconds))
                         .replace("{seconds}", String.valueOf((int) countdownSeconds))),
                 1.0f,
                 BossBar.Color.GREEN,
@@ -92,7 +91,6 @@ public class PinataManager {
                 bossBar.progress(progress);
                 if (displaySeconds != lastSeconds) {
                     bossBar.name(mm.deserialize(bossBarCountdown
-                            .replace("%seconds%", String.valueOf(displaySeconds))
                             .replace("{seconds}", String.valueOf(displaySeconds))));
                     lastSeconds = displaySeconds;
                 }
@@ -136,9 +134,7 @@ public class PinataManager {
                 BossBar healthBar = BossBar.bossBar(
                         mm.deserialize(config.getMessageConfig().messages.pinataMessages().bossBarActive()
                                 .replace("{health}", String.valueOf(finalHealth))
-                                .replace("%health%", String.valueOf(finalHealth))
-                                .replace("{max_health}", String.valueOf(finalHealth))
-                                .replace("%max_health%", String.valueOf(finalHealth))),
+                                .replace("{max_health}", String.valueOf(finalHealth))),
                         1.0f,
                         BossBar.Color.GREEN,
                         BossBar.Overlay.PROGRESS);
@@ -152,7 +148,11 @@ public class PinataManager {
                             if (pinata.isValid() && isPinata((LivingEntity) pinata)) {
                                 removeActiveBossBar((LivingEntity) pinata);
                                 pinata.remove();
-                                log.debug("Pinata timed out.");
+                                String timeoutMsg = config.getMessageConfig().messages.pinataMessages().pinataTimeout();
+                                if (timeoutMsg != null && !timeoutMsg.isEmpty()) {
+                                    plugin.getServer().broadcast(
+                                            mm.deserialize(config.getMessageConfig().messages.prefix() + timeoutMsg));
+                                }
                             }
                             timeoutTasks.remove(pinata.getUniqueId());
                         }
@@ -174,8 +174,7 @@ public class PinataManager {
         float progress = Math.max(0.0f, (float) currentHealth / maxHealth);
         bossBar.progress(progress);
         bossBar.name(mm.deserialize(config.getMessageConfig().messages.pinataMessages().bossBarActive()
-                .replace("{health}", String.valueOf(currentHealth))
-                .replace("%health%", String.valueOf(currentHealth))));
+                .replace("{health}", String.valueOf(currentHealth))));
     }
 
     public void removeActiveBossBar(LivingEntity pinata) {
