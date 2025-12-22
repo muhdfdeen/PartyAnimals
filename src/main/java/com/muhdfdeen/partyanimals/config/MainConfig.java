@@ -86,12 +86,17 @@ public final class MainConfig {
                         @Comment( {
                                         "List of entity types that can be used as pinatas.",
                                         "If multiple types are provided, one will be chosen at random.",
-                                        "",
+                                        " ",
                                         "Available types: https://jd.papermc.io/paper/1.21.1/org/bukkit/entity/EntityType.html"
                         }) List<String> types,
                         @Comment("Name of the pinata entity.") String name,
-                        @Comment("Scale of the pinata entity.") double scale){
+                        @Comment({"Scale settings of the pinata entity.", "Scale is fixed when both min and max are the same value."}) ScaleSettings scale){
         }
+
+        public record ScaleSettings(
+                @Comment("Minimum scale of the pinata entity.") double min,
+                @Comment("Maximum scale of the pinata entity.") double max
+        ) {}
 
         public record PinataDisplaySettings(
                         @Comment("Whether the countdown boss bar is enabled.") boolean showCountdownBar,
@@ -175,7 +180,8 @@ public final class MainConfig {
 
                 @Comment("Settings related to pinatas.")
                 public PinataSettings pinata = new PinataSettings(
-                                new PinataAppearanceSettings(List.of("LLAMA"), "<green>Pinata", 1.5),
+                                new PinataAppearanceSettings(List.of("LLAMA"), "<green>Pinata", 
+                                                new ScaleSettings(1.0, 1.0)),
                                 new PinataDisplaySettings(true, "GREEN", "PROGRESS", true, "RED", "PROGRESS"),
                                 new PinataHealthSettings(10, true, 1),
                                 new PinataCooldownSettings(0.75, true),

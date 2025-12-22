@@ -88,8 +88,7 @@ public class PinataListener implements Listener {
             }
         }
 
-        event.setDamage(0);
-        pinata.setNoDamageTicks(0);
+        event.setCancelled(true);
 
         int currentHits = pinata.getPersistentDataContainer().getOrDefault(pinataManager.getHealthKey(),
                 PersistentDataType.INTEGER, 1);

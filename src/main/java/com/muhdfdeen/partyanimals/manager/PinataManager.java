@@ -110,7 +110,16 @@ public class PinataManager {
         List<String> types = config.getMainConfig().pinata.appearance().types();
         String randomType = types.get(ThreadLocalRandom.current().nextInt(types.size()));
         EntityType pinataType = EntityType.valueOf(randomType.toUpperCase());
-        double scale = config.getMainConfig().pinata.appearance().scale();
+
+        double minScale = config.getMainConfig().pinata.appearance().scale().min();
+        double maxScale = config.getMainConfig().pinata.appearance().scale().max();
+        final double finalScale;
+        if (minScale >= maxScale) {
+            finalScale = minScale;
+        } else {
+            finalScale = ThreadLocalRandom.current().nextDouble(minScale, maxScale);
+        }
+
         int timeout = config.getMainConfig().pinata.timeout();
 
         int baseHealth = config.getMainConfig().pinata.health().maxHealth();
@@ -131,7 +140,7 @@ public class PinataManager {
                 livingEntity.getPersistentDataContainer().set(is_pinata, PersistentDataType.BOOLEAN, true);
                 livingEntity.getPersistentDataContainer().set(health, PersistentDataType.INTEGER, finalHealth);
                 livingEntity.getPersistentDataContainer().set(max_health, PersistentDataType.INTEGER, finalHealth);
-                livingEntity.getAttribute(Attribute.SCALE).setBaseValue(scale);
+                livingEntity.getAttribute(Attribute.SCALE).setBaseValue(finalScale);
                 if (config.getMainConfig().pinata.ai().enabled()) {
                     livingEntity.setAI(true);
                     var knockbackAttribute = livingEntity.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
