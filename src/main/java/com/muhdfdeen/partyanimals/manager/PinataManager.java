@@ -62,6 +62,8 @@ public class PinataManager {
             return;
         }
 
+        playGlobalSound(config.getPinataConfig().pinata.effects().countdownStart().type(), config.getPinataConfig().pinata.effects().countdownStart().volume(), config.getPinataConfig().pinata.effects().countdownStart().pitch());
+
         String bossBarCountdown = config.getMessageConfig().messages.pinataMessages().bossBarCountdown();
         BossBar bossBar = BossBar.bossBar(mm.deserialize(bossBarCountdown.replace("{seconds}", String.valueOf((int) countdownSeconds))), 1.0f, BossBar.Color.valueOf(config.getPinataConfig().pinata.display().countdown().barColor()), BossBar.Overlay.valueOf(config.getPinataConfig().pinata.display().countdown().barOverlay()));
 
@@ -75,7 +77,7 @@ public class PinataManager {
         long endTime = System.currentTimeMillis() + durationMillis;
 
         new BukkitRunnable() {
-            int lastSeconds = -1;
+            int lastSeconds = (int) countdownSeconds;
 
             @Override
             public void run() {
@@ -98,6 +100,7 @@ public class PinataManager {
                     bossBar.progress(progress);
                     if (displaySeconds != lastSeconds) {
                         log.debug("Countdown Tick: " + displaySeconds + "s remaining. Progress: " + progress);
+                        playGlobalSound(config.getPinataConfig().pinata.effects().countdownMid().type(), config.getPinataConfig().pinata.effects().countdownMid().volume(), config.getPinataConfig().pinata.effects().countdownMid().pitch());
                         bossBar.name(mm.deserialize(bossBarCountdown.replace("{seconds}", String.valueOf(displaySeconds))));
                         lastSeconds = displaySeconds;
                     }
@@ -137,97 +140,92 @@ public class PinataManager {
         final int finalHealth = calculatedHealth;
 
         location.getWorld()
-                .spawn(location,
-                        pinataType.getEntityClass(),
-                        pinata -> {
-                            if (pinata instanceof LivingEntity livingEntity) {
-                                livingEntity.getPersistentDataContainer().set(is_pinata, PersistentDataType.BOOLEAN, true);
-                                livingEntity.getPersistentDataContainer().set(health, PersistentDataType.INTEGER, finalHealth);
-                                livingEntity.getPersistentDataContainer().set(max_health, PersistentDataType.INTEGER, finalHealth);
-                                livingEntity.getAttribute(Attribute.SCALE).setBaseValue(finalScale);
-                                boolean aiEnabled = config.getPinataConfig().pinata.ai().enabled();
-                                log.debug("Setting pinata AI to: " + aiEnabled + " for entity: " + livingEntity.getType() + " (UUID: " + livingEntity.getUniqueId() + ")");
-                                if (aiEnabled) {
-                                    livingEntity.setAI(true);
-                                    if (livingEntity instanceof Creature creature) {
-                                        var goalManager = Bukkit.getMobGoals();
-                                        goalManager.removeAllGoals(creature);
-                                        goalManager.addGoal(creature, 1, new PinataRoamAI(plugin, creature));
-                                    }
-                                    var knockbackAttribute = livingEntity.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
-                                    if (knockbackAttribute != null)
-                                        knockbackAttribute.setBaseValue(config.getPinataConfig().pinata.ai().knockbackResistance());
-                                } else {
-                                    livingEntity.setAI(false);
-                                }
-
-                                livingEntity.setSilent(true);
-                                livingEntity.setInvulnerable(false);
-                                livingEntity.setRemoveWhenFarAway(false);
-
-                                if (livingEntity instanceof Mob mob)
-                                    mob.setTarget(null);
-
-                                livingEntity.setGlowing(config.getPinataConfig().pinata.effects().glowing());
-                                if (config.getPinataConfig().pinata.effects().glowing()) {
-                                    String colorName = config.getPinataConfig().pinata.effects().glowColor();
-                                    NamedTextColor glowColor = NamedTextColor.NAMES.value(colorName.toLowerCase());
-
-                                    if (glowColor != null) {
-                                        Scoreboard mainBoard = Bukkit.getScoreboardManager().getMainScoreboard();
-                                        String teamName = "PA_" + glowColor.toString().toUpperCase();
-                                        Team team = mainBoard.getTeam(teamName);
-
-                                        if (team == null)
-                                            team = mainBoard.registerNewTeam(teamName);
-
-                                        team.color(glowColor);
-                                        team.addEntry(livingEntity.getUniqueId().toString());
-                                    }
-                                }
-
-                                livingEntity.customName(mm.deserialize(config.getPinataConfig().pinata.appearance().name()));
-                                livingEntity.setCustomNameVisible(true);
-
-                                BossBar healthBar = BossBar.bossBar(mm.deserialize(config.getMessageConfig().messages.pinataMessages().bossBarActive().replace("{health}", String.valueOf(finalHealth)).replace("{max_health}", String.valueOf(finalHealth)).replace("{timeout}", String.valueOf(timeout))), 1.0f, BossBar.Color.valueOf(config.getPinataConfig().pinata.display().health().barColor()),BossBar.Overlay.valueOf(config.getPinataConfig().pinata.display().health().barOverlay()));
-
-                                activePinatas.put(livingEntity.getUniqueId(), livingEntity);
-                                activeBossBars.put(livingEntity.getUniqueId(), healthBar);
-
-                                boolean shouldShowBar = config.getPinataConfig().pinata.display().health().enabled();
-                                if (shouldShowBar)
-                                    for (Player p : plugin.getServer().getOnlinePlayers())
-                                        p.showBossBar(healthBar);
-
-                                log.debug("Playing pinata spawn effect at location: " + location + " for entity: " + livingEntity.getType() + " (UUID: " + livingEntity.getUniqueId() + ")");
-                                playEffect(config.getPinataConfig().pinata.effects().spawn(), location);
-
-                                if (timeout > 0) {
-                                    BukkitTask task = new BukkitRunnable() {
-                                        @Override
-                                        public void run() {
-                                            if (pinata.isValid() && isPinata((LivingEntity) pinata)) {
-                                                removeActiveBossBar((LivingEntity) pinata);
-                                                pinata.remove();
-                                                String timeoutMsg = config.getMessageConfig().messages.pinataMessages().pinataTimeout();
-                                                if (timeoutMsg != null && !timeoutMsg.isEmpty()) {
-                                                    plugin.getServer().broadcast(mm.deserialize(config.getMessageConfig().messages.prefix() + timeoutMsg));
-                                                }
-                                            }
-                                            timeoutTasks.remove(pinata.getUniqueId());
-                                        }
-                                    }.runTaskLater(plugin, timeout * 20L);
-                                    timeoutTasks.put(pinata.getUniqueId(), task);
-                                }
+                .spawn(location, pinataType.getEntityClass(), pinata -> {
+                    if (pinata instanceof LivingEntity livingEntity) {
+                        livingEntity.getPersistentDataContainer().set(is_pinata, PersistentDataType.BOOLEAN, true);
+                        livingEntity.getPersistentDataContainer().set(health, PersistentDataType.INTEGER, finalHealth);
+                        livingEntity.getPersistentDataContainer().set(max_health, PersistentDataType.INTEGER, finalHealth);
+                        livingEntity.getAttribute(Attribute.SCALE).setBaseValue(finalScale);
+                        boolean aiEnabled = config.getPinataConfig().pinata.ai().enabled();
+                        log.debug("Setting pinata AI to: " + aiEnabled + " for entity: " + livingEntity.getType() + " (UUID: " + livingEntity.getUniqueId() + ")");
+                        if (aiEnabled) {
+                            livingEntity.setAI(true);
+                            if (livingEntity instanceof Creature creature) {
+                                var goalManager = Bukkit.getMobGoals();
+                                goalManager.removeAllGoals(creature);
+                                goalManager.addGoal(creature, 1, new PinataRoamAI(plugin, creature));
                             }
-                        });
+                            var knockbackAttribute = livingEntity.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
+                            if (knockbackAttribute != null)
+                            knockbackAttribute.setBaseValue(config.getPinataConfig().pinata.ai().knockbackResistance());
+                        } else {
+                            livingEntity.setAI(false);
+                        }
+
+                        livingEntity.setSilent(true);
+                        livingEntity.setInvulnerable(false);
+                        livingEntity.setRemoveWhenFarAway(false);
+
+                        if (livingEntity instanceof Mob mob)
+                            mob.setTarget(null);
+
+                        livingEntity.setGlowing(config.getPinataConfig().pinata.effects().glowing());
+                        if (config.getPinataConfig().pinata.effects().glowing()) {
+                            String colorName = config.getPinataConfig().pinata.effects().glowColor();
+                            NamedTextColor glowColor = NamedTextColor.NAMES.value(colorName.toLowerCase());
+
+                            if (glowColor != null) {
+                                Scoreboard mainBoard = Bukkit.getScoreboardManager().getMainScoreboard();
+                                String teamName = "PA_" + glowColor.toString().toUpperCase();
+                                Team team = mainBoard.getTeam(teamName);
+
+                                if (team == null)
+                                    team = mainBoard.registerNewTeam(teamName);
+
+                                team.color(glowColor);
+                                team.addEntry(livingEntity.getUniqueId().toString());
+                            }
+                        }
+
+                        livingEntity.customName(mm.deserialize(config.getPinataConfig().pinata.appearance().name()));
+                        livingEntity.setCustomNameVisible(true);
+
+                        BossBar healthBar = BossBar.bossBar(mm.deserialize(config.getMessageConfig().messages.pinataMessages().bossBarActive().replace("{health}", String.valueOf(finalHealth)).replace("{max_health}", String.valueOf(finalHealth)).replace("{timeout}", String.valueOf(timeout))), 1.0f, BossBar.Color.valueOf(config.getPinataConfig().pinata.display().health().barColor()),BossBar.Overlay.valueOf(config.getPinataConfig().pinata.display().health().barOverlay()));
+
+                        activePinatas.put(livingEntity.getUniqueId(), livingEntity);
+                        activeBossBars.put(livingEntity.getUniqueId(), healthBar);
+
+                        boolean shouldShowBar = config.getPinataConfig().pinata.display().health().enabled();
+                        if (shouldShowBar)
+                            for (Player p : plugin.getServer().getOnlinePlayers())
+                                p.showBossBar(healthBar);
+
+                        log.debug("Playing pinata spawn effect at location: " + location + " for entity: " + livingEntity.getType() + " (UUID: " + livingEntity.getUniqueId() + ")");
+                        playEffect(config.getPinataConfig().pinata.effects().spawn(), location);
+
+                        if (timeout > 0) {
+                            BukkitTask task = new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    if (pinata.isValid() && isPinata((LivingEntity) pinata)) {
+                                        removeActiveBossBar((LivingEntity) pinata);
+                                        pinata.remove();
+                                        String timeoutMsg = config.getMessageConfig().messages.pinataMessages().pinataTimeout();
+                                        if (timeoutMsg != null && !timeoutMsg.isEmpty()) {
+                                            plugin.getServer().broadcast(mm.deserialize(config.getMessageConfig().messages.prefix() + timeoutMsg));
+                                        }
+                                    }
+                                    timeoutTasks.remove(pinata.getUniqueId());
+                                }
+                            }.runTaskLater(plugin, timeout * 20L);
+                            timeoutTasks.put(pinata.getUniqueId(), task);
+                        }
+                    }
+                });
         CommandUtils.process(null, config.getPinataConfig().pinata.commands().spawn(), plugin);
         String spawnMessage = config.getMessageConfig().messages.pinataMessages().pinataSpawned();
         if (spawnMessage != null && !spawnMessage.isEmpty())
-            plugin.getServer()
-                    .broadcast(
-                            mm.deserialize(
-                                    config.getMessageConfig().messages.prefix() + spawnMessage));
+            plugin.getServer().broadcast(mm.deserialize(config.getMessageConfig().messages.prefix() + spawnMessage));
     }
 
     public void updateActiveBossBar(LivingEntity pinata, int currentHealth, int maxHealth, boolean showHealthBar) {
@@ -261,6 +259,15 @@ public class PinataManager {
             task.cancel();
     }
 
+    public void playGlobalSound(String soundType, float soundVolume, float soundPitch) {
+        if (soundType == null || soundType.isEmpty())
+            return;
+        log.debug("Playing global sound: " + soundType + " (volume: " + soundVolume + ", pitch: " + soundPitch + ")");
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            player.playSound(player.getLocation(), soundType, soundVolume, soundPitch);
+        }
+    }
+
     public void playEffect(VisualAudioEffect effect, Location location) {
         String soundType = effect.sound().type();
         float soundVolume = effect.sound().volume();
@@ -288,13 +295,11 @@ public class PinataManager {
         log.debug("Running PinataManager cleanup. Tracking: " + activePinatas.size() + "" + " active pinatas and " + activeBossBars.size() + " active boss bars.");
         activeBossBars.values().forEach(bar -> Bukkit.getOnlinePlayers().forEach(player -> player.hideBossBar(bar)));
         activeBossBars.clear();
-
         activePinatas.values().forEach(entity -> {
             if (entity.isValid())
                 entity.remove();
         });
         activePinatas.clear();
-
         timeoutTasks.values().forEach(BukkitTask::cancel);
         timeoutTasks.clear();
         log.debug("PinataManager cleanup complete. Tracking: " + activePinatas.size() + " active pinatas and " + activeBossBars.size() + " active boss bars.");
