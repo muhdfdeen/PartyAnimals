@@ -70,8 +70,8 @@ public class PartyAnimalsCommand {
                                 })
                                 .executes(ctx -> handleSummon(ctx.getSource(),
                                         StringArgumentType.getString(ctx, "location")))))
-                .then(Commands.literal("addlocation")
-                        .requires(sender -> sender.getSender().hasPermission("partyanimals.admin"))
+                .then(Commands.literal("addspawnlocation")
+                        .requires(sender -> sender.getSender().hasPermission("partyanimals.addspawnlocation"))
                         .then(Commands.argument("Location Name", StringArgumentType.word())
                                 .executes(ctx -> {
                                     CommandSourceStack source = ctx.getSource();
