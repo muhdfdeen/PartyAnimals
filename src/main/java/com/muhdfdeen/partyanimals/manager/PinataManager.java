@@ -126,6 +126,7 @@ public class PinataManager {
             if (pinata instanceof LivingEntity livingEntity) {
                 livingEntity.getPersistentDataContainer().set(is_pinata, PersistentDataType.BOOLEAN, true);
                 livingEntity.getPersistentDataContainer().set(health, PersistentDataType.INTEGER, finalHealth);
+                livingEntity.getPersistentDataContainer().set(max_health, PersistentDataType.INTEGER, finalHealth);
                 livingEntity.getAttribute(Attribute.SCALE).setBaseValue(scale);
                 if (config.getMainConfig().pinata.ai().enabled()) {
                     livingEntity.setAI(true);
