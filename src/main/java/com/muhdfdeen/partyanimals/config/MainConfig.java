@@ -27,9 +27,13 @@ public final class MainConfig {
         public static class Reward {
                 @Comment("The chance for this reward to be given.")
                 public Double chance = 100.0;
+                @Comment("Whether the command is triggered server-wide or per-player.")
                 public Boolean serverwide = null;
+                @Comment("Whether to skip the rest of the commands if this one is given.")
                 public Boolean skipRest = null;
+                @Comment("Whether to randomize the command execution.")
                 public Boolean randomize = null;
+                @Comment("Permission required to receive this reward.")
                 public String permission = null;
                 public List<String> commands = List.of();
 
@@ -81,6 +85,8 @@ public final class MainConfig {
         public record PinataAppearanceSettings(
                         @Comment( {
                                         "List of entity types that can be used as pinatas.",
+                                        "If multiple types are provided, one will be chosen at random.",
+                                        "",
                                         "Available types: https://jd.papermc.io/paper/1.21.1/org/bukkit/entity/EntityType.html"
                         }) List<String> types,
                         @Comment("Name of the pinata entity.") String name,
@@ -89,10 +95,10 @@ public final class MainConfig {
 
         public record PinataDisplaySettings(
                         @Comment("Whether the countdown boss bar is enabled.") boolean showCountdownBar,
-                        @Comment("Whether the active health boss bar is enabled.") boolean showHealthBar,
                         @Comment("The color of the countdown boss bar.") String countdownBarColor,
-                        @Comment("The color of the health boss bar.") String healthBarColor,
                         @Comment("The overlay of the countdown boss bar.") String countdownBarOverlay,
+                        @Comment("Whether the active health boss bar is enabled.") boolean showHealthBar,
+                        @Comment("The color of the health boss bar.") String healthBarColor,
                         @Comment("The overlay of the health boss bar.") String healthBarOverlay) {
         }
 
@@ -113,26 +119,31 @@ public final class MainConfig {
                         @Comment( {
                                         "Whether the pinata AI is enabled.",
                                         "If true, the pinata moves around. Otherwise, it remains stationary." }) boolean enabled,
-                        @Comment("Speed of the pinata's movement.") double movementSpeed){
+                        @Comment("Multiplier for the pinata's movement speed.") double movementSpeedMultiplier){
+        }
+
+        public record SoundEffect(
+                        String type,
+                        float volume,
+                        float pitch) {
+        }
+
+        public record ParticleEffect(
+                        String type,
+                        int count) {
+        }
+
+        public record VisualAudioEffect(
+                        SoundEffect sound,
+                        ParticleEffect particle) {
         }
 
         public record PinataEffectSettings(
                         @Comment("Whether the pinata should have a glowing outline.") boolean glowing,
-                        @Comment("Whether to play a sound when the pinata is hit.") String hitSound,
-                        @Comment("Volume of the hit sound.") float hitSoundVolume,
-                        @Comment("Pitch of the hit sound.") float hitSoundPitch,
-                        @Comment("Particle type to spawn on hit.") String hitParticle,
-                        @Comment("Number of particles to spawn on hit.") int hitParticleCount,
-                        @Comment("Sound to play when the pinata spawns.") String spawnSound,
-                        @Comment("Volume of the spawn sound.") float spawnSoundVolume,
-                        @Comment("Pitch of the spawn sound.") float spawnSoundPitch,
-                        @Comment("Particle type to spawn on hit.") String spawnParticle,
-                        @Comment("Number of particles to spawn on hit.") int spawnParticleCount,
-                        @Comment("Sound to play when the pinata dies.") String deathSound,
-                        @Comment("Volume of the death sound.") float deathSoundVolume,
-                        @Comment("Pitch of the death sound.") float deathSoundPitch,
-                        @Comment("Particle type to spawn on death.") String deathParticle,
-                        @Comment("Particle count to spawn on death.") int deathParticleCount) {
+                        @Comment("The color of the glowing outline.") String glowColor,
+                        @Comment("Effects triggered when the pinata is hit.") VisualAudioEffect hit,
+                        @Comment("Effects triggered when the pinata spawns.") VisualAudioEffect spawn,
+                        @Comment("Effects triggered when the pinata dies.") VisualAudioEffect death) {
         }
 
         public record PinataCommands(
@@ -160,20 +171,25 @@ public final class MainConfig {
                 @Comment("Enable debug mode for more verbose logging.")
                 public boolean debug = false;
 
-                @Comment("Settings for the pinata module.")
+                @Comment("Settings related to pinatas.")
                 public PinataSettings pinata = new PinataSettings(
                                 new PinataAppearanceSettings(List.of("LLAMA"), "<green>Pinata", 1.5),
-                                new PinataDisplaySettings(true, true, "YELLOW", "GREEN", "PROGRESS", "PROGRESS"),
-                                new PinataHealthSettings(100, true, 1),
-                                new PinataCooldownSettings(1.0, true),
+                                new PinataDisplaySettings(true, "GREEN", "PROGRESS", true, "RED", "PROGRESS"),
+                                new PinataHealthSettings(10, true, 1),
+                                new PinataCooldownSettings(0.5, true),
                                 new PinataAISettings(true, 1.0),
-                                new PinataEffectSettings(true,
-                                                "entity.villager.hurt", 1.0f, 1.0f,
-                                                "cloud", 10,
-                                                "entity.player.levelup", 1.0f, 1.0f,
-                                                "happy_villager", 10,
-                                                "entity.generic.death", 1.0f, 1.0f,
-                                                "explosion_huge", 20),
+                                new PinataEffectSettings(
+                                                true,
+                                                "WHITE",
+                                                new VisualAudioEffect(
+                                                                new SoundEffect("entity.player.hurt", 1.0f, 1.0f),
+                                                                new ParticleEffect("HIT_PARTICLE", 10)),
+                                                new VisualAudioEffect(
+                                                                new SoundEffect("entity.villager.yes", 1.0f, 1.0f),
+                                                                new ParticleEffect("SPAWN_PARTICLE", 20)),
+                                                new VisualAudioEffect(
+                                                                new SoundEffect("entity.generic.death", 1.0f, 1.0f),
+                                                                new ParticleEffect("DEATH_PARTICLE", 30))),
                                 10.0,
                                 300,
                                 new HashMap<>(

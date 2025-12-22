@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.NamespacedKey;
-import org.bukkit.Particle;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -97,25 +96,12 @@ public class PinataListener implements Listener {
         currentHits--;
         log.debug("Pinata Health: " + currentHits);
 
-        String hitSound = config.getMainConfig().pinata.effects().hitSound();
-        float hitSoundVolume = config.getMainConfig().pinata.effects().hitSoundVolume();
-        float hitSoundPitch = config.getMainConfig().pinata.effects().hitSoundPitch();
-        String hitParticleName = config.getMainConfig().pinata.effects().hitParticle().toUpperCase();
-        int hitParticleCount = config.getMainConfig().pinata.effects().hitParticleCount();
-
         if (currentHits <= 0) {
             handlePinataDeath(pinata, player);
         } else {
             pinata.getPersistentDataContainer().set(pinataManager.getHealthKey(), PersistentDataType.INTEGER,
                     currentHits);
-            pinata.getWorld().playSound(pinata.getLocation(), hitSound, hitSoundVolume, hitSoundPitch);
-            try {
-                pinata.getWorld().spawnParticle(Particle.valueOf(hitParticleName),
-                        pinata.getLocation().add(0, 1, 0),
-                        hitParticleCount);
-            } catch (IllegalArgumentException e) {
-                log.error("Invalid particle type in config: " + config.getMainConfig().pinata.effects().hitParticle());
-            }
+            pinataManager.playEffect(config.getMainConfig().pinata.effects().hit(), pinata.getLocation());
             pinata.playHurtAnimation(0);
             CommandUtils.process(player, config.getMainConfig().pinata.commands().hit(), plugin);
             String hitMessage = config.getMessageConfig().messages.pinataMessages().pinataHit();
@@ -136,19 +122,7 @@ public class PinataListener implements Listener {
     }
 
     private void handlePinataDeath(LivingEntity pinata, Player player) {
-        String deathSound = config.getMainConfig().pinata.effects().deathSound();
-        float deathSoundVolume = config.getMainConfig().pinata.effects().deathSoundVolume();
-        float deathSoundPitch = config.getMainConfig().pinata.effects().deathSoundPitch();
-        String particleName = config.getMainConfig().pinata.effects().deathParticle().toUpperCase();
-        int deathParticleCount = config.getMainConfig().pinata.effects().deathParticleCount();
-
-        pinata.getWorld().playSound(pinata.getLocation(), deathSound, deathSoundVolume, deathSoundPitch);
-        try {
-            pinata.getWorld().spawnParticle(Particle.valueOf(particleName), pinata.getLocation().add(0, 1, 0),
-                    deathParticleCount);
-        } catch (IllegalArgumentException e) {
-            log.error("Invalid particle type in config: " + config.getMainConfig().pinata.effects().deathParticle());
-        }
+        pinataManager.playEffect(config.getMainConfig().pinata.effects().death(), pinata.getLocation());
 
         CommandUtils.process(player, config.getMainConfig().pinata.commands().lastHit(), plugin);
         String lastHitMessage = config.getMessageConfig().messages.pinataMessages().pinataLastHit();

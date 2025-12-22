@@ -18,13 +18,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import com.muhdfdeen.partyanimals.PartyAnimals;
 import com.muhdfdeen.partyanimals.config.ConfigManager;
+import com.muhdfdeen.partyanimals.config.MainConfig.VisualAudioEffect;
 import com.muhdfdeen.partyanimals.util.CommandUtils;
 import com.muhdfdeen.partyanimals.util.Logger;
 
 import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class PinataManager {
@@ -132,7 +136,9 @@ public class PinataManager {
                     livingEntity.setAI(true);
                     var movementSpeed = livingEntity.getAttribute(Attribute.MOVEMENT_SPEED);
                     if (movementSpeed != null) {
-                        movementSpeed.setBaseValue(config.getMainConfig().pinata.ai().movementSpeed());
+                        double baseSpeed = movementSpeed.getBaseValue();
+                        double movementSpeedMultiplier = config.getMainConfig().pinata.ai().movementSpeedMultiplier();
+                        movementSpeed.setBaseValue(baseSpeed * movementSpeedMultiplier);
                     }
                 } else {
                     livingEntity.setAI(false);
@@ -142,7 +148,25 @@ public class PinataManager {
                 livingEntity.setRemoveWhenFarAway(false);
                 if (livingEntity instanceof Mob mob)
                     mob.setTarget(null);
+
                 livingEntity.setGlowing(config.getMainConfig().pinata.effects().glowing());
+                if (config.getMainConfig().pinata.effects().glowing()) {
+                    String colorName = config.getMainConfig().pinata.effects().glowColor();
+                    NamedTextColor glowColor = NamedTextColor.NAMES.value(colorName.toLowerCase());
+                    if (glowColor != null) {
+                        Scoreboard mainBoard = plugin.getServer().getScoreboardManager().getMainScoreboard();
+                        String teamName = "PA_" + glowColor.toString().toUpperCase();
+                        Team team = mainBoard.getTeam(teamName);
+                        if (team == null) {
+                            team = mainBoard.registerNewTeam(teamName);
+                        }
+                        team.color(glowColor);
+                        team.addEntry(livingEntity.getUniqueId().toString());
+                    } else {
+                        log.error("Invalid glow color in config: " + colorName);
+                    }
+                }
+
                 livingEntity.customName(mm.deserialize(config.getMainConfig().pinata.appearance().name()));
                 livingEntity.setCustomNameVisible(true);
                 BossBar healthBar = BossBar.bossBar(
@@ -155,20 +179,9 @@ public class PinataManager {
                 activeBossBars.put(livingEntity.getUniqueId(), healthBar);
                 for (Player p : plugin.getServer().getOnlinePlayers())
                     p.showBossBar(healthBar);
-                String spawnSound = config.getMainConfig().pinata.effects().spawnSound();
-                float spawnSoundVolume = config.getMainConfig().pinata.effects().spawnSoundVolume();
-                float spawnSoundPitch = config.getMainConfig().pinata.effects().spawnSoundPitch();
 
-                livingEntity.getWorld().playSound(livingEntity.getLocation(), spawnSound, spawnSoundVolume,
-                        spawnSoundPitch);
-                try {
-                    Particle spawnParticle = Particle
-                            .valueOf(config.getMainConfig().pinata.effects().spawnParticle().toUpperCase());
-                    livingEntity.getWorld().spawnParticle(spawnParticle, livingEntity.getLocation().add(0, 1, 0),
-                            config.getMainConfig().pinata.effects().spawnParticleCount());
-                } catch (IllegalArgumentException e) {
-                    log.error("Invalid spawn particle: " + config.getMainConfig().pinata.effects().spawnParticle());
-                }
+                playEffect(config.getMainConfig().pinata.effects().spawn(), location);
+
                 if (timeout > 0) {
                     org.bukkit.scheduler.BukkitTask task = new BukkitRunnable() {
                         @Override
@@ -214,6 +227,27 @@ public class PinataManager {
         BukkitTask task = timeoutTasks.remove(pinata.getUniqueId());
         if (task != null)
             task.cancel();
+    }
+
+    public void playEffect(VisualAudioEffect effect, Location location) {
+        String soundType = effect.sound().type();
+        float soundVolume = effect.sound().volume();
+        float soundPitch = effect.sound().pitch();
+        String particleType = effect.particle().type().toUpperCase();
+        int particleCount = effect.particle().count();
+
+        if (soundType != null && !soundType.isEmpty()) {
+            location.getWorld().playSound(location, soundType, soundVolume, soundPitch);
+        }
+
+        if (particleType != null && !particleType.isEmpty()) {
+            try {
+                Particle particle = Particle.valueOf(particleType);
+                location.getWorld().spawnParticle(particle, location.clone().add(0, 1, 0), particleCount);
+            } catch (IllegalArgumentException e) {
+                log.error("Invalid particle type in effect: " + particleType);
+            }
+        }
     }
 
     public void cleanup() {
