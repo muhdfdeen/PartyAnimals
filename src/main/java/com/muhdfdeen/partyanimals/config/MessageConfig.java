@@ -78,8 +78,8 @@ public final class MessageConfig {
                 "<gold>{player} last hit the pinata!</gold>",
                 "<yellow>A pinata has been downed!</yellow>",
                 "<red>The pinata has escaped due to timeout.</red>",
-                "Pinata spawning in: {seconds}s",
-                "<green>Pinata Health:</green> {health} <red>❤</red>",
+                "Pinata spawning in {seconds} second(s)",
+                "<green><bold>Pinata</bold></green> {health} <red>❤</red> <gray>[{timeout}s]</gray>",
                 "<green>Spawn location <white>{location_name}</white> has been added!</green>",
                 "<red>Spawn location <white>{location_name}</white> has been removed!</red>",
                 "<red>Spawn location <white>{location_name}</white> not found!</red>"

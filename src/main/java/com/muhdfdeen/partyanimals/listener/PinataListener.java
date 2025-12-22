@@ -122,7 +122,7 @@ public class PinataListener implements Listener {
                 player.sendRichMessage(config.getMessageConfig().messages.prefix() + hitMessage);
             NamespacedKey maxHealthKey = pinataManager.getMaxHealthKey();
             int actualMaxHealth = pinata.getPersistentDataContainer().getOrDefault(maxHealthKey, PersistentDataType.INTEGER, currentHits);
-            pinataManager.updateActiveBossBar(pinata, currentHits, actualMaxHealth, config.getPinataConfig().pinata.display().showHealthBar());
+            pinataManager.updateActiveBossBar(pinata, currentHits, actualMaxHealth, config.getPinataConfig().pinata.display().health().enabled());
         }
     }
 
