@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
-import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -62,8 +62,8 @@ public class PinataListener implements Listener {
             return;
         }
 
-        double cooldownSeconds = config.getMainConfig().pinata.hitCooldown();
-        boolean perPlayer = config.getMainConfig().pinata.cooldownPerPlayer();
+        double cooldownSeconds = config.getMainConfig().pinata.cooldown().duration();
+        boolean perPlayer = config.getMainConfig().pinata.cooldown().perPlayer();
         long cooldownMillis = (long) (cooldownSeconds * 1000L);
         long now = System.currentTimeMillis();
 
@@ -97,19 +97,35 @@ public class PinataListener implements Listener {
         currentHits--;
         log.debug("Pinata Health: " + currentHits);
 
+        String hitSound = config.getMainConfig().pinata.effects().hitSound();
+        float hitSoundVolume = config.getMainConfig().pinata.effects().hitSoundVolume();
+        float hitSoundPitch = config.getMainConfig().pinata.effects().hitSoundPitch();
+        String hitParticleName = config.getMainConfig().pinata.effects().hitParticle().toUpperCase();
+        int hitParticleCount = config.getMainConfig().pinata.effects().hitParticleCount();
+
         if (currentHits <= 0) {
             handlePinataDeath(pinata, player);
         } else {
             pinata.getPersistentDataContainer().set(pinataManager.getHealthKey(), PersistentDataType.INTEGER,
                     currentHits);
-            pinata.getWorld().playSound(pinata.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 1.0f);
+            pinata.getWorld().playSound(pinata.getLocation(), hitSound, hitSoundVolume, hitSoundPitch);
+            try {
+                pinata.getWorld().spawnParticle(Particle.valueOf(hitParticleName),
+                        pinata.getLocation().add(0, 1, 0),
+                        hitParticleCount);
+            } catch (IllegalArgumentException e) {
+                log.error("Invalid particle type in config: " + config.getMainConfig().pinata.effects().hitParticle());
+            }
             pinata.playHurtAnimation(0);
             CommandUtils.process(player, config.getMainConfig().pinata.commands().hit(), plugin);
             String hitMessage = config.getMessageConfig().messages.pinataMessages().pinataHit();
             if (hitMessage != null && !hitMessage.isEmpty()) {
                 player.sendMessage(mm.deserialize(config.getMessageConfig().messages.prefix() + hitMessage));
             }
-            pinataManager.updateActiveBossBar(pinata, currentHits, config.getMainConfig().pinata.health().maxHealth());
+            NamespacedKey maxHealthKey = pinataManager.getMaxHealthKey();
+            int actualMaxHealth = pinata.getPersistentDataContainer().getOrDefault(maxHealthKey,
+                    PersistentDataType.INTEGER, currentHits);
+            pinataManager.updateActiveBossBar(pinata, currentHits, actualMaxHealth);
         }
     }
 
@@ -120,18 +136,33 @@ public class PinataListener implements Listener {
     }
 
     private void handlePinataDeath(LivingEntity pinata, Player player) {
-        pinata.getWorld().playSound(pinata.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
-        pinata.getWorld().spawnParticle(Particle.EXPLOSION, pinata.getLocation().add(0, 1, 0), 5);
+        String deathSound = config.getMainConfig().pinata.effects().deathSound();
+        float deathSoundVolume = config.getMainConfig().pinata.effects().deathSoundVolume();
+        float deathSoundPitch = config.getMainConfig().pinata.effects().deathSoundPitch();
+        String particleName = config.getMainConfig().pinata.effects().deathParticle().toUpperCase();
+        int deathParticleCount = config.getMainConfig().pinata.effects().deathParticleCount();
+
+        pinata.getWorld().playSound(pinata.getLocation(), deathSound, deathSoundVolume, deathSoundPitch);
+        try {
+            pinata.getWorld().spawnParticle(Particle.valueOf(particleName), pinata.getLocation().add(0, 1, 0),
+                    deathParticleCount);
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid particle type in config: " + config.getMainConfig().pinata.effects().deathParticle());
+        }
+
         CommandUtils.process(player, config.getMainConfig().pinata.commands().lastHit(), plugin);
         String lastHitMessage = config.getMessageConfig().messages.pinataMessages().pinataLastHit();
         if (lastHitMessage != null && !lastHitMessage.isEmpty()) {
-            player.sendMessage(mm.deserialize(config.getMessageConfig().messages.prefix() + lastHitMessage.replace("{player}", player.getName())));
+            player.sendMessage(mm.deserialize(config.getMessageConfig().messages.prefix()
+                    + lastHitMessage.replace("{player}", player.getName())));
         }
+
         CommandUtils.process(player, config.getMainConfig().pinata.commands().death(), plugin);
         String downedMessage = config.getMessageConfig().messages.pinataMessages().pinataDowned();
         if (downedMessage != null && !downedMessage.isEmpty()) {
             player.sendMessage(mm.deserialize(config.getMessageConfig().messages.prefix() + downedMessage));
         }
+
         pinataManager.removeActiveBossBar(pinata);
         pinata.remove();
     }

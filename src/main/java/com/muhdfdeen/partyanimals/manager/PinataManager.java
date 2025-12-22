@@ -8,10 +8,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -32,6 +34,7 @@ public class PinataManager {
     private final MiniMessage mm;
     private NamespacedKey is_pinata;
     private NamespacedKey health;
+    private NamespacedKey max_health;
     private NamespacedKey hit_cooldown;
     private final Map<UUID, BossBar> activeBossBars = new HashMap<>();
     private final Map<UUID, BukkitTask> timeoutTasks = new HashMap<>();
@@ -43,6 +46,7 @@ public class PinataManager {
         this.mm = MiniMessage.miniMessage();
         this.is_pinata = new NamespacedKey(plugin, "is_pinata");
         this.health = new NamespacedKey(plugin, "health");
+        this.max_health = new NamespacedKey(plugin, "max_health");
         this.hit_cooldown = new NamespacedKey(plugin, "hit_cooldown");
     }
 
@@ -99,10 +103,10 @@ public class PinataManager {
     }
 
     public void spawnPinata(Location location) {
-        List<String> types = config.getMainConfig().pinata.type();
+        List<String> types = config.getMainConfig().pinata.appearance().types();
         String randomType = types.get(ThreadLocalRandom.current().nextInt(types.size()));
         EntityType pinataType = EntityType.valueOf(randomType.toUpperCase());
-        double scale = config.getMainConfig().pinata.scale();
+        double scale = config.getMainConfig().pinata.appearance().scale();
         int timeout = config.getMainConfig().pinata.timeout();
 
         int baseHealth = config.getMainConfig().pinata.health().maxHealth();
@@ -122,25 +126,48 @@ public class PinataManager {
             if (pinata instanceof LivingEntity livingEntity) {
                 livingEntity.getPersistentDataContainer().set(is_pinata, PersistentDataType.BOOLEAN, true);
                 livingEntity.getPersistentDataContainer().set(health, PersistentDataType.INTEGER, finalHealth);
-                NamespacedKey maxHealthKey = new NamespacedKey(plugin, "max_health");
-                livingEntity.getPersistentDataContainer().set(maxHealthKey, PersistentDataType.INTEGER, finalHealth);
                 livingEntity.getAttribute(Attribute.SCALE).setBaseValue(scale);
-                livingEntity.setAI(false);
+                if (config.getMainConfig().pinata.ai().enabled()) {
+                    livingEntity.setAI(true);
+                    var movementSpeed = livingEntity.getAttribute(Attribute.MOVEMENT_SPEED);
+                    if (movementSpeed != null) {
+                        movementSpeed.setBaseValue(config.getMainConfig().pinata.ai().movementSpeed());
+                    }
+                } else {
+                    livingEntity.setAI(false);
+                }
                 livingEntity.setSilent(true);
                 livingEntity.setInvulnerable(false);
                 livingEntity.setRemoveWhenFarAway(false);
-                livingEntity.customName(mm.deserialize(config.getMainConfig().pinata.name()));
+                if (livingEntity instanceof Mob mob)
+                    mob.setTarget(null);
+                livingEntity.setGlowing(config.getMainConfig().pinata.effects().glowing());
+                livingEntity.customName(mm.deserialize(config.getMainConfig().pinata.appearance().name()));
                 livingEntity.setCustomNameVisible(true);
                 BossBar healthBar = BossBar.bossBar(
                         mm.deserialize(config.getMessageConfig().messages.pinataMessages().bossBarActive()
                                 .replace("{health}", String.valueOf(finalHealth))
                                 .replace("{max_health}", String.valueOf(finalHealth))),
                         1.0f,
-                        BossBar.Color.GREEN,
-                        BossBar.Overlay.PROGRESS);
+                        BossBar.Color.valueOf(config.getMainConfig().pinata.display().healthBarColor()),
+                        BossBar.Overlay.valueOf(config.getMainConfig().pinata.display().healthBarOverlay()));
                 activeBossBars.put(livingEntity.getUniqueId(), healthBar);
                 for (Player p : plugin.getServer().getOnlinePlayers())
                     p.showBossBar(healthBar);
+                String spawnSound = config.getMainConfig().pinata.effects().spawnSound();
+                float spawnSoundVolume = config.getMainConfig().pinata.effects().spawnSoundVolume();
+                float spawnSoundPitch = config.getMainConfig().pinata.effects().spawnSoundPitch();
+
+                livingEntity.getWorld().playSound(livingEntity.getLocation(), spawnSound, spawnSoundVolume,
+                        spawnSoundPitch);
+                try {
+                    Particle spawnParticle = Particle
+                            .valueOf(config.getMainConfig().pinata.effects().spawnParticle().toUpperCase());
+                    livingEntity.getWorld().spawnParticle(spawnParticle, livingEntity.getLocation().add(0, 1, 0),
+                            config.getMainConfig().pinata.effects().spawnParticleCount());
+                } catch (IllegalArgumentException e) {
+                    log.error("Invalid spawn particle: " + config.getMainConfig().pinata.effects().spawnParticle());
+                }
                 if (timeout > 0) {
                     org.bukkit.scheduler.BukkitTask task = new BukkitRunnable() {
                         @Override
@@ -211,6 +238,10 @@ public class PinataManager {
 
     public NamespacedKey getHealthKey() {
         return health;
+    }
+
+    public NamespacedKey getMaxHealthKey() {
+        return max_health;
     }
 
     public NamespacedKey getCooldownKey() {

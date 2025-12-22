@@ -3,11 +3,11 @@
 > [!IMPORTANT]
 > This project is currently in alpha development. Breaking changes can be expected, and some features may not work as intended. Use at your own risk.
 
-A Minecraft plugin for Paper servers that spawns interactive piñata entities. Players work together to break piñatas and earn configurable rewards through a chance-based system with permission support.
+A Minecraft plugin for Paper servers that spawns interactive pinata entities. Players work together to break pinatas and earn configurable rewards through a chance-based system with permission support.
 
 ## Features
 
-- Configure piñata entity types, health, scale and spawn locations
+- Configure pinata entity types, health, scale and spawn locations
 - **Flexible Reward System**:
   - Chance-based reward distribution
   - Permission-restricted rewards (optional)
@@ -15,10 +15,10 @@ A Minecraft plugin for Paper servers that spawns interactive piñata entities. P
   - Randomizable command execution
   - PlaceholderAPI support for reward commands
 - **Interactive Mechanics**:
-  - Countdown timer before piñata spawns
+  - Countdown timer before pinata spawns
   - Boss bar showing health and status
   - Hit cooldown (per-player or global)
-  - Timeout system for inactive piñatas
+  - Timeout system for inactive pinatas
   - Last-hit tracking
 - MiniMessage support
 
@@ -36,8 +36,8 @@ A Minecraft plugin for Paper servers that spawns interactive piñata entities. P
 | :--- | :--- | :--- |
 | `/partyanimals` | None | Displays plugin version information. |
 | `/partyanimals reload` | `partyanimals.reload` | Reloads all configuration files. |
-| `/partyanimals start <location>` | `partyanimals.start` | Starts a countdown to spawn a piñata at the specified location. |
-| `/partyanimals summon <location>` | `partyanimals.summon` | Instantly spawns a piñata at the specified location. |
+| `/partyanimals start <location>` | `partyanimals.start` | Starts a countdown to spawn a pinata at the specified location. |
+| `/partyanimals summon <location>` | `partyanimals.summon` | Instantly spawns a pinata at the specified location. |
 | `/partyanimals addspawnlocation <name>` | `partyanimals.addspawnlocation` | Saves your current location as a named spawn point. |
 | N/A | `partyanimals.admin` | Receive update notifications on join. |
 
