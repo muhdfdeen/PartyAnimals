@@ -13,10 +13,7 @@ repositories {
         url = "https://repo.papermc.io/repository/maven-public/"
     }
     maven {
-        url = uri("https://repo.opencollab.dev/main/")
-    }
-    maven {
-        url = uri("https://repo.codemc.io/repository/creatorfromhell/")
+        url = 'https://repo.extendedclip.com/releases/'
     }
 }
 
@@ -24,6 +21,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     implementation("de.exlll:configlib-paper:4.6.4")
     implementation("org.bstats:bstats-bukkit:3.1.0")
+    compileOnly("me.clip:placeholderapi:2.11.7")
 }
 
 tasks.named('shadowJar') {

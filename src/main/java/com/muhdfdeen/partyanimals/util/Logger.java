@@ -1,27 +1,30 @@
 package com.muhdfdeen.partyanimals.util;
 
 import com.muhdfdeen.partyanimals.PartyAnimals;
-import com.muhdfdeen.partyanimals.config.Config.MainConfiguration;
+import com.muhdfdeen.partyanimals.config.ConfigManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 
 public class Logger {
-    private final PartyAnimals plugin;
+    private final ConfigManager config;
 
     public Logger(PartyAnimals plugin) {
-        this.plugin = plugin;
+        this.config = plugin.getConfiguration();
     }
 
     private void log(String colorTag, String message) {
-        MainConfiguration config = plugin.getConfiguration();
+        String prefix;
+        if (config != null && config.getMessageConfig() != null && config.getMessageConfig().messages != null) {
+            prefix = config.getMessageConfig().messages.prefix();
+        } else {
+            prefix = "<white>[PartyAnimals] </white>";
+        }
         Bukkit.getConsoleSender().sendMessage(
-            MiniMessage.miniMessage().deserialize(config.messages.prefix() + colorTag + message)
-        );
+                MiniMessage.miniMessage().deserialize(prefix + colorTag + message));
     }
 
     public void debug(String message) {
-        MainConfiguration config = plugin.getConfiguration();
-        if (config != null && config.debug) {
+        if (config != null && config.getMainConfig().debug) {
             log("<gray>[DEBUG] </gray>", message);
         }
     }

@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.muhdfdeen.partyanimals.PartyAnimals;
-import com.muhdfdeen.partyanimals.config.Config.MainConfiguration;
+import com.muhdfdeen.partyanimals.config.ConfigManager;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,11 +28,11 @@ public class UpdateChecker implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        MainConfiguration config = plugin.getConfiguration();
+        ConfigManager config = plugin.getConfiguration();
         Player player = event.getPlayer();
         if (updateAvailable && player.hasPermission("partyanimals.admin")) {
             plugin.getPluginLogger().debug("Notifying " + player.getName() + " about available update.");
-            player.sendRichMessage(config.messages.prefix() + config.messages.updateAvailable()
+            player.sendRichMessage(config.getMessageConfig().messages.prefix() + config.getMessageConfig().messages.updateAvailable()
                     .replace("{current_version}", plugin.getPluginMeta().getVersion())
                     .replace("{latest_version}", latestVersion));
         }
