@@ -186,13 +186,13 @@ public final class MainConfig {
                                                 false,
                                                 new VisualAudioEffect(
                                                                 new SoundEffect("entity.player.hurt", 1.0f, 1.0f),
-                                                                new ParticleEffect("HIT_PARTICLE", 10)),
+                                                                new ParticleEffect("CRIT", 10)),
                                                 new VisualAudioEffect(
                                                                 new SoundEffect("entity.villager.yes", 1.0f, 1.0f),
-                                                                new ParticleEffect("SPAWN_PARTICLE", 20)),
+                                                                new ParticleEffect("DUST", 20)),
                                                 new VisualAudioEffect(
                                                                 new SoundEffect("entity.generic.death", 1.0f, 1.0f),
-                                                                new ParticleEffect("DEATH_PARTICLE", 30))),
+                                                                new ParticleEffect("LARGE_SMOKE", 30))),
                                 10.0,
                                 300,
                                 new HashMap<>(
