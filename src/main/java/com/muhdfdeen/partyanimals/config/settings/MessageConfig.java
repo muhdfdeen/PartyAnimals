@@ -38,7 +38,7 @@ public final class MessageConfig {
             "<prefix> <red>Player <dark_red>{player}</dark_red> not found.</red>"
         );
 
-        @Comment("Messages specific to the Pinata module.")
+        @Comment("Messages specific to the pinata module.")
         public PinataMessages pinata = new PinataMessages(
             "<prefix> <gray>Countdown for the pinata has <green>begun</green>!</gray>",
             "<prefix> <gray>A pinata has been <yellow>summoned</yellow> instantly!</gray>",
