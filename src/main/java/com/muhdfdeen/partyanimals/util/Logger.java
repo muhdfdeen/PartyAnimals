@@ -14,19 +14,16 @@ public class Logger {
 
     private void log(String colorTag, String message) {
         String prefix;
-        if (config != null && config.getMessageConfig() != null && config.getMessageConfig().messages != null) {
-            prefix = config.getMessageConfig().messages.prefix();
-        } else {
-            prefix = "<white>[PartyAnimals] </white>";
-        }
-        Bukkit.getConsoleSender().sendMessage(
-                MiniMessage.miniMessage().deserialize(prefix + colorTag + message));
+        if (config != null && config.getMessageConfig() != null)
+            prefix = config.getMessageConfig().prefix;
+        else
+            prefix = "<color:#51CF66><bold>Party Animals</bold> ➟ </color>";
+        Bukkit.getConsoleSender().sendMessage(MiniMessage.miniMessage().deserialize(prefix + colorTag + message));
     }
 
     public void debug(String message) {
-        if (config != null && config.getMainConfig().debug) {
+        if (config != null && config.getMainConfig().debug)
             log("<gray>[DEBUG] </gray>", message);
-        }
     }
 
     public void info(String message) {

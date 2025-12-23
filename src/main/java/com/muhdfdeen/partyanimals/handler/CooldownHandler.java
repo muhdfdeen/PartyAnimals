@@ -3,7 +3,6 @@ package com.muhdfdeen.partyanimals.handler;
 import com.muhdfdeen.partyanimals.PartyAnimals;
 import com.muhdfdeen.partyanimals.config.ConfigManager;
 
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -13,12 +12,12 @@ import org.bukkit.persistence.PersistentDataType;
 public class CooldownHandler {
     private final PartyAnimals plugin;
     private final ConfigManager config;
-    private final MiniMessage mm;
+    private final MessageHandler messageHandler;
 
     public CooldownHandler(PartyAnimals plugin) {
         this.plugin = plugin;
         this.config = plugin.getConfiguration();
-        this.mm = MiniMessage.miniMessage();
+        this.messageHandler = plugin.getMessageHandler();
     }
 
     public boolean isOnCooldown(Player player, LivingEntity pinata) {
@@ -58,11 +57,13 @@ public class CooldownHandler {
     }
 
     private void sendCooldownMessage(Player player, long remainingMillis, boolean serverwide) {
-        String msg = plugin.getConfiguration().getMessageConfig().messages.pinataMessages().pinataHitCooldown();
+        String msg = config.getMessageConfig().pinata.hitCooldown();
         if (msg == null || msg.isEmpty()) return;
 
         double remainingSeconds = remainingMillis / 1000.0;
-        var component = mm.deserialize(plugin.getConfiguration().getMessageConfig().messages.prefix() + msg.replace("{seconds}", String.format("%.1f", remainingSeconds)));
+
+        var component = messageHandler.parse(player, msg, messageHandler.tag("seconds", String.format("%.1f", remainingSeconds))
+        );
 
         String displayType = config.getPinataConfig().timer.hitCooldown().type();
 

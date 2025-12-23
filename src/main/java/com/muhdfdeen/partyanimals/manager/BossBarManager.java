@@ -28,7 +28,7 @@ public class BossBarManager {
 
     public void createBossBar(LivingEntity pinata, int health, int maxHealth, int timeout) {
         String nameFormat = config.getPinataConfig().appearance.name();
-        String rawMsg = config.getMessageConfig().messages.pinataMessages().bossBarActive();
+        String rawMsg = config.getMessageConfig().pinata.bossBarActive();
 
         boolean timeoutEnabled = config.getPinataConfig().timer.timeout().enabled();
         String initialTimeoutString;
@@ -91,7 +91,7 @@ public class BossBarManager {
             timeoutString = "∞";
         }
 
-        String rawName = config.getMessageConfig().messages.pinataMessages().bossBarActive();
+        String rawName = config.getMessageConfig().pinata.bossBarActive();
         bossBar.name(mm.deserialize(rawName
                 .replace("{pinata}", config.getPinataConfig().appearance.name())
                 .replace("{health}", String.valueOf(currentHealth))

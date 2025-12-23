@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.muhdfdeen.partyanimals.PartyAnimals;
 import com.muhdfdeen.partyanimals.config.ConfigManager;
+import com.muhdfdeen.partyanimals.handler.MessageHandler;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,22 +20,23 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class UpdateChecker implements Listener {
     private final PartyAnimals plugin;
+    private final ConfigManager config;
+    private final MessageHandler messageHandler;
     private boolean updateAvailable = false;
     private String latestVersion = "";
 
     public UpdateChecker(PartyAnimals plugin) {
         this.plugin = plugin;
+        this.config = plugin.getConfiguration();
+        this.messageHandler = plugin.getMessageHandler();
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        ConfigManager config = plugin.getConfiguration();
         Player player = event.getPlayer();
         if (updateAvailable && player.hasPermission("partyanimals.admin")) {
             plugin.getPluginLogger().debug("Notifying " + player.getName() + " about available update.");
-            player.sendRichMessage(config.getMessageConfig().messages.prefix() + config.getMessageConfig().messages.updateAvailable()
-                    .replace("{current_version}", plugin.getPluginMeta().getVersion())
-                    .replace("{latest_version}", latestVersion));
+            messageHandler.send(player, config.getMessageConfig().general.updateAvailable(), messageHandler.tag("current", plugin.getPluginMeta().getVersion()), messageHandler.tag("latest", latestVersion));
         }
     }
 

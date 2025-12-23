@@ -3,89 +3,111 @@ package com.muhdfdeen.partyanimals.config.settings;
 import java.io.File;
 import java.nio.file.Path;
 
-import de.exlll.configlib.ConfigLib;
 import de.exlll.configlib.Comment;
+import de.exlll.configlib.ConfigLib;
 import de.exlll.configlib.Configuration;
 import de.exlll.configlib.YamlConfigurationProperties;
 import de.exlll.configlib.YamlConfigurations;
 
 public final class MessageConfig {
+
     public static MessageConfiguration load(File dataFolder) {
         YamlConfigurationProperties properties = ConfigLib.BUKKIT_DEFAULT_PROPERTIES.toBuilder().build();
         Path messagesFile = new File(dataFolder, "messages.yml").toPath();
         return YamlConfigurations.update(messagesFile, MessageConfiguration.class, properties);
     }
 
-    public record MessageSettings(
-        @Comment("Prefix for all messages sent by the plugin.")
-        String prefix,
-        @Comment("Message displayed when the plugin is reloaded.")
+    @Configuration
+    public static class MessageConfiguration {
+
+        @Comment("The global prefix used in messages. Use <prefix> in other messages to include it.")
+        public String prefix = "<bold><gradient:#51CF66:#2f9e44>Party Animals</gradient></bold> <dark_gray>➟</dark_gray> ";
+
+        @Comment("General plugin notifications.")
+        public GeneralMessages general = new GeneralMessages(
+            "<prefix> <green>Configuration reloaded successfully.</green>",
+            "<prefix> <red>Reload failed! Check console for errors.</red>",
+            "<prefix> <gray>New version available: <green>{latest}</green> (Current: <red>{current}</red>)</gray>"
+        );
+
+        @Comment("Generic command responses and errors.")
+        public CommandMessages commands = new CommandMessages(
+            "<prefix> <red>You do not have permission for this.</red>",
+            "<prefix> <red>This command is for players only.</red>",
+            "<prefix> <red>Usage: <gray>{usage}</gray></red>",
+            "<prefix> <red>Player <dark_red>{player}</dark_red> not found.</red>"
+        );
+
+        @Comment("Messages specific to the Pinata module.")
+        public PinataMessages pinata = new PinataMessages(
+            "<prefix> <green>Countdown started!</green>",
+            "<prefix> <yellow>A pinata has been summoned!</yellow>",
+            "<prefix> <green>Pinata spawned at <white>{location}</white>!</green>",
+            "<prefix> <yellow>You hit the pinata!</yellow>",
+            "<prefix> <red>You must use a <bold>{item}</bold> to hit the pinata!</red>",
+            "<prefix> <red>Too fast! Please wait a moment.</red>",
+            "<prefix> <red>You are not allowed to hit this pinata.</red>",
+            "<prefix> <gold><bold>{player}</bold> dealt the final blow!</gold>",
+            "<prefix> <yellow>The pinata has been broken!</yellow>",
+            "<prefix> <red>The pinata escaped! (Timeout)</red>",
+            "<green>Pinata spawning in <white>{seconds}</white>s...</green>",
+            "{pinata} <white>{health}❤</white> <gray>[{timeout}]</gray>",
+            "<prefix> <green>Spawn location <white>{name}</white> added.</green>",
+            "<prefix> <red>Spawn location <white>{name}</white> removed.</red>",
+            "<prefix> <red>Spawn location <white>{name}</white> does not exist.</red>"
+        );
+    }
+
+    public record GeneralMessages(
+        @Comment("Message on successful reload.")
         String reloadSuccess,
-        @Comment("Message displayed when the plugin fails to reload.")
+        @Comment("Message on failed reload.")
         String reloadFail,
-        @Comment("Message displayed when a new version of the plugin is available.")
-        String updateAvailable,
-        @Comment("Messages related to pinata module.")
-        PinataMessages pinataMessages
+        @Comment("Update notification.")
+        String updateAvailable
+    ) {}
+
+    public record CommandMessages(
+        @Comment("No permission message.")
+        String noPermission,
+        @Comment("Console sender error.")
+        String playersOnly,
+        @Comment("Invalid arguments format.")
+        String invalidUsage,
+        @Comment("Target player not found.")
+        String playerNotFound
     ) {}
 
     public record PinataMessages(
-        @Comment("Message displayed when a pinata countdown starts.")
-        String startCountdown,
-        @Comment("Message displayed when a pinata is summoned.")
-        String pinataSummoned,
-        @Comment("Message displayed when a pinata spawns.")
-        String pinataSpawned,
-        @Comment("Message displayed when a pinata is hit.")
-        String pinataHit,
-        @Comment("Message displayed when a pinata is hit without using a whitelisted item.")
-        String invalidHitItem,
-        @Comment("Message displayed when a pinata is hit but is on cooldown.")
-        String pinataHitCooldown,
-        @Comment("Message displayed when a player without permission tries to hit the pinata.")
-        String noHitPermission,
-        @Comment("Message displayed when a pinata is last hit.")
-        String pinataLastHit,
-        @Comment("Message displayed when a pinata is downed.")
-        String pinataDowned,
-        @Comment("Message displayed when a pinata is removed due to timeout.")
-        String pinataTimeout,
-        @Comment("Boss bar countdown message format.")
+        @Comment("Broadcast when countdown begins.")
+        String countdownStarted,
+        @Comment("Broadcast when manually summoned.")
+        String summoned,
+        @Comment("Broadcast when spawned naturally.")
+        String spawned,
+        @Comment("Feedback when a player hits the entity.")
+        String hitFeedback,
+        @Comment("Error when hitting with wrong item.")
+        String hitInvalidItem,
+        @Comment("Error when hitting during cooldown.")
+        String hitCooldown,
+        @Comment("Error when hitting without permission.")
+        String hitNoPermission,
+        @Comment("Broadcast for the last person to hit.")
+        String lastHit,
+        @Comment("Broadcast when pinata is defeated.")
+        String defeated,
+        @Comment("Broadcast when pinata despawns due to time.")
+        String timeout,
+        @Comment("Boss bar countdown text.")
         String bossBarCountdown,
-        @Comment("Boss bar message format while the pinata is active.")
+        @Comment("Boss bar active text.")
         String bossBarActive,
-        @Comment("Message displayed when a new spawn location is added.")
-        String addedSpawnLocation,
-        @Comment("Message displayed when a spawn location is removed.")
-        String removedSpawnLocation,
-        @Comment("Message displayed when a spawn location is not found.")
-        String unknownSpawnLocation
+        @Comment("Admin: Added spawn location.")
+        String locationAdded,
+        @Comment("Admin: Removed spawn location.")
+        String locationRemoved,
+        @Comment("Admin: Unknown spawn location.")
+        String locationUnknown
     ) {}
-
-    @Configuration
-    public static class MessageConfiguration {
-        @Comment("Settings related to messages sent by the plugin.")
-        public MessageSettings messages = new MessageSettings(
-            "<color:#51CF66><bold>Party Animals</bold> ➟ </color>",
-            "Plugin configuration has been reloaded successfully.",
-            "<red>Failed to reload plugin configuration! Check console for errors.</red>",
-            "A new version is available! <gray>(Current: <red>{current_version}</red> | Latest: <green>{latest_version}</green>)</gray>",
-            new PinataMessages(
-                "<green>Countdown has been started for a pinata.</green>",
-                "<yellow>Pinata has been summoned!</yellow>",
-                "<green>A pinata has spawned!</green>",
-                "<yellow>You hit the pinata!</yellow>",
-                "<red>You must use a valid item to hit the pinata!</red>",
-                "<red>You can't hit the pinata yet! Please wait a moment.</red>",
-                "<red>You don't have permission to hit the pinata!</red>",
-                "<gold>{player} last hit the pinata!</gold>",
-                "<yellow>A pinata has been downed!</yellow>",
-                "<red>The pinata has escaped due to timeout.</red>",
-                "Pinata spawning in {seconds} second(s)",
-                "{pinata} {health} <red>❤</red> <gray>[{timeout}s]</gray>",
-                "<green>Spawn location <white>{location_name}</white> has been added!</green>",
-                "<red>Spawn location <white>{location_name}</white> has been removed!</red>",
-                "<red>Spawn location <white>{location_name}</white> not found!</red>"
-            ));
-    }
 }

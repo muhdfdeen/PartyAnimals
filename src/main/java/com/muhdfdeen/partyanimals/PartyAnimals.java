@@ -15,6 +15,7 @@ import com.muhdfdeen.partyanimals.config.ConfigManager;
 import com.muhdfdeen.partyanimals.handler.CommandHandler;
 import com.muhdfdeen.partyanimals.handler.CooldownHandler;
 import com.muhdfdeen.partyanimals.handler.EffectHandler;
+import com.muhdfdeen.partyanimals.handler.MessageHandler;
 import com.muhdfdeen.partyanimals.listener.PinataListener;
 import com.muhdfdeen.partyanimals.manager.BossBarManager;
 import com.muhdfdeen.partyanimals.manager.PinataManager;
@@ -27,12 +28,13 @@ public final class PartyAnimals extends JavaPlugin {
     private ConfigManager configManager;
     private Logger log;
     private PinataManager pinataManager;
+    private MessageHandler messageHandler;
     private BossBarManager bossBarManager;
     private CooldownHandler cooldownHandler;
     private EffectHandler effectHandler;
     private CommandHandler commandHandler;
 
-    @Override
+@Override
     public void onEnable() {
         plugin = this;
         this.configManager = new ConfigManager(getDataFolder());
@@ -47,26 +49,26 @@ public final class PartyAnimals extends JavaPlugin {
             return;
         }
 
+        this.messageHandler = new MessageHandler(configManager);
+
         @SuppressWarnings("unused")
         Metrics metrics = new Metrics(this, 28389);
-        
-        UpdateChecker updateChecker = new UpdateChecker(this);
-        updateChecker.checkForUpdates();
-        getServer().getPluginManager().registerEvents(updateChecker, this);
 
+        this.bossBarManager = new BossBarManager(this);
         this.effectHandler = new EffectHandler(log);
         this.cooldownHandler = new CooldownHandler(this);
         this.commandHandler = new CommandHandler(this);
-        this.bossBarManager = new BossBarManager(this);
         this.pinataManager = new PinataManager(this);
 
         getServer().getPluginManager().registerEvents(new PinataListener(this), this);
-
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             PartyAnimalsCommand partyanimalsCommand = new PartyAnimalsCommand(this);
-            event.registrar().register(partyanimalsCommand.createCommand("partyanimals"), "Main PartyAnimals command",
-                    List.of("pa"));
+            event.registrar().register(partyanimalsCommand.createCommand("partyanimals"), "Main PartyAnimals command", List.of("pa"));
         });
+
+        UpdateChecker updateChecker = new UpdateChecker(this);
+        updateChecker.checkForUpdates();
+        getServer().getPluginManager().registerEvents(updateChecker, this);
 
         log.info("Plugin enabled successfully");
     }
@@ -131,6 +133,10 @@ public final class PartyAnimals extends JavaPlugin {
 
     public PinataManager getPinataManager() {
         return pinataManager;
+    }
+
+    public MessageHandler getMessageHandler() {
+        return messageHandler;
     }
 
     public BossBarManager getBossBarManager() {
