@@ -49,17 +49,17 @@ public class BossBarManager {
                         .replace("{timeout}", String.valueOf(initialTimeoutString))),
                 1.0f,
                 BossBar.Color.valueOf(config.getPinataConfig().health.bar().color()),
-                BossBar.Overlay.valueOf(config.getPinataConfig().health.bar().overlay()));
+                BossBar.Overlay.valueOf(config.getPinataConfig().health.bar().style()));
 
         activeBossBars.put(pinata.getUniqueId(), bossBar);
 
         if (config.getPinataConfig().health.bar().enabled()) {
-            boolean serverwide = config.getPinataConfig().health.bar().serverwide(); 
+            boolean global = config.getPinataConfig().health.bar().global(); 
             
             for (Player p : Bukkit.getOnlinePlayers()) {
                 boolean inSameWorld = p.getWorld().equals(pinata.getWorld());
                 
-                if (serverwide || inSameWorld) {
+                if (global || inSameWorld) {
                     p.showBossBar(bossBar);
                 }
             }
@@ -98,12 +98,12 @@ public class BossBarManager {
                 .replace("{max_health}", String.valueOf(maxHealth))
                 .replace("{timeout}", timeoutString)));
         
-        boolean serverwide = config.getPinataConfig().health.bar().serverwide();
+        boolean global = config.getPinataConfig().health.bar().global();
         
         for (Player p : Bukkit.getOnlinePlayers()) {
             boolean inSameWorld = p.getWorld().equals(pinata.getWorld());
             
-            if (serverwide || inSameWorld) {
+            if (global || inSameWorld) {
                 p.showBossBar(bossBar);
             } else {
                 p.hideBossBar(bossBar);

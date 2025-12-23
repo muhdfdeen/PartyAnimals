@@ -87,11 +87,11 @@ public class PinataListener implements Listener {
         }
 
         var whitelist = config.getPinataConfig().interaction.whitelist();
-        if (whitelist.enabled() && whitelist.items() != null && !whitelist.items().isEmpty()) {
+        if (whitelist.enabled() && whitelist.materialNames() != null && !whitelist.materialNames().isEmpty()) {
             String heldItem = player.getInventory().getItemInMainHand().getType().name();
             
-            if (!whitelist.items().contains(heldItem)) {
-                String whitelistMessage = config.getMessageConfig().pinata.hitInvalidItem();
+            if (!whitelist.materialNames().contains(heldItem)) {
+                String whitelistMessage = config.getMessageConfig().pinata.hitWrongItem();
                 if (whitelistMessage != null && !whitelistMessage.isEmpty()) {
                     messageHandler.send(player, whitelistMessage);
                 }
@@ -124,9 +124,9 @@ public class PinataListener implements Listener {
             }
             
             log.debug("Processing hit commands for player: " + player.getName());
-            commandHandler.process(player, config.getPinataConfig().events.hit().commands());
+            commandHandler.process(player, config.getPinataConfig().events.hit().rewards());
             
-            String hitMessage = config.getMessageConfig().pinata.hitFeedback();
+            String hitMessage = config.getMessageConfig().pinata.hitSuccess();
             if (hitMessage != null && !hitMessage.isEmpty())
                 messageHandler.send(player, hitMessage);
             
@@ -175,13 +175,13 @@ public class PinataListener implements Listener {
         effectHandler.playEffects(config.getPinataConfig().events.death().effects(), pinata.getLocation(), false);
 
         log.debug("Processing last hit commands...");
-        commandHandler.process(player, config.getPinataConfig().events.lastHit().commands());
+        commandHandler.process(player, config.getPinataConfig().events.lastHit().rewards());
         
         String lastHitMessage = config.getMessageConfig().pinata.lastHit();
         messageHandler.send(player, lastHitMessage); 
 
         log.debug("Processing death commands...");
-        commandHandler.process(player, config.getPinataConfig().events.death().commands());
+        commandHandler.process(player, config.getPinataConfig().events.death().rewards());
         
         String downedMessage = config.getMessageConfig().pinata.defeated();
         messageHandler.send(plugin.getServer(), downedMessage, messageHandler.tag("player", player.getName()));

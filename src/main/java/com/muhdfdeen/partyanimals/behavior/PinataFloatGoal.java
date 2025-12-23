@@ -1,4 +1,4 @@
-package com.muhdfdeen.partyanimals.goal;
+package com.muhdfdeen.partyanimals.behavior;
 
 import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;

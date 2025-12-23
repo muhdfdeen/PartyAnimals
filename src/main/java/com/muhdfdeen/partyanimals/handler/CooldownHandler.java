@@ -25,16 +25,16 @@ public class CooldownHandler {
         double cooldownSeconds = cooldownConfig.duration();
         if (cooldownSeconds <= 0) return false;
 
-        boolean serverwide = cooldownConfig.serverwide();
+        boolean global = cooldownConfig.global();
         long now = System.currentTimeMillis();
 
-        PersistentDataHolder target = serverwide ? pinata : player;
+        PersistentDataHolder target = global ? pinata : player;
         NamespacedKey key = plugin.getPinataManager().getCooldownKey();
 
         long nextHit = target.getPersistentDataContainer().getOrDefault(key, PersistentDataType.LONG, 0L);
 
         if (now < nextHit) {
-            sendCooldownMessage(player, nextHit - now, serverwide);
+            sendCooldownMessage(player, nextHit - now, global);
             return true;
         }
 
@@ -46,17 +46,17 @@ public class CooldownHandler {
         double cooldownSeconds = cooldownConfig.duration();
         if (cooldownSeconds <= 0) return;
 
-        boolean serverwide = cooldownConfig.serverwide();
+        boolean global = cooldownConfig.global();
         long cooldownMillis = (long) (cooldownSeconds * 1000L);
         long now = System.currentTimeMillis();
 
-        PersistentDataHolder target = serverwide ? pinata : player;
+        PersistentDataHolder target = global ? pinata : player;
         NamespacedKey key = plugin.getPinataManager().getCooldownKey();
 
         target.getPersistentDataContainer().set(key, PersistentDataType.LONG, now + cooldownMillis);
     }
 
-    private void sendCooldownMessage(Player player, long remainingMillis, boolean serverwide) {
+    private void sendCooldownMessage(Player player, long remainingMillis, boolean global) {
         String msg = config.getMessageConfig().pinata.hitCooldown();
         if (msg == null || msg.isEmpty()) return;
 

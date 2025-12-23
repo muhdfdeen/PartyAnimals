@@ -1,9 +1,9 @@
 package com.muhdfdeen.partyanimals.manager;
 
 import com.muhdfdeen.partyanimals.PartyAnimals;
+import com.muhdfdeen.partyanimals.behavior.PinataFloatGoal;
+import com.muhdfdeen.partyanimals.behavior.PinataRoamGoal;
 import com.muhdfdeen.partyanimals.config.ConfigManager;
-import com.muhdfdeen.partyanimals.goal.PinataFloatGoal;
-import com.muhdfdeen.partyanimals.goal.PinataRoamGoal;
 import com.muhdfdeen.partyanimals.handler.CommandHandler;
 import com.muhdfdeen.partyanimals.handler.EffectHandler;
 import com.muhdfdeen.partyanimals.handler.MessageHandler;
@@ -81,15 +81,14 @@ public class PinataManager {
             messageHandler.parse(null, bossBarCountdown, messageHandler.tag("seconds", (int) countdownSeconds)), 
             1.0f, 
             BossBar.Color.valueOf(barSettings.color()), 
-            BossBar.Overlay.valueOf(barSettings.overlay())
+            BossBar.Overlay.valueOf(barSettings.style())
         );
         
         boolean shouldShowBar = barSettings.enabled();
-        boolean isServerwide = barSettings.serverwide(); 
-
+        boolean global = barSettings.global(); 
         if (shouldShowBar) {
             for (Player p : plugin.getServer().getOnlinePlayers()) {
-                if (isServerwide || p.getWorld().equals(location.getWorld())) {
+                if (global || p.getWorld().equals(location.getWorld())) {
                     p.showBossBar(bossBar);
                 }
             }
@@ -124,7 +123,7 @@ public class PinataManager {
                     
                     for (Player p : plugin.getServer().getOnlinePlayers()) {
                         boolean inSameWorld = p.getWorld().equals(location.getWorld());
-                        if (isServerwide || inSameWorld) {
+                        if (global || inSameWorld) {
                             p.showBossBar(bossBar);
                         } else {
                             p.hideBossBar(bossBar);
@@ -143,7 +142,7 @@ public class PinataManager {
     }
 
     public void spawnPinata(Location location) {
-        List<String> types = config.getPinataConfig().appearance.types();
+        List<String> types = config.getPinataConfig().appearance.entityTypes();
         String randomType = types.get(ThreadLocalRandom.current().nextInt(types.size()));
         EntityType pinataType = EntityType.valueOf(randomType.toUpperCase());
 
@@ -198,7 +197,7 @@ public class PinataManager {
                 effectHandler.playEffects(config.getPinataConfig().events.spawn().effects(), location, false);
             }
         });
-        commandHandler.process(null, config.getPinataConfig().events.spawn().commands());
+        commandHandler.process(null, config.getPinataConfig().events.spawn().rewards());
         
         String spawnMessage = config.getMessageConfig().pinata.spawned();
         messageHandler.send(plugin.getServer(), spawnMessage);
@@ -286,7 +285,7 @@ public class PinataManager {
     }
 
     public void applyPinataGoal(LivingEntity pinata) {
-        if (!config.getPinataConfig().ai.enabled()) {
+        if (!config.getPinataConfig().behavior.enabled()) {
             pinata.setAI(false);
             return;
         }
@@ -298,7 +297,7 @@ public class PinataManager {
         }
         var knockbackAttribute = pinata.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
         if (knockbackAttribute != null) {
-            knockbackAttribute.setBaseValue(config.getPinataConfig().ai.knockbackResistance());
+            knockbackAttribute.setBaseValue(config.getPinataConfig().behavior.knockbackResistance());
         }
     }
 

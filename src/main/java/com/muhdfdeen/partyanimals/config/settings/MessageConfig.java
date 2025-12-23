@@ -71,9 +71,9 @@ public final class MessageConfig {
         @Comment("No permission message.")
         String noPermission,
         @Comment("Console sender error.")
-        String playersOnly,
+        String playerOnly,
         @Comment("Invalid arguments format.")
-        String invalidUsage,
+        String usageHelp,
         @Comment("Target player not found.")
         String playerNotFound
     ) {}
@@ -86,9 +86,9 @@ public final class MessageConfig {
         @Comment("Broadcast when spawned naturally.")
         String spawned,
         @Comment("Feedback when a player hits the entity.")
-        String hitFeedback,
+        String hitSuccess,
         @Comment("Error when hitting with wrong item.")
-        String hitInvalidItem,
+        String hitWrongItem,
         @Comment("Error when hitting during cooldown.")
         String hitCooldown,
         @Comment("Error when hitting without permission.")
@@ -104,10 +104,10 @@ public final class MessageConfig {
         @Comment("Boss bar active text.")
         String bossBarActive,
         @Comment("Admin: Added spawn location.")
-        String locationAdded,
+        String spawnPointAdded,
         @Comment("Admin: Removed spawn location.")
-        String locationRemoved,
+        String spawnPointRemoved,
         @Comment("Admin: Unknown spawn location.")
-        String locationUnknown
+        String spawnPointUnknown
     ) {}
 }

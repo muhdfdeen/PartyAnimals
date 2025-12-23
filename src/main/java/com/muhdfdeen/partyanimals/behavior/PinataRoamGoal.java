@@ -1,4 +1,4 @@
-package com.muhdfdeen.partyanimals.goal;
+package com.muhdfdeen.partyanimals.behavior;
 
 import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;
@@ -22,7 +22,7 @@ public class PinataRoamGoal implements Goal<Creature> {
         this.config = plugin.getConfiguration();
         this.mob = mob;
         this.key = GoalKey.of(Creature.class, new NamespacedKey(plugin, "pinata_roam"));
-        this.speed = config.getPinataConfig().ai.pathfinding().speed();
+        this.speed = config.getPinataConfig().behavior.movement().speed();
     }
 
     @Override
@@ -37,8 +37,8 @@ public class PinataRoamGoal implements Goal<Creature> {
 
     @Override
     public void start() {
-        double rangeX = config.getPinataConfig().ai.pathfinding().range().x();
-        double rangeZ = config.getPinataConfig().ai.pathfinding().range().z();
+        double rangeX = config.getPinataConfig().behavior.movement().range().x();
+        double rangeZ = config.getPinataConfig().behavior.movement().range().z();
 
         double x = (ThreadLocalRandom.current().nextDouble() * 2 - 1) * rangeX;
         double z = (ThreadLocalRandom.current().nextDouble() * 2 - 1) * rangeZ;

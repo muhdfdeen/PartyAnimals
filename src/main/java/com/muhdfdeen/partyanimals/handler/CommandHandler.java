@@ -1,7 +1,6 @@
 package com.muhdfdeen.partyanimals.handler;
 
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
@@ -22,57 +21,65 @@ public class CommandHandler {
         this.hasPAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
     }
 
-    public void process(Player player, Map<String, PinataConfig.Command> commands) {
-        if (commands == null || commands.isEmpty())
-            return;
+    public void process(Player player, Map<String, PinataConfig.RewardAction> commands) {
+        if (commands == null || commands.isEmpty()) return;
 
-        Map<String, PinataConfig.Command> sortedCommands = new TreeMap<>(commands);
-        for (PinataConfig.Command command : sortedCommands.values()) {
-            if (command.permission != null && !command.permission.isEmpty()) {
-                if (player != null && !player.hasPermission(command.permission))
+        for (PinataConfig.RewardAction action : commands.values()) {
+            if (!action.global && action.permission != null && !action.permission.isEmpty()) {
+                if (player != null && !player.hasPermission(action.permission)) {
                     continue;
-            }
-
-            double roll = ThreadLocalRandom.current().nextDouble(100.0);
-            if (roll > command.chance)
-                continue;
-
-            if (command.randomize != null && command.randomize && !command.commands.isEmpty()) {
-                String randomCmd = command.commands.get(ThreadLocalRandom.current().nextInt(command.commands.size()));
-                dispatch(player, randomCmd);
-            } else {
-                for (String cmd : command.commands) {
-                    dispatch(player, cmd);
                 }
             }
-
-            if (command.skipRest != null && command.skipRest) {
+            if (action.chance < 100.0) { 
+                double roll = ThreadLocalRandom.current().nextDouble(100.0);
+                if (roll > action.chance) continue;
+            }
+            if (action.global) {
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    executeAction(onlinePlayer, action);
+                }
+            } else {
+                executeAction(player, action);
+            }
+            if (action.preventFurtherRewards) {
                 break;
             }
         }
     }
 
+    private void executeAction(Player target, PinataConfig.RewardAction action) {
+        if (action.commands.isEmpty()) return;
+
+        if (action.randomize) {
+            int index = ThreadLocalRandom.current().nextInt(action.commands.size());
+            String randomCmd = action.commands.get(index);
+            dispatch(target, randomCmd);
+        } else {
+            for (String cmd : action.commands) {
+                dispatch(target, cmd);
+            }
+        }
+    }
+
     private void dispatch(Player player, String command) {
-        if (command == null || command.isEmpty())
-            return;
+        if (command == null || command.isEmpty()) return;
 
         String parsed = command;
-
-        if (player != null && hasPAPI) {
-            parsed = PlaceholderAPI.setPlaceholders(player, parsed);
-        }
 
         if (player != null) {
             parsed = parsed
                     .replace("{player}", player.getName())
                     .replace("{uuid}", player.getUniqueId().toString());
         }
-
-        if (parsed.startsWith("/"))
+        if (player != null && hasPAPI) {
+            parsed = PlaceholderAPI.setPlaceholders(player, parsed);
+        }
+        if (parsed.startsWith("/")) {
             parsed = parsed.substring(1);
-
+        }
         final String finalCommand = parsed;
-
-        Bukkit.getScheduler().runTask(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand));
+        Bukkit.getScheduler().runTask(plugin, () -> 
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand)
+        );
     }
 }

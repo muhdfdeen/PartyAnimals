@@ -1,6 +1,6 @@
 package com.muhdfdeen.partyanimals.handler;
 
-import com.muhdfdeen.partyanimals.config.settings.PinataConfig.Effects;
+import com.muhdfdeen.partyanimals.config.settings.PinataConfig.EffectGroup;
 import com.muhdfdeen.partyanimals.util.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,7 +15,7 @@ public class EffectHandler {
         this.log = log;
     }
 
-    public void playEffects(Effects effect, Location location, boolean globalSound) {
+    public void playEffects(EffectGroup effect, Location location, boolean globalSound) {
         if (effect == null) return;
 
         if (effect.sound() != null) {

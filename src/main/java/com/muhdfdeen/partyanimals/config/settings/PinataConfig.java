@@ -23,178 +23,208 @@ public final class PinataConfig {
     }
 
     @Configuration
-    public static class Command {
-        @Comment("The chance for this reward to be given.")
-        public Double chance = 100.0;
+    public static class RewardAction {
+        @Comment("The chance (0-100) for this reward to trigger.")
+        public double chance = 100.0;
 
-        @Comment("Whether the command is triggered server-wide or per-player.")
-        public Boolean serverwide = null;
+        @Comment("If true, the command runs for every player on the server.")
+        public boolean global = false;
 
-        @Comment("Whether to skip the rest of the commands if this one is given.")
-        public Boolean skipRest = null;
+        @Comment("If true, no further rewards in this list will be processed if this one triggers.")
+        public boolean preventFurtherRewards = false;
 
-        @Comment("Whether to randomize the command execution.")
-        public Boolean randomize = null;
+        @Comment("If true, commands in the list are shuffled before execution.")
+        public boolean randomize = false;
 
-        @Comment("Permission required to receive this reward.")
-        public String permission = null;
+        @Comment("Permission node required to be eligible for this reward.")
+        public String permission = "";
 
+        @Comment("List of console commands to execute. Use {player} for the player name.")
         public List<String> commands = List.of();
 
-        public Command() {}
+        public RewardAction() {}
 
-        public Command(double chance, List<String> commands) {
+        public RewardAction(double chance, List<String> commands) {
             this.chance = chance;
             this.commands = commands;
         }
-
-        public Command(double chance, Boolean serverwide, Boolean skipRest, Boolean randomize, String permission, List<String> commands) {
+        
+        public RewardAction(double chance, boolean global, String permission, List<String> commands) {
             this.chance = chance;
-            this.serverwide = serverwide;
-            this.skipRest = skipRest;
-            this.randomize = randomize;
+            this.global = global;
             this.permission = permission;
             this.commands = commands;
         }
     }
 
     public record ScaleSettings(
-            @Comment("Minimum scale of the pinata entity.") double min,
-            @Comment("Maximum scale of the pinata entity.") double max
+        @Comment("Minimum size multiplier.") double min,
+        @Comment("Maximum size multiplier.") double max
+    ) {}
+
+    public record BossBarSettings(
+        @Comment("Show a boss bar for this phase.") boolean enabled,
+        @Comment("If true, all players see the bar. If false, only those near the pinata.") boolean global,
+        @Comment("Bar color (PINK, BLUE, RED, GREEN, YELLOW, PURPLE, WHITE).") String color,
+        @Comment("Bar style (SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, SEGMENTED_20).") String style
     ) {}
 
     public record Appearance(
-            @Comment({"List of entity types that can be used as pinatas.", "If multiple types are provided, one will be chosen at random.", " ", "Available types:" + " https://jd.papermc.io/paper/1.21.1/org/bukkit/entity/EntityType.html"}) List<String> types,
-            @Comment("Name of the pinata entity.") String name,
-            @Comment({"Scale settings of the pinata entity.", "Scale is fixed when both min and max are the same value."}) ScaleSettings scale,
-            @Comment("Whether the pinata should flash red when hit.") boolean damageFlash,
-            @Comment("Whether the pinata should have a glowing outline.") boolean glowing,
-            @Comment("The color of the glowing outline.") String glowColor
+        @Comment({"Entity types to use (randomly chosen).", "See: https://jd.papermc.io/paper/1.21.1/org/bukkit/entity/EntityType.html"}) 
+        List<String> entityTypes,
+        
+        @Comment("Display name (supports MiniMessage).") 
+        String name,
+        
+        @Comment("Size randomization settings.") 
+        ScaleSettings scale,
+        
+        @Comment("Flash red when taking damage.") 
+        boolean damageFlash,
+        
+        @Comment("Show glowing spectral outline.") 
+        boolean glowing,
+        
+        @Comment("Color of the glowing outline.") 
+        String glowColor
     ) {}
 
-    public record Bar(
-            @Comment("Whether to display the bar.") boolean enabled,
-            @Comment("Whether the bar is displayed server-wide.") boolean serverwide,
-            @Comment("Color of the bar.") String color,
-            @Comment("Overlay style of the bar.") String overlay
-    ) {}
-
-    public record Health(
-            @Comment("Maximum health of the pinata.") int maxHealth,
-            @Comment({"Whether the health is multiplied per player.", "If true, the value for multiplier is ignored."}) boolean perPlayer,
-            @Comment("Multiplier for the maximum health of the pinata.") int multiplier,
-            @Comment("Settings for the health bar.") Bar bar
+    public record HealthSettings(
+        @Comment("Base health points.") int maxHealth,
+        @Comment("If true, health scales based on player count (maxHealth * players).") boolean perPlayer,
+        @Comment("Multiplier used if perPlayer is true.") int multiplier,
+        @Comment("Health bar visual settings.") BossBarSettings bar
     ) {}
 
     public record ItemWhitelist(
-            @Comment("Whether to enable item whitelist for hitting the pinata.") boolean enabled,
-            @Comment("List of item names that are allowed to hit the pinata.") List<String> items
+        @Comment("Only allow specific items to deal damage.") boolean enabled,
+        @Comment("List of allowed material names (e.g. WOODEN_SWORD).") List<String> materialNames
     ) {}
 
-    public record Interaction(
-            @Comment("Permission required to hit the pinata.") String permission,
-            ItemWhitelist whitelist
+    public record InteractionSettings(
+        @Comment("Permission required to hit the pinata.") String permission,
+        @Comment("Item restriction settings.") ItemWhitelist whitelist
     ) {}
 
-    public record Countdown(
-            @Comment("Duration of the countdown in seconds.") int duration,
-            @Comment("Settings for the countdown bar.") Bar bar,
-            @Comment("Effects triggered at the start of the countdown before the pinata spawns.") Effects start,
-            @Comment("Effects triggered during the countdown before the pinata spawns.") Effects mid,
-            @Comment("Effects triggered at the end of the countdown before the pinata spawns.") Effects end
-    ) {}
-
-    public record Timeout(
-            @Comment("Whether the pinata timeout is enabled.") boolean enabled,
-            @Comment("Duration of the pinata timeout in seconds.") int duration
+    public record TimeoutSettings(
+        @Comment("Enable despawning if not killed in time.") boolean enabled,
+        @Comment("Seconds before despawning.") int duration
     ) {}
 
     public record HitCooldown(
-            @Comment("Whether the hit cooldown is enabled.") boolean enabled,
-            @Comment("Duration of the hit cooldown in seconds.") double duration,
-            @Comment("If true, the cooldown is applied server-wide. If false, it's per player.") boolean serverwide,
-            @Comment({"The type of display to use for the cooldown.", "Available values: ACTION_BAR, CHAT" }) String type
+        @Comment("Enable attack speed limits.") boolean enabled,
+        @Comment("Seconds between hits.") double duration,
+        @Comment("If true, the cooldown is global (all players share the timer).") boolean global,
+        @Comment("Feedback type: ACTION_BAR or CHAT.") String type
     ) {}
 
-    public record Timer(
-            Countdown countdown,
-            Timeout timeout,
-            HitCooldown hitCooldown
+    public record TimerSettings(
+        @Comment("Countdown before the pinata spawns.") PhaseSettings countdown,
+        @Comment("Maximum time to kill the pinata.") TimeoutSettings timeout,
+        @Comment("Anti-spam click settings.") HitCooldown hitCooldown
     ) {}
 
     public record PathfindingRange(double x, double y, double z) {}
 
-    public record PathfindingSettings(
-            @Comment("Range within which the pinata can pathfind.") PathfindingRange range,
-            @Comment("Movement speed of the pinata.") double speed
+    public record MovementSettings(
+        @Comment("Wandering radius.") PathfindingRange range,
+        @Comment("Movement speed multiplier.") double speed
     ) {}
 
-    public record AI(
-            @Comment({"Whether the pinata AI is enabled.", "If true, the pinata moves around. Otherwise, it remains stationary."}) boolean enabled,
-            @Comment("The knockback resistance of the pinata.") double knockbackResistance,
-            @Comment("Pathfinding settings for the pinata.") PathfindingSettings pathfinding
+    public record BehaviorSettings( // Renamed from GoalSettings
+        @Comment("If false, the pinata acts like a statue.") boolean enabled,
+        @Comment("Resistance to being pushed (0.0 to 1.0).") double knockbackResistance,
+        @Comment("Movement logic settings.") MovementSettings movement
     ) {}
 
     public record SoundEffect(String type, float volume, float pitch) {}
-
     public record ParticleEffect(String type, int count) {}
+    public record EffectGroup(SoundEffect sound, ParticleEffect particle) {}
 
-    public record Effects(SoundEffect sound, ParticleEffect particle) {}
-
-    public record Event(
-            @Comment("Whether this event is enabled.") boolean enabled,
-            @Comment("Effects associated with this event.") Effects effects,
-            @Comment("Commands associated with this event.") Map<String, Command> commands
+    public record PhaseSettings(
+        @Comment("Duration in seconds.") int duration,
+        @Comment("Boss bar for this phase.") BossBarSettings bar,
+        @Comment("Effects at start of phase.") EffectGroup start,
+        @Comment("Effects during phase.") EffectGroup mid,
+        @Comment("Effects at end of phase.") EffectGroup end
     ) {}
 
-    public record Events(
-            @Comment("Manage pinata spawn events.") Event spawn,
-            @Comment("Manage pinata hit events.") Event hit,
-            @Comment("Manage pinata last hit events.") Event lastHit,
-            @Comment("Manage pinata death events.") Event death
+    public record GameEvent(
+        @Comment("Enable this event.") boolean enabled,
+        @Comment("Visual/Audio effects.") EffectGroup effects,
+        @Comment("Rewards to give. Key is the internal ID of the reward.") Map<String, RewardAction> rewards
+    ) {}
+
+    public record EventRegistry(
+        @Comment("Triggered when pinata spawns.") GameEvent spawn,
+        @Comment("Triggered when pinata is damaged.") GameEvent hit,
+        @Comment("Triggered on the final killing blow.") GameEvent lastHit,
+        @Comment("Triggered when pinata dies (Global rewards).") GameEvent death
     ) {}
 
     @Configuration
     public static class PinataConfiguration {
-        public Appearance appearance = new Appearance(List.of("LLAMA"), "<green><bold>Pinata</bold></green>", new ScaleSettings(0.75, 1.25), false, true, "GREEN");
         
-        public Health health = new Health(5, true, 5, new Bar(true, true, "RED", "PROGRESS"));
-        
-        public Interaction interaction = new Interaction("", new ItemWhitelist(false, List.of("STICK", "WHEAT_SEEDS")));
-        
-        public Timer timer = new Timer(
-                new Countdown(10,
-                        new Bar(true, true, "YELLOW", "NOTCHED_10"),
-                        new Effects(new SoundEffect("block.note_block.bit", 0.5f, 1.0f), new ParticleEffect("FIREWORK", 20)),
-                        new Effects(new SoundEffect("block.note_block.bit", 0.5f, 0.8f), new ParticleEffect("CAMPFIRE_COSY_SMOKE", 15)),
-                        new Effects(new SoundEffect("block.note_block.pling", 1.0f, 0.8f), new ParticleEffect("HAPPY_VILLAGER", 25))
-                ),
-                new Timeout(true, 300),
-                new HitCooldown(true, 0.75, false, "ACTION_BAR")
+        public Appearance appearance = new Appearance(
+            List.of("LLAMA", "MULE"), 
+            "<gradient:#FF5555:#FF55FF><bold>Party Pinata</bold></gradient>", 
+            new ScaleSettings(0.8, 1.2), 
+            true, 
+            true, 
+            "LIGHT_PURPLE"
         );
         
-        public AI ai = new AI(true, 1.0, new PathfindingSettings(new PathfindingRange(10.0, 5.0, 10.0), 1.75));
+        public HealthSettings health = new HealthSettings(
+            50, 
+            true, 
+            10, 
+            new BossBarSettings(true, true, "MAGENTA", "SEGMENTED_10")
+        );
         
-        @Comment("Locations where pinatas can spawn.")
-        public Map<String, SerializableLocation> spawnLocations = new HashMap<>(Map.of("spawn", new SerializableLocation()));
+        public InteractionSettings interaction = new InteractionSettings(
+            "", 
+            new ItemWhitelist(false, List.of("STICK", "BLAZE_ROD"))
+        );
         
-        public Events events = new Events(
-                new Event(true, 
-                        new Effects(new SoundEffect("entity.firework_rocket.launch", 1.0f, 1.0f), new ParticleEffect("FIREWORK", 50)),
-                        new HashMap<>(Map.of("First Broadcast", new Command(100.0, List.of("broadcast A pinata spawned!"))))
-                ),
-                new Event(true, 
-                        new Effects(new SoundEffect("entity.player.levelup", 0.5f, 1.5f), new ParticleEffect("CRIT", 10)),
-                        new HashMap<>(Map.of("VIP Cake", new Command(50.0, false, false, false, "partyanimals.hit.reward1", List.of("give {player} minecraft:cake"))))
-                ),
-                new Event(true, 
-                        new Effects(new SoundEffect("entity.experience_orb.pickup", 0.5f, 1.5f), new ParticleEffect("HEART", 15)),
-                        new HashMap<>()
-                ),
-                new Event(true, 
-                        new Effects(new SoundEffect("entity.firework_rocket.blast", 1.0f, 1.0f), new ParticleEffect("EXPLOSION_EMITTER", 1)),
-                        new HashMap<>()
-                )
+        public TimerSettings timer = new TimerSettings(
+            new PhaseSettings(10,
+                new BossBarSettings(true, true, "YELLOW", "SOLID"),
+                new EffectGroup(new SoundEffect("block.note_block.bit", 1f, 1f), new ParticleEffect("FIREWORK", 10)),
+                new EffectGroup(new SoundEffect("block.note_block.bit", 1f, 1.2f), new ParticleEffect("NOTE", 5)),
+                new EffectGroup(new SoundEffect("entity.firework_rocket.launch", 1f, 1f), new ParticleEffect("FLASH", 1))
+            ),
+            new TimeoutSettings(true, 300),
+            new HitCooldown(true, 0.5, false, "ACTION_BAR")
+        );
+        
+        public BehaviorSettings behavior = new BehaviorSettings( // Renamed from goal
+            true, 
+            0.5, 
+            new MovementSettings(new PathfindingRange(15.0, 5.0, 15.0), 1.3)
+        );
+        
+        @Comment("Defined spawn points.")
+        public Map<String, SerializableLocation> spawnLocations = new HashMap<>(Map.of(
+            "default", new SerializableLocation()
+        ));
+        
+        public EventRegistry events = new EventRegistry(
+            new GameEvent(true, 
+                new EffectGroup(new SoundEffect("entity.firework_rocket.twinkle", 1f, 1f), new ParticleEffect("TOTEM_OF_UNDYING", 50)),
+                new HashMap<>(Map.of("announce", new RewardAction(100.0, true, "", List.of("broadcast <green>A Pinata has arrived!"))))
+            ),
+            new GameEvent(true, 
+                new EffectGroup(new SoundEffect("entity.player.attack.crit", 1f, 1f), new ParticleEffect("CRIT", 5)),
+                new HashMap<>()
+            ),
+            new GameEvent(true, 
+                new EffectGroup(new SoundEffect("ui.toast.challenge_complete", 1f, 1f), new ParticleEffect("HEART", 20)),
+                new HashMap<>(Map.of("vip_reward", new RewardAction(50.0, false, "partyanimals.vip", List.of("give {player} diamond 1"))))
+            ),
+            new GameEvent(true, 
+                new EffectGroup(new SoundEffect("entity.generic.explode", 1f, 1f), new ParticleEffect("EXPLOSION", 5)),
+                new HashMap<>(Map.of("everyone_cash", new RewardAction(100.0, true, "", List.of("eco give * 100"))))
+            )
         );
     }
 }
