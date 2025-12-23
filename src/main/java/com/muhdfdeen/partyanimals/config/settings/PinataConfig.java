@@ -27,7 +27,7 @@ public final class PinataConfig {
         
         public Appearance appearance = new Appearance(
             List.of("LLAMA", "MULE"), 
-            "<gradient:#FF5555:#FF55FF><bold>Party Pinata</bold></gradient>", 
+            "<gradient:#FF5555:#FF55FF>🪅 <bold>Party Pinata</bold></gradient>", 
             new ScaleSettings(0.75, 1.25), 
             false, 
             true,

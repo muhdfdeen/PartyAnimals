@@ -21,7 +21,7 @@ public final class MessageConfig {
     public static class MessageConfiguration {
 
         @Comment("The global prefix used in messages. Use <prefix> in other messages to include it.")
-        public String prefix = "<bold><gradient:#51CF66:#2f9e44>Party Animals</gradient></bold> <dark_gray>➟</dark_gray>";
+        public String prefix = "<gradient:#51CF66:#2f9e44>🪅 <bold>Party Animals</bold></gradient> <dark_gray>➟</dark_gray>";
 
         @Comment("General plugin notifications.")
         public GeneralMessages general = new GeneralMessages(
