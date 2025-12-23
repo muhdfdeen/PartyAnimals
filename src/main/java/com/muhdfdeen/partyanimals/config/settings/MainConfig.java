@@ -31,10 +31,10 @@ public final class MainConfig {
     }
 
     public record ModuleSettings(
-        @Comment("Enable the pinata party event system.")
+        @Comment("Toggle the pinata system.")
         boolean pinata,
 
-        @Comment("Enable the Voting system.")
+        @Comment("Toggle the voting system.")
         boolean vote
     ) {}
 }
