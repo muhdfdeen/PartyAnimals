@@ -7,41 +7,45 @@ A Minecraft plugin for Paper servers that spawns interactive pinata entities. Pl
 
 ## Features
 
-- Configure pinata entity types, health, scale and spawn locations
-- **Flexible Reward System**:
-  - Chance-based reward distribution
+### General
+
+- MiniMessage support for all broadcasts and messages
+- Extensive PlaceholderAPI support throughout configuration
+
+### Pinata
+
+- Configure entity types (`LLAMA`, `MULE`, etc.), health, scale, and glowing effects
+- Configurable wandering behavior, knockback resistance, and pathfinding
+- Define custom spawn locations and summon via command
+- Mechanics:
+  - Configurable countdown timer with visual effects before pinata spawns
+  - Configurable boss bars showing health and lifespan status
+  - Configurable hit cooldowns (Global or Per-Player)
+  - Configurable item whitelist to restrict damage to specific items (e.g., sticks only)
+  - Configurable timeout system to automatically despawn pinatas if not killed in time
+- Reward System:
+  - Attach rewards to specific events: `spawn`, `hit`, `lastHit`, and `death`
+  - Chance-based reward distribution using commands
   - Permission-restricted rewards (optional)
   - Server-wide or player-specific rewards
-  - Randomizable command execution
+  - Randomizable command execution within a list of commands (optional)
   - PlaceholderAPI support for reward commands
-- **Interactive Mechanics**:
-  - Countdown timer before pinata spawns
-  - Boss bar showing health and status
-  - Hit cooldown (per-player or global)
-  - Timeout system for inactive pinatas
-  - Last-hit tracking
-- MiniMessage support
 
-## Installation
+## Planned Features
 
-1. Ensure your server is running **Java 21**+ and **Paper 1.21**+ (or a fork).
-2. Download the latest release from [GitHub Releases](https://github.com/muhdfdeen/partyanimals/releases).
-3. Place the JAR file in your `plugins` folder.
-4. Optional: Install [PlaceholderAPI](https://placeholderapi.com/) for advanced placeholder support in reward commands.
-5. Restart your server.
+### Pinata
 
-## Commands & Permissions
+- Ability to spawn automatically after a certain condition is met
+  - PlaceholderAPI conditions
+  - Pair with the vote module after it is implemented
 
-| Command | Permission | Description |
-| :--- | :--- | :--- |
-| `/partyanimals` | None | Displays plugin version information. |
-| `/partyanimals reload` | `partyanimals.reload` | Reloads all configuration files. |
-| `/partyanimals start <location>` | `partyanimals.start` | Starts a countdown to spawn a pinata at the specified location. |
-| `/partyanimals summon <location>` | `partyanimals.summon` | Instantly spawns a pinata at the specified location. |
-| `/partyanimals addlocation <name>` | `partyanimals.addlocation` | Saves your current location as a named spawn point. |
-| `/partyanimals removelocation <name>` | `partyanimals.removelocation` | Removes the specified location from saved spawn point(s). |
-| N/A | `partyanimals.admin` | Receive update notifications on join. |
+### Vote
 
+- Implement Votifier support
+- Offline vote support
+- Vote reminders
+- Milestones (separate from pinata)
+  - Repetitive or cumulative can be switched around
 
 ## Building
 
@@ -54,7 +58,3 @@ The compiled JAR will be in `build/libs/`.
 ## Support
 
 For issues or questions, open an issue on [GitHub](https://github.com/muhdfdeen/PartyAnimals/issues).
-
-## Statistics
-
-This plugin uses [bStats](https://bstats.org/) to collect anonymous usage statistics. This can be disabled in the bStats config.
