@@ -14,6 +14,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.muhdfdeen.partyanimals.PartyAnimals;
+import com.muhdfdeen.partyanimals.api.event.pinata.PinataDeathEvent;
 import com.muhdfdeen.partyanimals.config.ConfigManager;
 import com.muhdfdeen.partyanimals.handler.RewardHandler;
 import com.muhdfdeen.partyanimals.handler.HitCooldownHandler;
@@ -174,6 +175,9 @@ public class PinataListener implements Listener {
 
     private void handlePinataDeath(LivingEntity pinata, Player player) {
         log.debug("Handling pinata death for pinata: " + pinata + " (UUID: " + pinata.getUniqueId() + ") by player: " + player.getName());
+
+        var event = new PinataDeathEvent(pinata, player);
+        plugin.getServer().getPluginManager().callEvent(event);
         
         effectHandler.playEffects(config.getPinataConfig().events.death().effects(), pinata.getLocation(), false);
 
