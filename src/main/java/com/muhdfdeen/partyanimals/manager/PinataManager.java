@@ -332,6 +332,33 @@ public class PinataManager {
         return activePinatas.size();
     }
 
+    public boolean isPinataAlive() {
+        return !activePinatas.isEmpty();
+    }
+
+    private LivingEntity getFirstActivePinata() {
+        if (activePinatas.isEmpty()) return null;
+        return activePinatas.values().iterator().next();
+    }
+
+    public int getCurrentHealth() {
+        LivingEntity pinata = getFirstActivePinata();
+        if (pinata == null || !pinata.isValid()) return 0;
+        return pinata.getPersistentDataContainer().getOrDefault(health, PersistentDataType.INTEGER, 0);
+    }
+
+    public int getMaxHealth() {
+        LivingEntity pinata = getFirstActivePinata();
+        if (pinata == null || !pinata.isValid()) return 0;
+        return pinata.getPersistentDataContainer().getOrDefault(max_health, PersistentDataType.INTEGER, 0);
+    }
+
+    public Location getPinataLocation() {
+        LivingEntity pinata = getFirstActivePinata();
+        if (pinata == null || !pinata.isValid()) return null;
+        return pinata.getLocation();
+    }
+
     public NamespacedKey getHealthKey() { return health; }
     public NamespacedKey getMaxHealthKey() { return max_health; }
     public NamespacedKey getCooldownKey() { return hit_cooldown; }

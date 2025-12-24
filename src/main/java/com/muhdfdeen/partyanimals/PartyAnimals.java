@@ -13,6 +13,7 @@ import org.bstats.bukkit.Metrics;
 import com.muhdfdeen.partyanimals.command.PartyAnimalsCommand;
 import com.muhdfdeen.partyanimals.config.ConfigManager;
 import com.muhdfdeen.partyanimals.handler.RewardHandler;
+import com.muhdfdeen.partyanimals.hook.PartyAnimalsExpansion;
 import com.muhdfdeen.partyanimals.handler.HitCooldownHandler;
 import com.muhdfdeen.partyanimals.handler.EffectHandler;
 import com.muhdfdeen.partyanimals.handler.MessageHandler;
@@ -57,6 +58,13 @@ public final class PartyAnimals extends JavaPlugin {
         this.effectHandler = new EffectHandler(log);
 
         setupModules();
+
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            if (pinataManager != null) {
+                new PartyAnimalsExpansion(this).register();
+                log.info("Hooked into PlaceholderAPI.");
+            }
+        }
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             PartyAnimalsCommand partyanimalsCommand = new PartyAnimalsCommand(this);
