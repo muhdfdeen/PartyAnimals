@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.muhdfdeen.partyanimals.config.objects.RewardAction;
 import com.muhdfdeen.partyanimals.config.objects.SerializableLocation;
@@ -44,7 +45,7 @@ public final class PinataConfig {
         
         public InteractionSettings interaction = new InteractionSettings(
             "", 
-            new ItemWhitelist(false, List.of("STICK", "BLAZE_ROD"))
+            new ItemWhitelist(false, Set.of("STICK", "BLAZE_ROD"))
         );
         
         public TimerSettings timer = new TimerSettings(
@@ -128,7 +129,7 @@ public final class PinataConfig {
 
     public record ItemWhitelist(
         @Comment("Only allow specific items to deal damage.") boolean enabled,
-        @Comment({"List of allowed material names.", "See: https://jd.papermc.io/paper/1.21.11/org/bukkit/Material.html"}) List<String> materialNames
+        @Comment({"List of allowed material names.", "See: https://jd.papermc.io/paper/1.21.11/org/bukkit/Material.html"}) Set<String> materialNames
     ) {}
 
     public record InteractionSettings(

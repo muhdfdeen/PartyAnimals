@@ -1,10 +1,12 @@
 package com.muhdfdeen.partyanimals.listener;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -15,6 +17,7 @@ import org.bukkit.persistence.PersistentDataType;
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.muhdfdeen.partyanimals.PartyAnimals;
 import com.muhdfdeen.partyanimals.api.event.pinata.PinataDeathEvent;
+import com.muhdfdeen.partyanimals.api.event.pinata.PinataHitEvent;
 import com.muhdfdeen.partyanimals.config.ConfigManager;
 import com.muhdfdeen.partyanimals.handler.RewardHandler;
 import com.muhdfdeen.partyanimals.handler.HitCooldownHandler;
@@ -70,7 +73,7 @@ public class PinataListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPinataHit(EntityDamageByEntityEvent event) {
         if (plugin.getPinataManager() == null) return;
 
@@ -88,16 +91,24 @@ public class PinataListener implements Listener {
             event.setCancelled(true);
             return;
         }
-
+        
         var whitelist = config.getPinataConfig().interaction.whitelist();
         if (whitelist.enabled() && whitelist.materialNames() != null && !whitelist.materialNames().isEmpty()) {
-            String heldItem = player.getInventory().getItemInMainHand().getType().name();
-            
-            if (!whitelist.materialNames().contains(heldItem)) {
+            Material heldMaterial = player.getInventory().getItemInMainHand().getType();
+            boolean isAllowed = false;
+            for (String configName : whitelist.materialNames()) {
+                Material targetMaterial = Material.matchMaterial(configName);
+                if (targetMaterial != null && targetMaterial == heldMaterial) {
+                    isAllowed = true;
+                    break;
+                }
+            }
+            if (!isAllowed) {
                 String whitelistMessage = config.getMessageConfig().pinata.hitWrongItem();
                 if (whitelistMessage != null && !whitelistMessage.isEmpty()) {
-                    messageHandler.send(player, whitelistMessage, messageHandler.tag("item", heldItem));
+                    messageHandler.send(player, whitelistMessage, messageHandler.tag("item", heldMaterial.name()));
                 }
+                log.debug("Player " + player.getName() + " attempted to hit pinata " + pinata + " with disallowed item: " + heldMaterial);
                 event.setCancelled(true);
                 return;
             }
@@ -110,6 +121,14 @@ public class PinataListener implements Listener {
         }
 
         hitCooldownHandler.applyCooldown(player, pinata);
+
+        var hitEvent = new PinataHitEvent(pinata, player);
+        plugin.getServer().getPluginManager().callEvent(hitEvent);
+
+        if (hitEvent.isCancelled()) {
+            return;
+        }
+
         event.setCancelled(true);
 
         int currentHits = pinata.getPersistentDataContainer().getOrDefault(pinataManager.getHealthKey(), PersistentDataType.INTEGER, 1);
