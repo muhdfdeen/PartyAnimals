@@ -1,6 +1,8 @@
 package com.muhdfdeen.partyanimals.handler;
 
 import com.muhdfdeen.partyanimals.config.settings.PinataConfig.EffectGroup;
+import com.muhdfdeen.partyanimals.config.settings.PinataConfig.ParticleEffect;
+import com.muhdfdeen.partyanimals.config.settings.PinataConfig.SoundEffect;
 import com.muhdfdeen.partyanimals.util.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,41 +17,63 @@ public class EffectHandler {
         this.log = log;
     }
 
-    public void playEffects(EffectGroup effect, Location location, boolean globalSound) {
-        if (effect == null) return;
+    public void playEffects(EffectGroup group, Location location, boolean globalSound) {
+        if (group == null) return;
 
-        if (effect.sound() != null) {
-            String soundType = effect.sound().type();
-            float volume = effect.sound().volume();
-            float pitch = effect.sound().pitch();
-
-            if (soundType != null && !soundType.isEmpty()) {
-                if (globalSound) {
-                    for (Player p : Bukkit.getOnlinePlayers()) {
-                        p.playSound(p.getLocation(), soundType, volume, pitch);
-                    }
-                } else {
-                    if (location != null && location.getWorld() != null) {
-                        location.getWorld().playSound(location, soundType, volume, pitch);
-                    }
-                }
+        if (group.sounds() != null) {
+            for (SoundEffect sound : group.sounds()) {
+                playSound(sound, location, globalSound);
             }
         }
 
         if (location == null || location.getWorld() == null) return;
 
-        if (effect.particle() != null) {
-            String particleType = effect.particle().type();
-            int count = effect.particle().count();
+        if (group.particles() != null) {
+            for (ParticleEffect particle : group.particles()) {
+                playParticle(particle, location);
+            }
+        }
+    }
 
-            if (particleType != null && !particleType.isEmpty()) {
-                try {
-                    Particle particle = Particle.valueOf(particleType.toUpperCase());
-                    location.getWorld().spawnParticle(particle, location.clone().add(0, 1, 0), count);
-                } catch (IllegalArgumentException e) {
-                    log.error("Invalid particle type in config: " + particleType);
+    private void playSound(SoundEffect sound, Location location, boolean globalSound) {
+        if (sound.type() == null || sound.type().isEmpty()) return;
+
+        try {
+            if (globalSound) {
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.playSound(p.getLocation(), sound.type(), sound.volume(), sound.pitch());
+                }
+            } else {
+                if (location != null && location.getWorld() != null) {
+                    location.getWorld().playSound(location, sound.type(), sound.volume(), sound.pitch());
                 }
             }
+        } catch (Exception e) {
+            log.debug("Failed to play sound: " + sound.type());
+        }
+    }
+
+    private void playParticle(ParticleEffect particleData, Location location) {
+        String particleType = particleData.type();
+        if (particleType == null || particleType.isEmpty()) return;
+
+        try {
+            Particle particle = Particle.valueOf(particleType.toUpperCase());
+
+            double speed = particleData.speed();
+            double offX = 0.5;
+            double offY = 0.5;
+            double offZ = 0.5;
+
+            if (particleData.offset() != null) {
+                offX = particleData.offset().x();
+                offY = particleData.offset().y();
+                offZ = particleData.offset().z();
+            }
+
+            location.getWorld().spawnParticle(particle, location.clone().add(0, 1.0, 0), particleData.count(), offX, offY, offZ, speed);
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid particle type in config: " + particleType);
         }
     }
 }

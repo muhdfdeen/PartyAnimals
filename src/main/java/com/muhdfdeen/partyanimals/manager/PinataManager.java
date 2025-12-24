@@ -78,8 +78,8 @@ public class PinataManager {
         BossBar bossBar = BossBar.bossBar(
             messageHandler.parse(null, bossBarCountdown, messageHandler.tag("countdown", (int) countdownSeconds)), 
             1.0f, 
-            BossBar.Color.valueOf(barSettings.color()), 
-            BossBar.Overlay.valueOf(barSettings.overlay())
+            barSettings.color(), 
+            barSettings.overlay()
         );
         
         boolean shouldShowBar = barSettings.enabled();

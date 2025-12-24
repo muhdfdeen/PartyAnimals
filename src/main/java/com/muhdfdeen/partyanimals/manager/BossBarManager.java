@@ -40,8 +40,8 @@ public class BossBarManager {
         BossBar bossBar = BossBar.bossBar(
                 barName,
                 1.0f,
-                BossBar.Color.valueOf(config.getPinataConfig().health.bar().color().toUpperCase()),
-                BossBar.Overlay.valueOf(config.getPinataConfig().health.bar().overlay().toUpperCase())
+                config.getPinataConfig().health.bar().color(),
+                config.getPinataConfig().health.bar().overlay()
         );
 
         activeBossBars.put(pinata.getUniqueId(), bossBar);

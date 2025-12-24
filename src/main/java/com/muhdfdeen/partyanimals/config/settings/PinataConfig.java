@@ -15,6 +15,7 @@ import de.exlll.configlib.ConfigLib;
 import de.exlll.configlib.Configuration;
 import de.exlll.configlib.YamlConfigurationProperties;
 import de.exlll.configlib.YamlConfigurations;
+import net.kyori.adventure.bossbar.BossBar;
 
 public final class PinataConfig {
 
@@ -40,7 +41,7 @@ public final class PinataConfig {
             10,
             true,
             5,
-            new BossBarSettings(true, true, "GREEN", "NOTCHED_10")
+            new BossBarSettings(true, true, BossBar.Color.GREEN, BossBar.Overlay.NOTCHED_10)
         );
         
         public InteractionSettings interaction = new InteractionSettings(
@@ -50,10 +51,10 @@ public final class PinataConfig {
         
         public TimerSettings timer = new TimerSettings(
             new PhaseSettings(10,
-                new BossBarSettings(true, true, "YELLOW", "PROGRESS"),
-                new EffectGroup(new SoundEffect("block.note_block.bit", 1f, 1f), new ParticleEffect("FIREWORK", 5)),
-                new EffectGroup(new SoundEffect("block.note_block.bit", 1f, 0.8f), new ParticleEffect("NOTE", 5)),
-                new EffectGroup(new SoundEffect("entity.firework_rocket.launch", 1f, 0.8f), new ParticleEffect("SONIC_BOOM", 5))
+                new BossBarSettings(true, true, BossBar.Color.YELLOW, BossBar.Overlay.PROGRESS),
+                new EffectGroup(List.of(new SoundEffect("block.note_block.bit", 1f, 1f)), List.of(new ParticleEffect("FIREWORK", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
+                new EffectGroup(List.of(new SoundEffect("block.note_block.bit", 1f, 0.8f)), List.of(new ParticleEffect("NOTE", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
+                new EffectGroup(List.of(new SoundEffect("entity.firework_rocket.launch", 1f, 0.8f)), List.of(new ParticleEffect("SONIC_BOOM", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0)))
             ),
             new TimeoutSettings(true, 300),
             new HitCooldown(true, 0.75, false, "ACTION_BAR")
@@ -70,22 +71,22 @@ public final class PinataConfig {
         
         public EventRegistry events = new EventRegistry(
             new GameEvent(true,
-                new EffectGroup(new SoundEffect("entity.firework_rocket.twinkle", 1f, 1f), new ParticleEffect("TOTEM_OF_UNDYING", 10)),
+                new EffectGroup(List.of(new SoundEffect("entity.firework_rocket.twinkle", 1f, 1f)), List.of(new ParticleEffect("TOTEM_OF_UNDYING", 10, new ParticleOffset(0.5, 1.0, 0.5), 0.1))),
                 new HashMap<>(Map.of("announce", new RewardAction(100.0, List.of("broadcast <green>A pinata has arrived!"))))
             ),
             new GameEvent(true,
-                new EffectGroup(new SoundEffect("entity.player.attack.crit", 1f, 1f), new ParticleEffect("CRIT", 5)),
+                new EffectGroup(List.of(new SoundEffect("entity.player.attack.crit", 1f, 1f)), List.of(new ParticleEffect("CRIT", 5, new ParticleOffset(0.3, 1.0, 0.3), 0.0))),
                 new HashMap<>()
             ),
             new GameEvent(true,
-                new EffectGroup(new SoundEffect("ui.toast.challenge_complete", 1f, 1f), new ParticleEffect("HEART", 20)),
+                new EffectGroup(List.of(new SoundEffect("ui.toast.challenge_complete", 1f, 1f)), List.of(new ParticleEffect("HEART", 20, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
                 new HashMap<>(Map.of("vip_reward", new RewardAction(50.0, true, false, false, "partyanimals.vip", List.of("give {player} diamond 1"))))
             ),
             new GameEvent(true,
-                new EffectGroup(new SoundEffect("entity.generic.explode", 1f, 1f), new ParticleEffect("EXPLOSION", 5)),
+                new EffectGroup(List.of(new SoundEffect("entity.generic.explode", 1f, 1f)), List.of(new ParticleEffect("EXPLOSION", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
                 new HashMap<>(Map.of("everyone_emerald", new RewardAction(100.0, true, false, false, "", List.of("give @a emerald 5"))))
             )
-        );
+        ); 
     }
 
     public record ScaleSettings(
@@ -96,8 +97,8 @@ public final class PinataConfig {
     public record BossBarSettings(
         @Comment("Show a boss bar for this phase.") boolean enabled,
         @Comment("If true, all players see the bar. If false, only those near the pinata.") boolean global,
-        @Comment({"Bar color.", "See: https://jd.advntr.dev/api/4.25.0/net/kyori/adventure/bossbar/BossBar.Color.html"}) String color,
-        @Comment({"Bar overlay.", "See: https://jd.advntr.dev/api/4.25.0/net/kyori/adventure/bossbar/BossBar.Overlay.html"}) String overlay
+        @Comment({"Bar color.", "See: https://jd.advntr.dev/api/4.25.0/net/kyori/adventure/bossbar/BossBar.Color.html"}) BossBar.Color color,
+        @Comment({"Bar overlay.", "See: https://jd.advntr.dev/api/4.25.0/net/kyori/adventure/bossbar/BossBar.Overlay.html"}) BossBar.Overlay overlay
     ) {}
 
     public record Appearance(
@@ -168,9 +169,13 @@ public final class PinataConfig {
         @Comment("Movement logic settings.") MovementSettings movement
     ) {}
 
+    public record ParticleOffset(double x, double y, double z) {}
+
     public record SoundEffect(String type, float volume, float pitch) {}
-    public record ParticleEffect(String type, int count) {}
-    public record EffectGroup(SoundEffect sound, ParticleEffect particle) {}
+
+    public record ParticleEffect(String type, int count, ParticleOffset offset, double speed) {}
+
+    public record EffectGroup(List<SoundEffect> sounds, List<ParticleEffect> particles) {}
 
     public record PhaseSettings(
         @Comment("Duration in seconds.") int duration,
