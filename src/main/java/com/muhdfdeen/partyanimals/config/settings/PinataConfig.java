@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.muhdfdeen.partyanimals.config.objects.EffectTypes.*;
+import com.muhdfdeen.partyanimals.config.objects.NameTagSettings;
+import com.muhdfdeen.partyanimals.config.objects.NameTagSettings.*;
 import com.muhdfdeen.partyanimals.config.objects.RewardAction;
 import com.muhdfdeen.partyanimals.config.objects.SerializableLocation;
 
@@ -16,6 +18,10 @@ import de.exlll.configlib.ConfigLib;
 import de.exlll.configlib.Configuration;
 import de.exlll.configlib.YamlConfigurationProperties;
 import de.exlll.configlib.YamlConfigurations;
+
+import org.bukkit.entity.Display;
+import org.bukkit.entity.TextDisplay.TextAlignment;
+
 import net.kyori.adventure.bossbar.BossBar;
 
 public final class PinataConfig {
@@ -28,10 +34,37 @@ public final class PinataConfig {
 
     @Configuration
     public static class PinataConfiguration {
-        
         public Appearance appearance = new Appearance(
-            List.of("LLAMA", "MULE"), 
-            "<gradient:#FF5555:#FF55FF>🪅 <bold>Party Pinata</bold></gradient>", 
+            List.of("LLAMA", "MULE"),
+            "<gradient:#FF5555:#FF55FF>🪅 <bold>Party Pinata</bold></gradient>",
+            new NameTagSettings(
+                "TEXT",
+                List.of("<pinata-name>", "<health> <gray>/</gray> <max-health> <red>❤</red>"),
+                TextAlignment.CENTER,
+                "transparent",
+                new TextShadowSettings(
+                    true,
+                    0,
+                    0
+                ),
+                Display.Billboard.VERTICAL,
+                true,
+                20,
+                new TransformSettings(
+                    new TranslationSettings(
+                        0,
+                        0,
+                        0
+                    ),
+                    new NameTagSettings.ScaleSettings(
+                        1,
+                        1,
+                        1
+                    ),
+                    0,
+                    0
+                )
+            ), 
             new ScaleSettings(0.75, 1.25), 
             false, 
             true,
@@ -95,31 +128,34 @@ public final class PinataConfig {
         @Comment("Maximum size multiplier.") double max
     ) {}
 
+    public record Appearance(
+        @Comment({"Entity types to use for the pinata.", "If multiple types are provided, one is chosen randomly.", "See: https://jd.papermc.io/paper/1.21.11/org/bukkit/entity/EntityType.html"}) 
+        List<String> entityTypes,
+
+        @Comment("Custom name of the pinata entity.")
+        String name,
+        
+        @Comment("Custom name displayed above the pinata.")
+        NameTagSettings nameTag,
+        
+        @Comment("Size randomization settings.")
+        ScaleSettings scale,
+        
+        @Comment("Flash red when taking damage.")
+        boolean damageFlash,
+        
+        @Comment("Show glowing outline.")
+        boolean glowing,
+        
+        @Comment("Color of the glowing outline.")
+        String glowColor
+    ) {}
+
     public record BossBarSettings(
         @Comment("Show a boss bar for this phase.") boolean enabled,
         @Comment("If true, all players see the bar. If false, only those near the pinata.") boolean global,
         @Comment({"Bar color.", "See: https://jd.advntr.dev/api/4.25.0/net/kyori/adventure/bossbar/BossBar.Color.html"}) BossBar.Color color,
         @Comment({"Bar overlay.", "See: https://jd.advntr.dev/api/4.25.0/net/kyori/adventure/bossbar/BossBar.Overlay.html"}) BossBar.Overlay overlay
-    ) {}
-
-    public record Appearance(
-        @Comment({"Entity types to use for the pinata.", "If multiple types are provided, one is chosen randomly.", "See: https://jd.papermc.io/paper/1.21.11/org/bukkit/entity/EntityType.html"}) 
-        List<String> entityTypes,
-        
-        @Comment("Display name.") 
-        String name,
-        
-        @Comment("Size randomization settings.") 
-        ScaleSettings scale,
-        
-        @Comment("Flash red when taking damage.") 
-        boolean damageFlash,
-        
-        @Comment("Show glowing spectral outline.") 
-        boolean glowing,
-        
-        @Comment("Color of the glowing outline.") 
-        String glowColor
     ) {}
 
     public record HealthSettings(
