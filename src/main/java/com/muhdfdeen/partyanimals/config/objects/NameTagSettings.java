@@ -6,6 +6,9 @@ import org.bukkit.entity.TextDisplay;
 import de.exlll.configlib.Comment;
 
 public record NameTagSettings(
+    @Comment("Whether the name tag is enabled.")
+    boolean enabled,
+
     @Comment("Type of display. Currently only TEXT is supported.")
     String type,
 

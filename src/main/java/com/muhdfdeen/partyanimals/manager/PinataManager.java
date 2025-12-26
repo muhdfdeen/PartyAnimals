@@ -25,11 +25,13 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import org.bukkit.util.Transformation;
 
 public class PinataManager {
     private final PartyAnimals plugin;
@@ -194,9 +196,23 @@ public class PinataManager {
                         team.addEntry(livingEntity.getUniqueId().toString());
                     }
                 }
-
-                livingEntity.customName(messageHandler.parse(null, config.getPinataConfig().appearance.name()));
-                livingEntity.setCustomNameVisible(true);
+                
+                if (config.getPinataConfig().appearance.nameTag().enabled()) {
+                    TextDisplay nameTag = (TextDisplay) location.getWorld().spawnEntity(location, EntityType.TEXT_DISPLAY);
+                    nameTag.text(messageHandler.parse(null, config.getPinataConfig().appearance.name()));
+                    nameTag.setShadowed(config.getPinataConfig().appearance.nameTag().shadow().enabled());
+                    nameTag.setSeeThrough(config.getPinataConfig().appearance.nameTag().seeThrough());
+                    nameTag.setBillboard(config.getPinataConfig().appearance.nameTag().billboard());
+                    nameTag.setDefaultBackground(false);
+                    Transformation nameTransform = nameTag.getTransformation();
+                    nameTransform.getTranslation().set(
+                        config.getPinataConfig().appearance.nameTag().transformation().translation().x(),
+                        config.getPinataConfig().appearance.nameTag().transformation().translation().y(),
+                        config.getPinataConfig().appearance.nameTag().transformation().translation().z()
+                    );
+                    nameTag.setTransformation(nameTransform);
+                    livingEntity.addPassenger(nameTag);
+                }
 
                 restorePinata(livingEntity);
 

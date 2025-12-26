@@ -38,6 +38,7 @@ public final class PinataConfig {
             List.of("LLAMA", "MULE"),
             "<gradient:#FF5555:#FF55FF>🪅 <bold>Party Pinata</bold></gradient>",
             new NameTagSettings(
+                true,
                 "TEXT",
                 List.of("<pinata-name>", "<health> <gray>/</gray> <max-health> <red>❤</red>"),
                 TextAlignment.CENTER,
