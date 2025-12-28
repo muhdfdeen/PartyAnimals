@@ -204,70 +204,7 @@ public class PinataManager {
                 }
 
                 if (config.getPinataConfig().appearance.nameTag().enabled()) {
-                    TextDisplay nameTag = (TextDisplay) spawnLocation.getWorld().spawnEntity(spawnLocation, EntityType.TEXT_DISPLAY);
-
-                    nameTag.setPersistent(false);
-
-                    int totalSeconds = config.getPinataConfig().timer.timeout().duration();
-                    String initialTimeStr = "∞";
-
-                    if (config.getPinataConfig().timer.timeout().enabled() && totalSeconds > 0) {
-                        initialTimeStr = String.format("%02d:%02d", totalSeconds / 60, totalSeconds % 60);
-                    }
-
-                    List<String> lines = config.getPinataConfig().appearance.nameTag().text();
-                    List<Component> components = new ArrayList<>();
-                    
-                    if (lines != null) {
-                        for (String line : lines) {
-                            components.add(messageHandler.parse(null, line,
-                                messageHandler.tag("pinata", config.getPinataConfig().appearance.name()),
-                                messageHandler.tag("health", finalHealth),
-                                messageHandler.tag("max-health", finalHealth),
-                                messageHandler.tag("timer", initialTimeStr)
-                            ));
-                        }
-                    }
-                    
-                    nameTag.text(Component.join(JoinConfiguration.newlines(), components));
-
-                    nameTag.setAlignment(config.getPinataConfig().appearance.nameTag().textAlignment());
-
-                    nameTag.setDefaultBackground(false);
-
-                    if (config.getPinataConfig().appearance.nameTag().background().enabled()) {
-                        nameTag.setBackgroundColor(Color.fromARGB(
-                            config.getPinataConfig().appearance.nameTag().background().alpha(),
-                            config.getPinataConfig().appearance.nameTag().background().red(),
-                            config.getPinataConfig().appearance.nameTag().background().green(),
-                            config.getPinataConfig().appearance.nameTag().background().blue()
-                        ));
-                    } else {
-                        nameTag.setBackgroundColor(Color.fromARGB(0, 0, 0, 0));
-                    }
-
-                    nameTag.setShadowed(config.getPinataConfig().appearance.nameTag().shadow().enabled());
-                    nameTag.setShadowRadius(config.getPinataConfig().appearance.nameTag().shadow().radius());
-                    nameTag.setShadowStrength(config.getPinataConfig().appearance.nameTag().shadow().strength());
-                    nameTag.setBillboard(config.getPinataConfig().appearance.nameTag().billboard());
-                    nameTag.setSeeThrough(config.getPinataConfig().appearance.nameTag().seeThrough());
-
-                    Transformation nameTransform = nameTag.getTransformation();
-
-                    float scaleX = (float) config.getPinataConfig().appearance.nameTag().transformation().scale().x();
-                    float scaleY = (float) config.getPinataConfig().appearance.nameTag().transformation().scale().y();
-                    float scaleZ = (float) config.getPinataConfig().appearance.nameTag().transformation().scale().z();
-
-                    float transX = (float) config.getPinataConfig().appearance.nameTag().transformation().translation().x();
-                    float transY = (float) config.getPinataConfig().appearance.nameTag().transformation().translation().y();
-                    float transZ = (float) config.getPinataConfig().appearance.nameTag().transformation().translation().z();
-
-                    nameTransform.getTranslation().set(transX, transY, transZ);
-                    nameTransform.getScale().set(scaleX, scaleY, scaleZ);
-
-                    nameTag.setTransformation(nameTransform);
-
-                    livingEntity.addPassenger(nameTag);
+                    spawnNameTag(livingEntity);
                 }
 
                 activatePinata(livingEntity);
@@ -293,11 +230,19 @@ public class PinataManager {
         startTimeoutTask(pinata);
 
         if (config.getPinataConfig().appearance.nameTag().enabled()) {
-            for (org.bukkit.entity.Entity passenger : pinata.getPassengers()) {
-                if (passenger instanceof TextDisplay textDisplay) {
-                    startNameTagTask(pinata, textDisplay);
-                    break;
+            boolean tagFound = false;
+            if (pinata.getPassengers() != null) {
+                for (org.bukkit.entity.Entity passenger : pinata.getPassengers()) {
+                    if (passenger instanceof TextDisplay textDisplay) {
+                        startNameTagTask(pinata, textDisplay);
+                        tagFound = true;
+                        break;
+                    }
                 }
+            }
+            
+            if (!tagFound) {
+                spawnNameTag(pinata);
             }
         }
     }
@@ -349,15 +294,13 @@ public class PinataManager {
 
         if (remainingTicks <= 0) {
             log.debug("Restoring pinata but timeout passed. Removing.");
-            removeActiveBossBar(pinata);
-            pinata.remove();
+            safelyRemovePinata(pinata);
             return;
         }
 
         var task = pinata.getScheduler().runDelayed(plugin, (t) -> {
             if (pinata.isValid() && isPinata(pinata)) {
-                removeActiveBossBar(pinata);
-                pinata.remove();
+                safelyRemovePinata(pinata);
                 String timeoutMsg = config.getMessageConfig().pinata.timeout();
                 messageHandler.send(plugin.getServer(), timeoutMsg);
             }
@@ -423,6 +366,20 @@ public class PinataManager {
         }
     }
 
+    public void safelyRemovePinata(LivingEntity pinata) {
+        if (pinata.getPassengers() != null) {
+             for (org.bukkit.entity.Entity passenger : new ArrayList<>(pinata.getPassengers())) {
+                 passenger.remove();
+             }
+        }
+
+        removeActiveBossBar(pinata);
+
+        if (pinata.isValid()) {
+            pinata.remove();
+        }
+    }
+
     public void removeActiveBossBar(LivingEntity pinata) {
         bossBarManager.removeBossBar(pinata.getUniqueId());
         activePinatas.remove(pinata.getUniqueId());
@@ -432,13 +389,88 @@ public class PinataManager {
             task.cancel();
     }
 
+    private void spawnNameTag(LivingEntity pinata) {
+        Location location = pinata.getLocation();
+        TextDisplay nameTag = (TextDisplay) location.getWorld().spawnEntity(location, EntityType.TEXT_DISPLAY);
+
+        nameTag.setPersistent(false);
+
+        int currentHealth = pinata.getPersistentDataContainer().getOrDefault(health, PersistentDataType.INTEGER, config.getPinataConfig().health.maxHealth());
+        int maxHealthVal = pinata.getPersistentDataContainer().getOrDefault(max_health, PersistentDataType.INTEGER, currentHealth);
+
+        int totalSeconds = config.getPinataConfig().timer.timeout().duration();
+        String initialTimeStr = "∞";
+
+        if (config.getPinataConfig().timer.timeout().enabled() && totalSeconds > 0) {
+            initialTimeStr = String.format("%02d:%02d", totalSeconds / 60, totalSeconds % 60);
+        }
+
+        List<String> lines = config.getPinataConfig().appearance.nameTag().text();
+        List<Component> components = new ArrayList<>();
+        
+        if (lines != null) {
+            for (String line : lines) {
+                components.add(messageHandler.parse(null, line,
+                    messageHandler.tag("pinata", config.getPinataConfig().appearance.name()),
+                    messageHandler.tag("health", currentHealth),
+                    messageHandler.tag("max-health", maxHealthVal),
+                    messageHandler.tag("timer", initialTimeStr)
+                ));
+            }
+        }
+        
+        nameTag.text(Component.join(JoinConfiguration.newlines(), components));
+
+        nameTag.setAlignment(config.getPinataConfig().appearance.nameTag().textAlignment());
+
+        nameTag.setDefaultBackground(false);
+
+        if (config.getPinataConfig().appearance.nameTag().background().enabled()) {
+            nameTag.setBackgroundColor(Color.fromARGB(
+                config.getPinataConfig().appearance.nameTag().background().alpha(),
+                config.getPinataConfig().appearance.nameTag().background().red(),
+                config.getPinataConfig().appearance.nameTag().background().green(),
+                config.getPinataConfig().appearance.nameTag().background().blue()
+            ));
+        } else {
+            nameTag.setBackgroundColor(Color.fromARGB(0, 0, 0, 0));
+        }
+
+        nameTag.setShadowed(config.getPinataConfig().appearance.nameTag().shadow().enabled());
+        nameTag.setShadowRadius(config.getPinataConfig().appearance.nameTag().shadow().radius());
+        nameTag.setShadowStrength(config.getPinataConfig().appearance.nameTag().shadow().strength());
+        nameTag.setBillboard(config.getPinataConfig().appearance.nameTag().billboard());
+        nameTag.setSeeThrough(config.getPinataConfig().appearance.nameTag().seeThrough());
+
+        Transformation nameTransform = nameTag.getTransformation();
+
+        float scaleX = (float) config.getPinataConfig().appearance.nameTag().transformation().scale().x();
+        float scaleY = (float) config.getPinataConfig().appearance.nameTag().transformation().scale().y();
+        float scaleZ = (float) config.getPinataConfig().appearance.nameTag().transformation().scale().z();
+
+        float transX = (float) config.getPinataConfig().appearance.nameTag().transformation().translation().x();
+        float transY = (float) config.getPinataConfig().appearance.nameTag().transformation().translation().y();
+        float transZ = (float) config.getPinataConfig().appearance.nameTag().transformation().translation().z();
+
+        nameTransform.getTranslation().set(transX, transY, transZ);
+        nameTransform.getScale().set(scaleX, scaleY, scaleZ);
+
+        nameTag.setTransformation(nameTransform);
+
+        pinata.addPassenger(nameTag);
+    }
+
     public void cleanup() {
-        log.debug("Running PinataManager cleanup...");
+        cleanup(true); 
+    }
+
+    public void cleanup(boolean killEntities) {
+        log.debug("Running PinataManager cleanup (Kill entities: " + killEntities + ")...");
         bossBarManager.removeAll();
 
         for (LivingEntity entity : List.copyOf(activePinatas.values())) {
-            if (entity.isValid()) {
-                entity.remove();
+            if (killEntities) {
+                safelyRemovePinata(entity);
             }
         }
         
