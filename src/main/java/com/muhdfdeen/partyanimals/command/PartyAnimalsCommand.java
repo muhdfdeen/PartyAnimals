@@ -119,7 +119,7 @@ public class PartyAnimalsCommand {
                                                         "<red>Unknown pinata template: " + templateId);
                                                 return Command.SINGLE_SUCCESS;
                                             }
-                                            pinataConfig.spawnLocations.put(locationName, spawnLocation);
+                                            config.getMainConfig().modules.pinata().spawnLocations().put(locationName, spawnLocation);
                                             config.saveConfig();
                                             messageHandler.send(player,
                                                     config.getMessageConfig().pinata.spawnPointAdded(),
@@ -148,8 +148,7 @@ public class PartyAnimalsCommand {
                                                         "<red>Unknown pinata template: " + templateId);
                                                 return Command.SINGLE_SUCCESS;
                                             }
-                                            SerializableLocation removed = pinataConfig.spawnLocations
-                                                    .remove(locationName);
+                                            SerializableLocation removed = config.getMainConfig().modules.pinata().spawnLocations().remove(locationName);
                                             if (removed != null) {
                                                 config.saveConfig();
                                                 messageHandler.send(source.getSender(),
@@ -196,7 +195,7 @@ public class PartyAnimalsCommand {
                         messageHandler.tagParsed("pinata", templateId));
                 return null;
             }
-            SerializableLocation spawnLocation = pinataConfig.spawnLocations.get(locationName);
+            SerializableLocation spawnLocation = config.getMainConfig().modules.pinata().spawnLocations().get(locationName);
             if (spawnLocation == null) {
                 messageHandler.send(source.getSender(), config.getMessageConfig().pinata.spawnPointUnknown(),
                         messageHandler.tagParsed("pinata", templateId), messageHandler.tag("location", locationName));
@@ -221,8 +220,8 @@ public class PartyAnimalsCommand {
             String templateArg) {
         String templateId = StringArgumentType.getString(ctx, templateArg);
         var pinataConfig = config.getPinataConfig(templateId);
-        if (pinataConfig != null && pinataConfig.spawnLocations != null) {
-            pinataConfig.spawnLocations.keySet().forEach(builder::suggest);
+        if (pinataConfig != null && config.getMainConfig().modules.pinata().spawnLocations() != null) {
+            config.getMainConfig().modules.pinata().spawnLocations().keySet().forEach(builder::suggest);
         }
         return builder;
     }

@@ -10,7 +10,6 @@ import com.muhdfdeen.partyanimals.config.objects.EffectTypes.*;
 import com.muhdfdeen.partyanimals.config.objects.NameTagSettings;
 import com.muhdfdeen.partyanimals.config.objects.NameTagSettings.*;
 import com.muhdfdeen.partyanimals.config.objects.RewardAction;
-import com.muhdfdeen.partyanimals.config.objects.SerializableLocation;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.ConfigLib;
@@ -102,9 +101,6 @@ public final class PinataConfig {
             1.0,
             new MovementSettings(new PathfindingRange(15.0, 5.0, 15.0), 1.75)
         );
-        
-        @Comment("Defined spawn points.")
-        public Map<String, SerializableLocation> spawnLocations = new HashMap<>(Map.of("default", new SerializableLocation()));
         
         public EventRegistry events = new EventRegistry(
             new GameEvent(true,
