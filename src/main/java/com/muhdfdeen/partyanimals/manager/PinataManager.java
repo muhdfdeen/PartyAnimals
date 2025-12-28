@@ -206,6 +206,8 @@ public class PinataManager {
                 if (config.getPinataConfig().appearance.nameTag().enabled()) {
                     TextDisplay nameTag = (TextDisplay) spawnLocation.getWorld().spawnEntity(spawnLocation, EntityType.TEXT_DISPLAY);
 
+                    nameTag.setPersistent(false);
+
                     int totalSeconds = config.getPinataConfig().timer.timeout().duration();
                     String initialTimeStr = "∞";
 
