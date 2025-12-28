@@ -40,7 +40,7 @@ public final class PinataConfig {
             new NameTagSettings(
                 true,
                 "TEXT",
-                List.of("<pinata>", "<health> <gray>/</gray> <max-health> <red>❤</red>"),
+                List.of("<pinata>", "<health> <gray>/</gray> <max-health> <red>❤</red>", "<timer>"),
                 TextAlignment.CENTER,
                 new BackgroundSettings(
                     false,

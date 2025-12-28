@@ -219,10 +219,10 @@ public class PinataManager {
                     if (lines != null) {
                         for (String line : lines) {
                             components.add(messageHandler.parse(null, line,
-                                messageHandler.tag("pinata", livingEntity.getType().name()),
+                                messageHandler.tag("pinata", config.getPinataConfig().appearance.name()),
                                 messageHandler.tag("health", finalHealth),
                                 messageHandler.tag("max-health", finalHealth),
-                                messageHandler.tag("timeout", initialTimeStr)
+                                messageHandler.tag("timer", initialTimeStr)
                             ));
                         }
                     }
@@ -393,10 +393,10 @@ public class PinataManager {
             if (lines != null) {
                 for (String line : lines) {
                     components.add(messageHandler.parse(null, line,
-                        messageHandler.tag("pinata", livingEntity.getType().name()),
+                        messageHandler.tag("pinata", config.getPinataConfig().appearance.name()),
                         messageHandler.tag("health", currentHealth),
                         messageHandler.tag("max-health", maxHealthVal),
-                        messageHandler.tag("timeout", timeStr)
+                        messageHandler.tag("timer", timeStr)
                     ));
                 }
             }

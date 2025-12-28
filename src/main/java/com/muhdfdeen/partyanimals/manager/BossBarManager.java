@@ -34,7 +34,7 @@ public class BossBarManager {
                 messageHandler.tagParsed("pinata", config.getPinataConfig().appearance.name()),
                 messageHandler.tag("health", health),
                 messageHandler.tag("max-health", maxHealth),
-                messageHandler.tag("timeout", timeStr)
+                messageHandler.tag("timer", timeStr)
         );
 
         BossBar bossBar = BossBar.bossBar(
@@ -67,7 +67,7 @@ public class BossBarManager {
                 messageHandler.tagParsed("pinata", config.getPinataConfig().appearance.name()),
                 messageHandler.tag("health", currentHealth),
                 messageHandler.tag("max-health", maxHealth),
-                messageHandler.tag("timeout", timeStr)
+                messageHandler.tag("timer", timeStr)
         ));
 
         updateViewerList(pinata, bossBar);
