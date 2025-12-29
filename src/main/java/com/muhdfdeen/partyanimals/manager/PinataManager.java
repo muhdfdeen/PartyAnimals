@@ -34,7 +34,6 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Transformation;
@@ -120,47 +119,44 @@ public class PinataManager {
         long durationMillis = (long) (countdownSeconds * 1000);
         long endTime = System.currentTimeMillis() + durationMillis;
 
-        new BukkitRunnable() {
-            int lastSeconds = (int) countdownSeconds;
+        final int[] lastSeconds = {(int) countdownSeconds};
 
-            @Override
-            public void run() {
-                long now = System.currentTimeMillis();
-                long remainingMilis = endTime - now;
+        Bukkit.getRegionScheduler().runAtFixedRate(plugin, location, (task) -> {
+            long now = System.currentTimeMillis();
+            long remainingMilis = endTime - now;
 
-                if (remainingMilis <= 0) {
-                    for (Player p : plugin.getServer().getOnlinePlayers()) {
+            if (remainingMilis <= 0) {
+                for (Player p : plugin.getServer().getOnlinePlayers()) {
+                    p.hideBossBar(bossBar);
+                }
+                effectHandler.playEffects(pinataConfig.timer.countdown().end(), location, true);
+                spawnPinata(location, templateId);
+                task.cancel();
+                return;
+            }
+
+            if (shouldShowBar) {
+                float progress = Math.max(0.0f, Math.min(1.0f, (float) remainingMilis / durationMillis));
+                int displaySeconds = (int) Math.ceil(remainingMilis / 1000.0);
+
+                bossBar.progress(progress);
+                    
+                for (Player p : plugin.getServer().getOnlinePlayers()) {
+                    boolean inSameWorld = p.getWorld().equals(location.getWorld());
+                    if (global || inSameWorld) {
+                        p.showBossBar(bossBar);
+                    } else {
                         p.hideBossBar(bossBar);
                     }
-                    effectHandler.playEffects(pinataConfig.timer.countdown().end(), location, true);
-                    spawnPinata(location, templateId);
-                    this.cancel();
-                    return;
                 }
 
-                if (shouldShowBar) {
-                    float progress = Math.max(0.0f, Math.min(1.0f, (float) remainingMilis / durationMillis));
-                    int displaySeconds = (int) Math.ceil(remainingMilis / 1000.0);
-
-                    bossBar.progress(progress);
-                    
-                    for (Player p : plugin.getServer().getOnlinePlayers()) {
-                        boolean inSameWorld = p.getWorld().equals(location.getWorld());
-                        if (global || inSameWorld) {
-                            p.showBossBar(bossBar);
-                        } else {
-                            p.hideBossBar(bossBar);
-                        }
-                    }
-
-                    if (displaySeconds != lastSeconds) {
-                        effectHandler.playEffects(pinataConfig.timer.countdown().mid(), location, true);
-                        bossBar.name(messageHandler.parse(null, bossBarCountdown, messageHandler.tag("countdown", displaySeconds)));
-                        lastSeconds = displaySeconds;
-                    }
+                if (displaySeconds != lastSeconds[0]) {
+                    effectHandler.playEffects(pinataConfig.timer.countdown().mid(), location, true);
+                    bossBar.name(messageHandler.parse(null, bossBarCountdown, messageHandler.tag("countdown", displaySeconds)));
+                    lastSeconds[0] = displaySeconds;
                 }
             }
-        }.runTaskTimer(plugin, 0, 1L);
+        }, 1L, 1L);
     }
 
     public void spawnPinata(Location location, String templateId) {
@@ -251,7 +247,7 @@ public class PinataManager {
     }
 
     public void activatePinata(LivingEntity pinata) {
-        if (!pinata.isValid()) return;
+        if (pinata == null || pinata.isDead()) return;
 
         PinataConfiguration pinataConfig = getPinataConfig(pinata);
 
