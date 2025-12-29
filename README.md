@@ -1,51 +1,9 @@
 # Party Animals
 
+A feature-rich Minecraft plugin for Paper servers that spawns interactive pinata entities. Players collaborate to break pinatas and earn configurable, chance-based rewards and PlaceholderAPI support. Includes modular configuration, live reload, and a developer API for custom event handling.
+
 > [!IMPORTANT]
-> This project is currently in alpha development. Breaking changes can be expected, and some features may not work as intended. Use at your own risk.
-
-A Minecraft plugin for Paper servers that spawns interactive pinata entities. Players work together to break pinatas and earn configurable rewards through a chance-based system with permission support.
-
-## Features
-
-### General
-
-- MiniMessage support for all broadcasts and messages
-- Extensive PlaceholderAPI support throughout configuration
-
-### Pinata
-
-- Configure entity types (`LLAMA`, `MULE`, etc.), health, scale, and glowing effects
-- Configurable wandering behavior, knockback resistance, and pathfinding
-- Define custom spawn locations and summon via command
-- Mechanics:
-  - Configurable countdown timer with visual effects before pinata spawns
-  - Configurable boss bars showing health and lifespan status
-  - Configurable hit cooldowns (Global or Per-Player)
-  - Configurable item whitelist to restrict damage to specific items (e.g., sticks only)
-  - Configurable timeout system to automatically despawn pinatas if not killed in time
-- Reward System:
-  - Attach rewards to specific events: `spawn`, `hit`, `lastHit`, and `death`
-  - Chance-based reward distribution using commands
-  - Permission-restricted rewards (optional)
-  - Server-wide or player-specific rewards
-  - Randomizable command execution within a list of commands (optional)
-  - PlaceholderAPI support for reward commands
-
-## Planned Features
-
-### Pinata
-
-- Ability to spawn automatically after a certain condition is met
-  - PlaceholderAPI conditions
-  - Pair with the vote module after it is implemented
-
-### Vote
-
-- Implement Votifier support
-- Offline vote support
-- Vote reminders
-- Milestones (separate from pinata)
-  - Repetitive or cumulative can be switched around
+> This project is currently in Alpha. While stable for testing, breaking changes to configuration structures may occur.
 
 ## Building
 
@@ -55,6 +13,17 @@ A Minecraft plugin for Paper servers that spawns interactive pinata entities. Pl
 
 The compiled JAR will be in `build/libs/`.
 
+## Developer API
+
+Developers can listen to custom events to extend functionality:
+* [`PinataSpawnEvent`](src/main/java/com/muhdfdeen/partyanimals/api/event/PinataSpawnEvent.java)
+* [`PinataHitEvent`](src/main/java/com/muhdfdeen/partyanimals/api/event/PinataHitEvent.java)
+* [`PinataDeathEvent`](src/main/java/com/muhdfdeen/partyanimals/api/event/PinataDeathEvent.java)
+
 ## Support
 
 For issues or questions, open an issue on [GitHub](https://github.com/muhdfdeen/PartyAnimals/issues).
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
