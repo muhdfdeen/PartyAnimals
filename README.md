@@ -1,29 +1,54 @@
 # Party Animals
 
-A feature-rich Minecraft plugin for Paper servers that spawns interactive pinata entities. Players collaborate to break pinatas and earn configurable, chance-based rewards and PlaceholderAPI support. Includes modular configuration, live reload, and a developer API for custom event handling.
+Party Animals is a plugin that elevates your server events by introducing interactive, loot-filled Pinatas. The purpose of the plugin is to add excitement to your events and provide a fun, configurable way to distribute rewards to your players.
+<!--
+## Documentation
 
-> [!IMPORTANT]
-> This project is currently in Alpha. While stable for testing, breaking changes to configuration structures may occur.
-
-## Building
-
-```bash
-./gradlew build
-```
-
-The compiled JAR will be in `build/libs/`.
-
-## Developer API
-
-Developers can listen to custom events to extend functionality:
-* [`PinataSpawnEvent`](src/main/java/com/muhdfdeen/partyanimals/api/event/PinataSpawnEvent.java)
-* [`PinataHitEvent`](src/main/java/com/muhdfdeen/partyanimals/api/event/PinataHitEvent.java)
-* [`PinataDeathEvent`](src/main/java/com/muhdfdeen/partyanimals/api/event/PinataDeathEvent.java)
+Any and all information you need for the plugin should already be included in the [Wiki](link-here)!
 
 ## Support
 
-For issues or questions, open an issue on [GitHub](https://github.com/muhdfdeen/PartyAnimals/issues).
+If there is anything missing, you have a question, you want to report a bug, or anything else, please join the [Discord server](link-here). Support is available in the server.
+-->
+## Server Compatibility
 
-## License
+Party Animals is compatible with **Paper** and its forks. It is recommended to use Paper to run your server.
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+This plugin supports Minecraft versions **1.21** and newer running **Java 21**.
+
+## Installation
+
+1. Download the latest JAR file from the **Releases** page.
+2. Place the file into your server's `plugins` directory.
+3. Restart the server.
+
+*Note: [PlaceholderAPI](https://placeholderapi.com/) is optional but recommended for placeholder support.*
+
+## Commands and Permissions
+
+| Command | Permission | Description |
+| :--- | :--- | :--- |
+| `/partyanimals` (or `/pa`) | None | Displays plugin version information. |
+| `/pa reload` | `partyanimals.reload` | Reloads all configuration files and pinata templates. |
+| `/pa start [template] [location]` | `partyanimals.start` | Starts the countdown for a specific pinata template at a saved location. |
+| `/pa spawn [template] [location]` | `partyanimals.spawn` | Spawns a pinata immediately, skipping the countdown. |
+| `/pa killall` | `partyanimals.killall` | Removes all active pinata entities from the world. |
+| `/pa addlocation <name>` | `partyanimals.addlocation` | Saves the player's current location as a named spawn point. |
+| `/pa removelocation <name>` | `partyanimals.removelocation` | Removes a saved spawn point. |
+
+## Configuration
+
+This plugin uses a modular configuration system located in the `plugins/PartyAnimals/` directory.
+
+* `config.yml`: General settings and module toggles.
+* `messages.yml`: All plugin text, supporting [MiniMessage](https://docs.advntr.dev/minimessage/format.html) formatting.
+* `pinatas/`: Directory containing individual pinata template files (e.g., `default.yml`).
+
+## Building from Source
+
+To build this project locally, ensure you have **JDK 21** or newer installed.
+
+* On Linux or macOS: `./gradlew build`
+* On Windows: `gradlew build`
+
+The compiled artifact will be located in `build/libs/`.
