@@ -40,11 +40,11 @@ public final class MessageConfig {
 
         @Comment("Messages specific to the pinata module.")
         public PinataMessages pinata = new PinataMessages(
-            "<prefix> <gray>Countdown for the pinata has <green>begun</green>!</gray>",
-            "<prefix> <gray>A pinata has been <yellow>spawned</yellow> instantly!</gray>",
+            "<prefix> <gray>Countdown for <white><pinata></white> at <white><location></white> has <green>begun</green>!</gray>",
+            "<prefix> <gray>The pinata <white><pinata></white> has been <yellow>spawned</yellow> at <white><location></white>!</gray>",
             "<prefix> <gray>A pinata has spawned at <white><location></white>!</gray>",
             "<prefix> <gray>You landed a hit on the pinata!</gray>",
-            "<prefix> <gray>You must use <red><item></red> to hit the pinata!</gray>",
+            "<prefix> <gray>You must use <red><item></red> to hit this pinata!</gray>",
             "<prefix> <red><bold>Too fast!</bold></red> <gray>Please wait a moment.</gray>",
             "<prefix> <gray>You are <red>not allowed</red> to hit this pinata.</gray>",
             "<prefix> <gray><white><player-name></white> dealt the final blow!</gray>",
@@ -52,9 +52,10 @@ public final class MessageConfig {
             "<prefix> <gray>The pinata has <red>escaped</red>!</gray>",
             "A pinata party will begin in <white><countdown></white>. Get ready!",
             "<pinata> <health> <gray>/</gray> <max-health> <red>❤</red> <gray>[<timer>]</gray>",
-            "<prefix> <gray>A new spawn location named <white><location></white> has been <green>added</green>.</gray>",
-            "<prefix> <gray>A new spawn location named <white><location></white> has been <red>removed</red>.</gray>",
-            "<prefix> <gray>The spawn location named <white><location></white> does not exist.</gray>"
+            "<prefix> <red>Unknown pinata template: <white><pinata></white></red>",
+            "<prefix> <gray><white><location></white> has been <green>added</green> as a spawn point.</gray>",
+            "<prefix> <gray><white><location></white> has been <red>removed</red> as a spawn point.</gray>",
+            "<prefix> <gray>The spawn point <white><location></white> does not exist.</gray>"
         );
     }
 
@@ -103,6 +104,8 @@ public final class MessageConfig {
         String bossBarCountdown,
         @Comment({"Boss bar active text.", "Available placeholders: <pinata>, <health>, <max-health>, <timer>"})
         String bossBarActive,
+        @Comment("Admin: Unknown pinata template.")
+        String unknownTemplate,
         @Comment("Admin: Added spawn location.")
         String spawnPointAdded,
         @Comment("Admin: Removed spawn location.")

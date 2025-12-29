@@ -18,7 +18,7 @@ public class RewardAction {
     public boolean preventFurtherRewards = false;
 
     @Comment("If true, commands in the list are shuffled before execution.")
-    public boolean randomize = false;
+    public boolean pickOneRandom = false;
 
     @Comment("Permission node required to be eligible for this reward.")
     public String permission = "";
@@ -33,11 +33,11 @@ public class RewardAction {
         this.commands = commands;
     }
 
-    public RewardAction(double chance, boolean global, boolean preventFurtherRewards, boolean randomize, String permission, List<String> commands) {
+    public RewardAction(double chance, boolean global, boolean preventFurtherRewards, boolean pickOneRandom, String permission, List<String> commands) {
         this.chance = chance;
         this.global = global;
         this.preventFurtherRewards = preventFurtherRewards;
-        this.randomize = randomize;
+        this.pickOneRandom = pickOneRandom;
         this.permission = permission;
         this.commands = commands;
     }

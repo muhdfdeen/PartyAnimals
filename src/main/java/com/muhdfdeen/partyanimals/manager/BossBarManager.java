@@ -2,6 +2,7 @@ package com.muhdfdeen.partyanimals.manager;
 
 import com.muhdfdeen.partyanimals.PartyAnimals;
 import com.muhdfdeen.partyanimals.config.ConfigManager;
+import com.muhdfdeen.partyanimals.config.settings.PinataConfig.PinataConfiguration;
 import com.muhdfdeen.partyanimals.handler.MessageHandler;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
@@ -26,12 +27,12 @@ public class BossBarManager {
         this.messageHandler = plugin.getMessageHandler();
     }
 
-    public void createBossBar(LivingEntity pinata, int health, int maxHealth, int timeout) {
+    public void createBossBar(LivingEntity pinata, int health, int maxHealth, int timeout, PinataConfiguration pinataConfig) {
         String rawMsg = config.getMessageConfig().pinata.bossBarActive();
-        String timeStr = formatTime(timeout);
+        String timeStr = formatTime(timeout, pinataConfig);
 
         Component barName = messageHandler.parse(null, rawMsg,
-                messageHandler.tagParsed("pinata", config.getPinataConfig().appearance.name()),
+                messageHandler.tagParsed("pinata", pinataConfig.appearance.name()),
                 messageHandler.tag("health", health),
                 messageHandler.tag("max-health", maxHealth),
                 messageHandler.tag("timer", timeStr)
@@ -40,41 +41,43 @@ public class BossBarManager {
         BossBar bossBar = BossBar.bossBar(
                 barName,
                 1.0f,
-                config.getPinataConfig().health.bar().color(),
-                config.getPinataConfig().health.bar().overlay()
+                pinataConfig.health.bar().color(),
+                pinataConfig.health.bar().overlay()
         );
 
         activeBossBars.put(pinata.getUniqueId(), bossBar);
-        updateViewerList(pinata, bossBar);
+        updateViewerList(pinata, bossBar, pinataConfig);
     }
 
-    public void updateBossBar(LivingEntity pinata, int currentHealth, int maxHealth, NamespacedKey spawnTimeKey) {
+    public void updateBossBar(LivingEntity pinata, int currentHealth, int maxHealth, NamespacedKey spawnTimeKey, PinataConfiguration pinataConfig) {
         BossBar bossBar = activeBossBars.get(pinata.getUniqueId());
-        if (bossBar == null || !config.getPinataConfig().health.bar().enabled()) return;
+
+        if (bossBar == null || !pinataConfig.health.bar().enabled()) return;
 
         float progress = Math.max(0.0f, Math.min(1.0f, (float) currentHealth / maxHealth));
         bossBar.progress(progress);
 
         String timeStr = "∞";
-        if (config.getPinataConfig().timer.timeout().enabled()) {
+        if (pinataConfig.timer.timeout().enabled()) {
             long spawnTime = pinata.getPersistentDataContainer().getOrDefault(spawnTimeKey, PersistentDataType.LONG, System.currentTimeMillis());
-            int totalTimeout = config.getPinataConfig().timer.timeout().duration();
+            int totalTimeout = pinataConfig.timer.timeout().duration();
             int remaining = Math.max(0, totalTimeout - (int) ((System.currentTimeMillis() - spawnTime) / 1000));
-            timeStr = formatTime(remaining);
+            timeStr = formatTime(remaining, pinataConfig);
         }
 
         bossBar.name(messageHandler.parse(null, config.getMessageConfig().pinata.bossBarActive(),
-                messageHandler.tagParsed("pinata", config.getPinataConfig().appearance.name()),
+                messageHandler.tagParsed("pinata", pinataConfig.appearance.name()),
                 messageHandler.tag("health", currentHealth),
                 messageHandler.tag("max-health", maxHealth),
                 messageHandler.tag("timer", timeStr)
         ));
 
-        updateViewerList(pinata, bossBar);
+        updateViewerList(pinata, bossBar, pinataConfig);
     }
 
-    private void updateViewerList(LivingEntity pinata, BossBar bar) {
-        boolean global = config.getPinataConfig().health.bar().global();
+    private void updateViewerList(LivingEntity pinata, BossBar bar, PinataConfiguration pinataConfig) {
+        boolean global = pinataConfig.health.bar().global();
+        
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (global || p.getWorld().equals(pinata.getWorld())) {
                 p.showBossBar(bar);
@@ -84,8 +87,8 @@ public class BossBarManager {
         }
     }
 
-    private String formatTime(int seconds) {
-        if (!config.getPinataConfig().timer.timeout().enabled() || seconds <= 0) {
+    private String formatTime(int seconds, PinataConfiguration pinataConfig) {
+        if (!pinataConfig.timer.timeout().enabled() || seconds <= 0) {
             return "∞";
         }
         return String.format("%02d:%02d", seconds / 60, seconds % 60);

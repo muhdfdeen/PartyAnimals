@@ -39,7 +39,7 @@ public final class PartyAnimals extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
-        this.configManager = new ConfigManager(getDataFolder());
+        this.configManager = new ConfigManager(this, getDataFolder());
         this.log = new Logger(this);
 
         try {
@@ -76,7 +76,7 @@ public final class PartyAnimals extends JavaPlugin {
     }
 
     private void setupModules() {
-        boolean pinataEnabled = configManager.getMainConfig().modules.pinata();
+        boolean pinataEnabled = configManager.getMainConfig().modules.pinata().enabled();
         if (pinataEnabled) {
             if (this.pinataManager == null) {
                 this.pinataManager = new PinataManager(this);

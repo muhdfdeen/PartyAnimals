@@ -48,7 +48,7 @@ public class RewardHandler {
 
     private void executeAction(Player target, RewardAction action) {
         if (action.commands.isEmpty()) return;
-        if (action.randomize) {
+        if (action.pickOneRandom) {
             int index = ThreadLocalRandom.current().nextInt(action.commands.size());
             String randomCmd = action.commands.get(index);
             dispatch(target, randomCmd);

@@ -2,6 +2,7 @@ package com.muhdfdeen.partyanimals.handler;
 
 import com.muhdfdeen.partyanimals.PartyAnimals;
 import com.muhdfdeen.partyanimals.config.ConfigManager;
+import com.muhdfdeen.partyanimals.config.settings.PinataConfig.PinataConfiguration;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.LivingEntity;
@@ -21,7 +22,8 @@ public class HitCooldownHandler {
     }
 
     public boolean isOnCooldown(Player player, LivingEntity pinata) {
-        var cooldownConfig = config.getPinataConfig().timer.hitCooldown();
+        PinataConfiguration pinataConfig = plugin.getPinataManager().getPinataConfig(pinata);
+        var cooldownConfig = pinataConfig.timer.hitCooldown();
         double cooldownSeconds = cooldownConfig.duration();
         if (cooldownSeconds <= 0) return false;
 
@@ -34,7 +36,7 @@ public class HitCooldownHandler {
         long nextHit = target.getPersistentDataContainer().getOrDefault(key, PersistentDataType.LONG, 0L);
 
         if (now < nextHit) {
-            sendCooldownMessage(player, nextHit - now, global);
+            sendCooldownMessage(player, nextHit - now, pinataConfig);
             return true;
         }
 
@@ -42,7 +44,9 @@ public class HitCooldownHandler {
     }
 
     public void applyCooldown(Player player, LivingEntity pinata) {
-        var cooldownConfig = config.getPinataConfig().timer.hitCooldown();
+        PinataConfiguration pinataConfig = plugin.getPinataManager().getPinataConfig(pinata);
+
+        var cooldownConfig = pinataConfig.timer.hitCooldown();
         double cooldownSeconds = cooldownConfig.duration();
         if (cooldownSeconds <= 0) return;
 
@@ -56,7 +60,7 @@ public class HitCooldownHandler {
         target.getPersistentDataContainer().set(key, PersistentDataType.LONG, now + cooldownMillis);
     }
 
-    private void sendCooldownMessage(Player player, long remainingMillis, boolean global) {
+    private void sendCooldownMessage(Player player, long remainingMillis, PinataConfiguration pinataConfig) {
         String msg = config.getMessageConfig().pinata.hitCooldown();
         if (msg == null || msg.isEmpty()) return;
 
@@ -64,7 +68,7 @@ public class HitCooldownHandler {
 
         var component = messageHandler.parse(player, msg, messageHandler.tag("countdown", String.format("%.1f", remainingSeconds)));
 
-        String displayType = config.getPinataConfig().timer.hitCooldown().type();
+        String displayType = pinataConfig.timer.hitCooldown().notificationType();
 
         switch (displayType.toLowerCase()) {
             case "action_bar", "actionbar" -> player.sendActionBar(component);

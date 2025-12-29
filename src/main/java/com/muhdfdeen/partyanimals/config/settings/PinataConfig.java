@@ -1,7 +1,6 @@
 package com.muhdfdeen.partyanimals.config.settings;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,6 @@ import com.muhdfdeen.partyanimals.config.objects.EffectTypes.*;
 import com.muhdfdeen.partyanimals.config.objects.NameTagSettings;
 import com.muhdfdeen.partyanimals.config.objects.NameTagSettings.*;
 import com.muhdfdeen.partyanimals.config.objects.RewardAction;
-import com.muhdfdeen.partyanimals.config.objects.SerializableLocation;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.ConfigLib;
@@ -26,10 +24,9 @@ import net.kyori.adventure.bossbar.BossBar;
 
 public final class PinataConfig {
 
-    public static PinataConfiguration load(File dataFolder) {
+    public static PinataConfiguration load(File pinataFile) {
         YamlConfigurationProperties properties = ConfigLib.BUKKIT_DEFAULT_PROPERTIES.toBuilder().build();
-        Path pinataFile = new File(dataFolder, "pinatas/default-pinata.yml").toPath();
-        return YamlConfigurations.update(pinataFile, PinataConfiguration.class, properties);
+        return YamlConfigurations.update(pinataFile.toPath(), PinataConfiguration.class, properties);
     }
 
     @Configuration
@@ -79,7 +76,6 @@ public final class PinataConfig {
         public HealthSettings health = new HealthSettings(
             10,
             true,
-            5,
             new BossBarSettings(true, true, BossBar.Color.GREEN, BossBar.Overlay.NOTCHED_10)
         );
         
@@ -104,9 +100,6 @@ public final class PinataConfig {
             1.0,
             new MovementSettings(new PathfindingRange(15.0, 5.0, 15.0), 1.75)
         );
-        
-        @Comment("Defined spawn points.")
-        public Map<String, SerializableLocation> spawnLocations = new HashMap<>(Map.of("default", new SerializableLocation()));
         
         public EventRegistry events = new EventRegistry(
             new GameEvent(true,
@@ -165,8 +158,7 @@ public final class PinataConfig {
 
     public record HealthSettings(
         @Comment("Base health points.") int maxHealth,
-        @Comment("If true, health scales based on player count (maxHealth * players).") boolean perPlayer,
-        @Comment("Multiplier used if perPlayer is false.") int multiplier,
+        @Comment("If true, health is multiplied according to player count.") boolean perPlayer,
         @Comment("Health bar visual settings.") BossBarSettings bar
     ) {}
 
@@ -177,7 +169,7 @@ public final class PinataConfig {
 
     public record InteractionSettings(
         @Comment("Permission required to hit the pinata.") String permission,
-        @Comment("Item restriction settings.") ItemWhitelist whitelist
+        @Comment("Item restriction settings.") ItemWhitelist allowedItems
     ) {}
 
     public record TimeoutSettings(
@@ -189,7 +181,7 @@ public final class PinataConfig {
         @Comment("Enable attack speed limits.") boolean enabled,
         @Comment("Seconds between hits.") double duration,
         @Comment("If true, the cooldown is global (all players share the timer).") boolean global,
-        @Comment({"Feedback type.", "Options: ACTION_BAR, CHAT"}) String type
+        @Comment({"Feedback type.", "Options: ACTION_BAR, CHAT"}) String notificationType
     ) {}
 
     public record TimerSettings(
@@ -201,7 +193,7 @@ public final class PinataConfig {
     public record PathfindingRange(double x, double y, double z) {}
 
     public record MovementSettings(
-        @Comment("Wandering radius.") PathfindingRange range,
+        @Comment("Wandering radius.") PathfindingRange wanderRadius,
         @Comment("Movement speed multiplier.") double speed
     ) {}
 

@@ -19,6 +19,8 @@ import com.muhdfdeen.partyanimals.PartyAnimals;
 import com.muhdfdeen.partyanimals.api.event.pinata.PinataDeathEvent;
 import com.muhdfdeen.partyanimals.api.event.pinata.PinataHitEvent;
 import com.muhdfdeen.partyanimals.config.ConfigManager;
+import com.muhdfdeen.partyanimals.config.settings.PinataConfig.PinataConfiguration;
+import com.muhdfdeen.partyanimals.config.settings.PinataConfig.ItemWhitelist;
 import com.muhdfdeen.partyanimals.handler.RewardHandler;
 import com.muhdfdeen.partyanimals.handler.HitCooldownHandler;
 import com.muhdfdeen.partyanimals.handler.EffectHandler;
@@ -86,32 +88,18 @@ public class PinataListener implements Listener {
             return;
         }
 
-        if (!checkPermission(player)) {
+        PinataConfiguration pinataConfig = pinataManager.getPinataConfig(pinata);
+
+        if (!checkPermission(player, pinataConfig)) {
             log.debug("Player " + player.getName() + " does not have permission to hit pinatas.");
             event.setCancelled(true);
             return;
         }
         
-        var whitelist = config.getPinataConfig().interaction.whitelist();
-        if (whitelist.enabled() && whitelist.materialNames() != null && !whitelist.materialNames().isEmpty()) {
-            Material heldMaterial = player.getInventory().getItemInMainHand().getType();
-            boolean isAllowed = false;
-            for (String configName : whitelist.materialNames()) {
-                Material targetMaterial = Material.matchMaterial(configName);
-                if (targetMaterial != null && targetMaterial == heldMaterial) {
-                    isAllowed = true;
-                    break;
-                }
-            }
-            if (!isAllowed) {
-                String whitelistMessage = config.getMessageConfig().pinata.hitWrongItem();
-                if (whitelistMessage != null && !whitelistMessage.isEmpty()) {
-                    messageHandler.send(player, whitelistMessage, messageHandler.tag("item", heldMaterial.name()));
-                }
-                log.debug("Player " + player.getName() + " attempted to hit pinata " + pinata + " with disallowed item: " + heldMaterial);
-                event.setCancelled(true);
-                return;
-            }
+        if (!isItemAllowed(player, pinataConfig.interaction.allowedItems())) {
+            log.debug("Player " + player.getName() + " attempted to hit pinata " + pinata + " with disallowed item.");
+            event.setCancelled(true);
+            return;
         }
 
         if (hitCooldownHandler.isOnCooldown(player, pinata)) {
@@ -137,17 +125,17 @@ public class PinataListener implements Listener {
         log.debug("Pinata " + pinata + " (UUID: " + pinata.getUniqueId() + ") hit by player " + player.getName() + ". Remaining hits: " + currentHits);
         
         if (currentHits <= 0) {
-            handlePinataDeath(pinata, player);
+            handlePinataDeath(pinata, player, pinataConfig);
         } else {
             pinata.getPersistentDataContainer().set(pinataManager.getHealthKey(), PersistentDataType.INTEGER, currentHits);
-            effectHandler.playEffects(config.getPinataConfig().events.hit().effects(), pinata.getLocation(), false);
+            effectHandler.playEffects(pinataConfig.events.hit().effects(), pinata.getLocation(), false);
             
-            if (config.getPinataConfig().appearance.damageFlash()) {
+            if (pinataConfig.appearance.damageFlash()) {
                 pinata.playHurtAnimation(0);
             }
             
             log.debug("Processing hit commands for player: " + player.getName());
-            rewardHandler.process(player, config.getPinataConfig().events.hit().rewards().values());
+            rewardHandler.process(player, pinataConfig.events.hit().rewards().values());
             
             String hitMessage = config.getMessageConfig().pinata.hitSuccess();
             if (hitMessage != null && !hitMessage.isEmpty())
@@ -156,7 +144,7 @@ public class PinataListener implements Listener {
             NamespacedKey maxHealthKey = pinataManager.getMaxHealthKey();
             int actualMaxHealth = pinata.getPersistentDataContainer().getOrDefault(maxHealthKey, PersistentDataType.INTEGER, currentHits);
             
-            bossBarManager.updateBossBar(pinata, currentHits, actualMaxHealth, pinataManager.getSpawnTimeKey());
+            bossBarManager.updateBossBar(pinata, currentHits, actualMaxHealth, pinataManager.getSpawnTimeKey(), pinataConfig);
         }
     }
 
@@ -173,13 +161,12 @@ public class PinataListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        if (!config.getPinataConfig().health.bar().enabled()) return;
         Player player = event.getPlayer();
         bossBarManager.getBossBars().values().forEach(player::showBossBar);
     }
 
-    private boolean checkPermission(Player player) {
-        String permission = config.getPinataConfig().interaction.permission();
+    private boolean checkPermission(Player player, PinataConfiguration pinataConfig) {
+        String permission = pinataConfig.interaction.permission();
         if (permission == null || permission.isEmpty())
             return true;
         if (!player.hasPermission(permission)) {
@@ -192,22 +179,49 @@ public class PinataListener implements Listener {
         return true;
     }
 
-    private void handlePinataDeath(LivingEntity pinata, Player player) {
+    private boolean isItemAllowed(Player player, ItemWhitelist allowedItems) {
+        if (!allowedItems.enabled() || allowedItems.materialNames() == null || allowedItems.materialNames().isEmpty()) {
+            return true;
+        }
+
+        Material heldMaterial = player.getInventory().getItemInMainHand().getType();
+        boolean isAllowed = false;
+        
+        for (String configName : allowedItems.materialNames()) {
+            Material targetMaterial = Material.matchMaterial(configName);
+            if (targetMaterial != null && targetMaterial == heldMaterial) {
+                isAllowed = true;
+                break;
+            }
+        }
+
+        if (!isAllowed) {
+            String allowedItemsMessage = config.getMessageConfig().pinata.hitWrongItem();
+            if (allowedItemsMessage != null && !allowedItemsMessage.isEmpty()) {
+                messageHandler.send(player, allowedItemsMessage, messageHandler.tag("item", heldMaterial.name()));
+            }
+            return false;
+        }
+        
+        return true;
+    }
+
+    private void handlePinataDeath(LivingEntity pinata, Player player, PinataConfiguration pinataConfig) {
         log.debug("Handling pinata death for pinata: " + pinata + " (UUID: " + pinata.getUniqueId() + ") by player: " + player.getName());
 
         var event = new PinataDeathEvent(pinata, player);
         plugin.getServer().getPluginManager().callEvent(event);
         
-        effectHandler.playEffects(config.getPinataConfig().events.death().effects(), pinata.getLocation(), false);
+        effectHandler.playEffects(pinataConfig.events.death().effects(), pinata.getLocation(), false);
 
         log.debug("Processing last hit commands...");
-        rewardHandler.process(player, config.getPinataConfig().events.lastHit().rewards().values());
+        rewardHandler.process(player, pinataConfig.events.lastHit().rewards().values());
         
         String lastHitMessage = config.getMessageConfig().pinata.lastHit();
         messageHandler.send(player, lastHitMessage, messageHandler.tag("player", player.getName())); 
 
         log.debug("Processing death commands...");
-        rewardHandler.process(player, config.getPinataConfig().events.death().rewards().values());
+        rewardHandler.process(player, pinataConfig.events.death().rewards().values());
         
         String downedMessage = config.getMessageConfig().pinata.defeated();
         messageHandler.send(plugin.getServer(), downedMessage, messageHandler.tag("player", player.getName()));

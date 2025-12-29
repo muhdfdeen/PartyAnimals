@@ -1,5 +1,5 @@
 name: PartyAnimals
-version: "0.2.0"
+version: "0.3.0"
 main: com.muhdfdeen.partyanimals.PartyAnimals
 description: A highly customizable Minecraft plugin that spawn pinata entities that players can defeat for configurable, chance-based rewards.
 author: muhdfdeen

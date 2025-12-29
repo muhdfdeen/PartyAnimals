@@ -4,7 +4,7 @@ import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.GoalKey;
 import com.destroystokyo.paper.entity.ai.GoalType;
 import com.muhdfdeen.partyanimals.PartyAnimals;
-import com.muhdfdeen.partyanimals.config.ConfigManager;
+import com.muhdfdeen.partyanimals.config.settings.PinataConfig.PinataConfiguration;
 import java.util.EnumSet;
 import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Location;
@@ -13,16 +13,17 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Creature;
 
 public class PinataRoamGoal implements Goal<Creature> {
-    private final ConfigManager config;
+    private final PartyAnimals plugin;
     private final Creature mob;
     private final GoalKey<Creature> key;
     private final double speed;
 
     public PinataRoamGoal(PartyAnimals plugin, Creature mob) {
-        this.config = plugin.getConfiguration();
+        this.plugin = plugin;
         this.mob = mob;
+        PinataConfiguration config = plugin.getPinataManager().getPinataConfig(mob);
         this.key = GoalKey.of(Creature.class, new NamespacedKey(plugin, "pinata_roam"));
-        this.speed = config.getPinataConfig().behavior.movement().speed();
+        this.speed = config.behavior.movement().speed();
     }
 
     @Override
@@ -37,8 +38,10 @@ public class PinataRoamGoal implements Goal<Creature> {
 
     @Override
     public void start() {
-        double rangeX = config.getPinataConfig().behavior.movement().range().x();
-        double rangeZ = config.getPinataConfig().behavior.movement().range().z();
+        PinataConfiguration config = plugin.getPinataManager().getPinataConfig(mob);
+        
+        double rangeX = config.behavior.movement().wanderRadius().x();
+        double rangeZ = config.behavior.movement().wanderRadius().z();
 
         double x = (ThreadLocalRandom.current().nextDouble() * 2 - 1) * rangeX;
         double z = (ThreadLocalRandom.current().nextDouble() * 2 - 1) * rangeZ;
