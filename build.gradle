@@ -15,6 +15,9 @@ repositories {
     maven {
         url = 'https://repo.extendedclip.com/releases/'
     }
+    maven {
+        url = 'https://jitpack.io'
+    }
 }
 
 dependencies {
@@ -22,7 +25,7 @@ dependencies {
     implementation("de.exlll:configlib-paper:4.8.0")
     implementation("org.bstats:bstats-bukkit:3.1.0")
     compileOnly("me.clip:placeholderapi:2.11.7")
-    compileOnly("com.vexsoftware:nuvotifier-bukkit:2.7.3")
+    implementation("com.github.NuVotifier:NuVotifier:2.7.2")
 }
 
 tasks.named('shadowJar') {
