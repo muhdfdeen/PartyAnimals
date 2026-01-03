@@ -20,6 +20,7 @@ import com.muhdfdeen.partyanimals.handler.EffectHandler;
 import com.muhdfdeen.partyanimals.handler.MessageHandler;
 import com.muhdfdeen.partyanimals.listener.PinataListener;
 import com.muhdfdeen.partyanimals.manager.BossBarManager;
+import com.muhdfdeen.partyanimals.manager.DatabaseManager;
 import com.muhdfdeen.partyanimals.manager.PinataManager;
 import com.muhdfdeen.partyanimals.util.Logger;
 import com.muhdfdeen.partyanimals.util.UpdateChecker;
@@ -35,6 +36,7 @@ public final class PartyAnimals extends JavaPlugin {
     private HitCooldownHandler hitCooldownHandler;
     private EffectHandler effectHandler;
     private RewardHandler rewardHandler;
+    private DatabaseManager databaseManager;
 
     @Override
     public void onEnable() {
@@ -57,6 +59,9 @@ public final class PartyAnimals extends JavaPlugin {
         this.messageHandler = new MessageHandler(configManager);
         this.bossBarManager = new BossBarManager(this);
         this.effectHandler = new EffectHandler(log);
+
+        this.databaseManager = new DatabaseManager(this);
+        this.databaseManager.connect();
 
         setupModules();
 
@@ -139,6 +144,9 @@ public final class PartyAnimals extends JavaPlugin {
         if (bossBarManager != null) {
             bossBarManager.removeAll(); 
         }
+        if (databaseManager != null) {
+            databaseManager.disconnect();
+        }
     }
 
     public static PartyAnimals getPlugin() {
@@ -175,5 +183,9 @@ public final class PartyAnimals extends JavaPlugin {
     
     public RewardHandler getRewardHandler() {
         return rewardHandler;
+    }
+
+    public DatabaseManager gDatabaseManager() {
+        return databaseManager;
     }
 }

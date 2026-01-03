@@ -26,6 +26,7 @@ dependencies {
     implementation("org.bstats:bstats-bukkit:3.1.0")
     compileOnly("me.clip:placeholderapi:2.11.7")
     implementation("com.github.NuVotifier:NuVotifier:2.7.2")
+    implementation("org.xerial:sqlite-jdbc:3.51.1.0")
 }
 
 tasks.named('shadowJar') {
