@@ -3,7 +3,7 @@ plugins {
     id 'com.gradleup.shadow' version '9.3.0'
 }
 
-group = 'com.muhdfdeen'
+group = 'org.maboroshi'
 version = '0.4.0'
 
 repositories {
@@ -22,16 +22,15 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
-    implementation("de.exlll:configlib-paper:4.8.0")
+    compileOnly("de.exlll:configlib-paper:4.8.0")
+    compileOnly("org.xerial:sqlite-jdbc:3.51.1.0")
     implementation("org.bstats:bstats-bukkit:3.1.0")
     compileOnly("me.clip:placeholderapi:2.11.7")
-    implementation("com.github.NuVotifier:NuVotifier:2.7.2")
-    implementation("org.xerial:sqlite-jdbc:3.51.1.0")
+    compileOnly("com.github.NuVotifier:NuVotifier:2.7.2")
 }
 
 tasks.named('shadowJar') {
-  relocate 'de.exlll.configlib', 'com.muhdfdeen.partyanimals.libs.configlib'
-  relocate 'org.bstats', 'com.muhdfdeen.partyanimals.libs.bstats'
+  relocate 'org.bstats', 'org.maboroshi.partyanimals.libs.bstats'
   exclude 'plugin.yml'
   minimize()
   archiveClassifier.set('')
