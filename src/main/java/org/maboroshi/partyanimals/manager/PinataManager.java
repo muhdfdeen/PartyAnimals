@@ -94,7 +94,7 @@ public class PinataManager {
 
         effectHandler.playEffects(pinataConfig.timer.countdown().start(), location, true);
 
-        String bossBarCountdown = config.getMessageConfig().pinata.bossBarCountdown();
+        String bossBarCountdown = config.getMessageConfig().pinata.visuals().bossBarCountdown();
         var barSettings = pinataConfig.timer.countdown().bar();
 
         BossBar bossBar = BossBar.bossBar(
@@ -210,7 +210,7 @@ public class PinataManager {
             plugin.getRewardHandler().process(null, pinataConfig.events.spawn().rewards().values());
         }
         
-        String spawnMessage = config.getMessageConfig().pinata.spawnedNaturally();
+        String spawnMessage = config.getMessageConfig().pinata.events().spawnedNaturally();
         messageHandler.send(plugin.getServer(), spawnMessage, messageHandler.tagParsed("location", location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()));
     }
 
@@ -331,7 +331,7 @@ public class PinataManager {
         var task = pinata.getScheduler().runDelayed(plugin, (t) -> {
             if (pinata.isValid() && isPinata(pinata)) {
                 safelyRemovePinata(pinata);
-                String timeoutMsg = config.getMessageConfig().pinata.timeout();
+                String timeoutMsg = config.getMessageConfig().pinata.events().timeout();
                 messageHandler.send(plugin.getServer(), timeoutMsg);
             }
             timeoutTasks.remove(pinata.getUniqueId());
@@ -515,7 +515,7 @@ public class PinataManager {
     public boolean isPinata(LivingEntity pinata) {
         return pinata.getPersistentDataContainer().has(is_pinata, PersistentDataType.BOOLEAN);
     }
-
+    
     public int getActivePinataCount() {
         return activePinatas.size();
     }
@@ -524,27 +524,33 @@ public class PinataManager {
         return !activePinatas.isEmpty();
     }
 
-    private LivingEntity getFirstActivePinata() {
-        if (activePinatas.isEmpty()) return null;
-        return activePinatas.values().iterator().next();
+    public LivingEntity getNearestPinata(Location location) {
+        if (activePinatas.isEmpty() || location == null) return null;
+
+        LivingEntity nearest = null;
+        double closestDistSq = Double.MAX_VALUE;
+
+        for (LivingEntity pinata : activePinatas.values()) {
+            if (!pinata.isValid()) continue;
+            if (pinata.getWorld() != location.getWorld()) continue;
+
+            double distSq = pinata.getLocation().distanceSquared(location);
+            if (distSq < closestDistSq) {
+                closestDistSq = distSq;
+                nearest = pinata;
+            }
+        }
+        return nearest;
     }
 
-    public int getCurrentHealth() {
-        LivingEntity pinata = getFirstActivePinata();
+    public int getPinataHealth(LivingEntity pinata) {
         if (pinata == null || !pinata.isValid()) return 0;
         return pinata.getPersistentDataContainer().getOrDefault(health, PersistentDataType.INTEGER, 0);
     }
 
-    public int getMaxHealth() {
-        LivingEntity pinata = getFirstActivePinata();
+    public int getPinataMaxHealth(LivingEntity pinata) {
         if (pinata == null || !pinata.isValid()) return 0;
         return pinata.getPersistentDataContainer().getOrDefault(max_health, PersistentDataType.INTEGER, 0);
-    }
-
-    public Location getPinataLocation() {
-        LivingEntity pinata = getFirstActivePinata();
-        if (pinata == null || !pinata.isValid()) return null;
-        return pinata.getLocation();
     }
 
     public NamespacedKey getHealthKey() { return health; }

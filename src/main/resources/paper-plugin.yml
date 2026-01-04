@@ -11,6 +11,6 @@ dependencies:
     PlaceholderAPI:
       load: BEFORE
       required: false
-    NuVotifier:
+    Votifier:
       load: BEFORE
       required: false

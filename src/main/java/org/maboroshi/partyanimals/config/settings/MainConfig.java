@@ -31,6 +31,18 @@ public final class MainConfig {
         @Comment("Enable debug mode to see detailed logs in the console.")
         public boolean debug = false;
 
+        @Comment("Database settings.")
+        public DatabaseSettings database = new DatabaseSettings(
+            "sqlite", 
+            "localhost", 
+            3306, 
+            "partyanimals", 
+            "root", 
+            "password", 
+            "pa_",
+            new PoolSettings(10, 30000, 10000) 
+        );
+
         @Comment("Control which parts of the plugin should be active.")
         public ModuleSettings modules = new ModuleSettings(
             new PinataSettings(true, new HashMap<>(Map.of("default", new SerializableLocation()))),
@@ -42,12 +54,29 @@ public final class MainConfig {
                     new VoteEvent(
                         true,
                         new EffectGroup(List.of(new SoundEffect("entity.player.levelup", 1f, 1f)), null),
-                        new HashMap<>(Map.of())
+                        new HashMap<>(Map.of("announce", new RewardAction(100.0, List.of("broadcast <green>Thank you {player} for voting!"))))
                     )
                 )
             )
         );
     }
+
+    public record DatabaseSettings(
+        @Comment("Type of database: 'sqlite' or 'mysql' or 'mariadb'.") String type,
+        @Comment("Hostname (for MySQL/MariaDB).") String host,
+        @Comment("Port (default 3306 for MySQL/MariaDB).") int port,
+        @Comment("Database name.") String database,
+        @Comment("Username.") String username,
+        @Comment("Password.") String password,
+        @Comment("Prefix for tables (e.g., 'pa_votes').") String tablePrefix,
+        @Comment("Advanced connection pool settings.") PoolSettings pool
+    ) {}
+
+    public record PoolSettings(
+        @Comment("Maximum number of concurrent connections (Default: 10).") int maximumPoolSize,
+        @Comment("How long to wait for a connection in milliseconds (Default: 30000).") int connectionTimeout,
+        @Comment("Warn if a connection is held longer than this (Default: 10000).") int leakDetectionThreshold
+    ) {}
 
     public record ModuleSettings(
             @Comment("Toggle the pinata module.") PinataSettings pinata,

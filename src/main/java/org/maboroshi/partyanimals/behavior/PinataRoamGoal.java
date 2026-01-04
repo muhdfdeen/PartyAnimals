@@ -42,6 +42,7 @@ public class PinataRoamGoal implements Goal<Creature> {
         PinataConfiguration config = plugin.getPinataManager().getPinataConfig(mob);
         
         double rangeX = config.behavior.movement().wanderRadius().x();
+        int rangeY = (int) config.behavior.movement().wanderRadius().y(); 
         double rangeZ = config.behavior.movement().wanderRadius().z();
 
         double x = (ThreadLocalRandom.current().nextDouble() * 2 - 1) * rangeX;
@@ -50,18 +51,29 @@ public class PinataRoamGoal implements Goal<Creature> {
         Location currentLoc = mob.getLocation();
         int targetX = currentLoc.getBlockX() + (int) x;
         int targetZ = currentLoc.getBlockZ() + (int) z;
+        int currentY = currentLoc.getBlockY();
 
-        Block targetBlock = mob.getWorld().getHighestBlockAt(targetX, targetZ);
-        
-        if (Math.abs(targetBlock.getY() - currentLoc.getY()) > 5) {
-            return; 
+        Block validTargetBlock = null;
+
+        for (int dy = rangeY; dy >= -rangeY; dy--) {
+            Block candidate = mob.getWorld().getBlockAt(targetX, currentY + dy, targetZ);
+            Block above = candidate.getRelative(0, 1, 0);
+            Block twoAbove = candidate.getRelative(0, 2, 0);
+
+            if (candidate.getType().isSolid() && !candidate.isLiquid() &&
+                above.isPassable() && !above.isLiquid() &&
+                twoAbove.isPassable()) {
+                
+                validTargetBlock = candidate;
+                break;
+            }
         }
 
-        if (targetBlock.isLiquid() || targetBlock.getRelative(0, 1, 0).isLiquid()) {
+        if (validTargetBlock == null) {
             return;
         }
 
-        Location target = targetBlock.getLocation().add(0.5, 1.1, 0.5);
+        Location target = validTargetBlock.getLocation().add(0.5, 1.1, 0.5);
         if (target.getBlock().isPassable()) {
             mob.getPathfinder().moveTo(target, speed);
         }

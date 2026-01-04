@@ -60,7 +60,7 @@ public class HitCooldownHandler {
     }
 
     private void sendCooldownMessage(Player player, long remainingMillis, PinataConfiguration pinataConfig) {
-        String msg = config.getMessageConfig().pinata.hitCooldown();
+        String msg = config.getMessageConfig().pinata.gameplay().hitCooldown();
         if (msg == null || msg.isEmpty()) return;
 
         double remainingSeconds = remainingMillis / 1000.0;

@@ -16,6 +16,7 @@ import org.maboroshi.partyanimals.listener.PinataListener;
 import org.maboroshi.partyanimals.listener.VoteListener;
 import org.maboroshi.partyanimals.manager.BossBarManager;
 import org.maboroshi.partyanimals.manager.DatabaseManager;
+import org.maboroshi.partyanimals.manager.LeaderboardManager;
 import org.maboroshi.partyanimals.manager.PinataManager;
 import org.maboroshi.partyanimals.util.Logger;
 import org.maboroshi.partyanimals.util.UpdateChecker;
@@ -38,6 +39,7 @@ public final class PartyAnimals extends JavaPlugin {
     private EffectHandler effectHandler;
     private RewardHandler rewardHandler;
     private DatabaseManager databaseManager;
+    private LeaderboardManager leaderboardManager;
 
     @Override
     public void onEnable() {
@@ -63,6 +65,7 @@ public final class PartyAnimals extends JavaPlugin {
 
         this.databaseManager = new DatabaseManager(this);
         this.databaseManager.connect();
+        this.leaderboardManager = new LeaderboardManager(this);
 
         setupModules();
 
@@ -102,7 +105,7 @@ public final class PartyAnimals extends JavaPlugin {
         }
 
         boolean voteEnabled = configManager.getMainConfig().modules.vote().enabled();
-        boolean hasNuVotifier = getServer().getPluginManager().isPluginEnabled("NuVotifier");
+        boolean hasNuVotifier = getServer().getPluginManager().isPluginEnabled("Votifier");
 
         if (voteEnabled) {
             if (hasNuVotifier) {
@@ -200,5 +203,9 @@ public final class PartyAnimals extends JavaPlugin {
 
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
+    }
+
+    public LeaderboardManager getLeaderboardManager() {
+        return leaderboardManager;
     }
 }
