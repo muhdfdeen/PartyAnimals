@@ -99,15 +99,21 @@ public class PartyAnimalsExpansion extends PlaceholderExpansion {
         return "Disabled";
       }
 
-      int current = plugin.getDatabaseManager().getCommunityGoalProgress();
+      int totalVotes = plugin.getDatabaseManager().getCommunityGoalProgress();
       int required = goalConfig.votesRequired;
 
+      int visualProgress = (required > 0) ? totalVotes % required : 0;
+
+      if (visualProgress == 0 && totalVotes > 0) {
+        visualProgress = required;
+      }
+
       return switch (params) {
-        case "vote_community_current" -> String.valueOf(current);
+        case "vote_community_current" -> String.valueOf(visualProgress);
         case "vote_community_required" -> String.valueOf(required);
         case "vote_community_percentage" -> {
           if (required == 0) yield "0%";
-          int percent = (int) ((current / (double) required) * 100);
+          int percent = (int) ((visualProgress / (double) required) * 100);
           yield percent + "%";
         }
         default -> null;

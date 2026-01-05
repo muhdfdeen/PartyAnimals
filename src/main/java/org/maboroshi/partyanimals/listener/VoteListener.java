@@ -108,18 +108,14 @@ public class VoteListener implements Listener {
                 var goalConfig = config.getMainConfig().modules.vote.communityGoal;
 
                 if (goalConfig.enabled && goalConfig.votesRequired > 0) {
-                  int currentProgress = databaseManager.incrementCommunityGoalProgress();
+                  int currentTotal = databaseManager.incrementCommunityGoalProgress();
+                  int required = goalConfig.votesRequired;
 
-                  log.debug(
-                      "Community Goal Progress: "
-                          + currentProgress
-                          + "/"
-                          + goalConfig.votesRequired);
-
-                  if (currentProgress >= goalConfig.votesRequired) {
-                    log.info("Community Goal reached! Resetting counter and firing rewards...");
-
-                    databaseManager.resetCommunityGoalProgress();
+                  if (currentTotal % required == 0) {
+                    log.info(
+                        "Community Goal reached (Total Votes: "
+                            + currentTotal
+                            + ")! Firing rewards...");
 
                     Bukkit.getGlobalRegionScheduler()
                         .execute(

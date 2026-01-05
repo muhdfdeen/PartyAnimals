@@ -256,14 +256,32 @@ public class DatabaseManager {
   }
 
   public int incrementCommunityGoalProgress() {
-    int current = getCommunityGoalProgress();
-    int next = current + 1;
-    setCommunityGoalProgress(next);
-    return next;
-  }
+    String updateSql =
+        "UPDATE " + serverDataTable + " SET value = value + 1 WHERE key = 'community_vote_count';";
+    String selectSql =
+        "SELECT value FROM " + serverDataTable + " WHERE key = 'community_vote_count';";
 
-  public void resetCommunityGoalProgress() {
-    setCommunityGoalProgress(0);
+    try (Connection connection = getConnection()) {
+      try (PreparedStatement updateStmt = connection.prepareStatement(updateSql)) {
+        int rowsAffected = updateStmt.executeUpdate();
+
+        if (rowsAffected == 0) {
+          setCommunityGoalProgress(1);
+          return 1;
+        }
+      }
+
+      try (PreparedStatement selectStmt = connection.prepareStatement(selectSql)) {
+        ResultSet rs = selectStmt.executeQuery();
+        if (rs.next()) {
+          return Integer.parseInt(rs.getString("value"));
+        }
+      }
+    } catch (SQLException e) {
+      log.error("Failed to atomic increment community goal: " + e.getMessage());
+      e.printStackTrace();
+    }
+    return 0;
   }
 
   private void setCommunityGoalProgress(int value) {
