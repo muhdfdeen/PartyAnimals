@@ -88,7 +88,7 @@ public final class MainConfig {
     @Configuration
     public static class PinataSettings {
         @Comment("Enable or disable the pinata module.")
-        public boolean enabled = true;
+        public boolean enabled = false;
 
         @Comment("Defined spawn points.")
         public Map<String, SerializableLocation> spawnPoints =
@@ -98,10 +98,10 @@ public final class MainConfig {
     @Configuration
     public static class VoteSettings {
         @Comment("Enable or disable the voting module.")
-        public boolean enabled = true;
+        public boolean enabled = false;
 
         @Comment({
-            "If true, the plugin will always generate UUIDs based on the player name.",
+            "If true, the plugin will always generate UUIDs based on the player name. (This feature has not been tested extensively.)",
             "Useful for offline-mode servers or testing environments.",
             "WARNING: Changing this after database creation will reset player data links!"
         })
