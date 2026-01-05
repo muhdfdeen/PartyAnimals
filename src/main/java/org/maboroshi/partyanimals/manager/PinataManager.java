@@ -183,11 +183,11 @@ public class PinataManager {
         final double finalScale =
                 (minScale >= maxScale) ? minScale : ThreadLocalRandom.current().nextDouble(minScale, maxScale);
 
-        int baseHealth = pinataConfig.health.maxHealth;
+        int baseHealth = pinataConfig.health.baseHealth;
         int calculatedHealth = pinataConfig.health.perPlayer
                 ? baseHealth * Math.max(1, plugin.getServer().getOnlinePlayers().size())
                 : baseHealth;
-        final int finalHealth = calculatedHealth;
+        final int finalHealth = Math.min(calculatedHealth, pinataConfig.health.maxHealth);
 
         location.getWorld().spawn(spawnLocation, pinataType.getEntityClass(), pinata -> {
             if (pinata instanceof LivingEntity livingEntity) {
@@ -297,7 +297,7 @@ public class PinataManager {
 
         int currentHealth = livingEntity
                 .getPersistentDataContainer()
-                .getOrDefault(health, PersistentDataType.INTEGER, pinataConfig.health.maxHealth);
+                .getOrDefault(health, PersistentDataType.INTEGER, pinataConfig.health.baseHealth);
         int maxHealthVal = livingEntity
                 .getPersistentDataContainer()
                 .getOrDefault(max_health, PersistentDataType.INTEGER, currentHealth);
@@ -482,7 +482,7 @@ public class PinataManager {
         nameTag.setPersistent(false);
 
         int currentHealth = pinata.getPersistentDataContainer()
-                .getOrDefault(health, PersistentDataType.INTEGER, pinataConfig.health.maxHealth);
+                .getOrDefault(health, PersistentDataType.INTEGER, pinataConfig.health.baseHealth);
         int maxHealthVal =
                 pinata.getPersistentDataContainer().getOrDefault(max_health, PersistentDataType.INTEGER, currentHealth);
 
