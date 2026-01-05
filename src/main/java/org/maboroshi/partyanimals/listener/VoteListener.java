@@ -41,21 +41,23 @@ public class VoteListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        if (!config.getMainConfig().modules.vote().offline().enabled() || !config.getMainConfig().modules.vote().offline().queueRewards()) {
+        if (!config.getMainConfig().modules.vote.offline.enabled || !config.getMainConfig().modules.vote.offline.queueRewards) {
             return;
         }
 
         Player player = event.getPlayer();
 
         Bukkit.getAsyncScheduler().runNow(plugin, (task) -> {
-            List<String> commands = databaseManager.retrieveRewards(player.getUniqueId());
-            
+            UUID uuid = databaseManager.getPlayerUUID(player.getName());
+
+            List<String> commands = databaseManager.retrieveRewards(uuid);
+
             if (!commands.isEmpty()) {
                 player.getScheduler().run(plugin, (scheduledTask) -> {
                     log.info("Delivering " + commands.size() + " offline rewards to " + player.getName());
                     for (String cmd : commands) {
                         String finalCmd = cmd.replace("{player}", player.getName())
-                                             .replace("{uuid}", player.getUniqueId().toString());
+                                .replace("{uuid}", player.getUniqueId().toString());
                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCmd);
                     }
                 }, null);
@@ -65,7 +67,7 @@ public class VoteListener implements Listener {
 
     @EventHandler
     public void onVoteEvent(VotifierEvent event) {
-        if (!config.getMainConfig().modules.vote().enabled()) return;
+        if (!config.getMainConfig().modules.vote.enabled) return;
 
         Vote vote = event.getVote();
         String serviceName = vote.getServiceName();
@@ -76,16 +78,26 @@ public class VoteListener implements Listener {
         Bukkit.getAsyncScheduler().runNow(plugin, (task) -> {
             log.debug("Received vote from " + playerName + " via " + serviceName + " at " + timeStamp + " (IP: " + address + ")");
             UUID uuid = databaseManager.getPlayerUUID(playerName);
-            try {
-                uuid = Bukkit.createProfile(playerName).getId();
-            } catch (Exception ignored) {}
-            
-            if (uuid == null) {
-                uuid = Bukkit.getOfflinePlayer(playerName).getUniqueId();
-            }
 
             if (!serviceName.equals("TestVote (Dry Run)")) {
                 databaseManager.addVote(uuid, playerName, serviceName, 1);
+                var goalConfig = config.getMainConfig().modules.vote.communityGoal;
+                
+                if (goalConfig.enabled && goalConfig.votesRequired > 0) {
+                    int currentProgress = databaseManager.incrementCommunityGoalProgress();
+                    
+                    log.debug("Community Goal Progress: " + currentProgress + "/" + goalConfig.votesRequired);
+
+                    if (currentProgress >= goalConfig.votesRequired) {
+                        log.info("Community Goal reached! Resetting counter and firing rewards...");
+                        
+                        databaseManager.resetCommunityGoalProgress();
+
+                        Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+                            rewardHandler.process(null, goalConfig.rewards.values());
+                        });
+                    }
+                }
             }
 
             final UUID finalUUID = uuid;
@@ -95,21 +107,21 @@ public class VoteListener implements Listener {
 
                 if (player != null) {
                     player.getScheduler().run(plugin, (st) -> {
-                        VoteEvent voteEvent = config.getMainConfig().modules.vote().events().vote();
-                        if (!voteEvent.enabled()) return;
+                        VoteEvent voteEvent = config.getMainConfig().modules.vote.events.vote;
+                        if (!voteEvent.enabled) return;
 
-                        effectHandler.playEffects(voteEvent.effects(), player.getLocation(), false);
-                        rewardHandler.process(player, voteEvent.rewards().values());
+                        effectHandler.playEffects(voteEvent.effects, player.getLocation(), false);
+                        rewardHandler.process(player, voteEvent.rewards.values());
                     }, null);
                 } 
                 else {
-                    var offlineSettings = config.getMainConfig().modules.vote().offline();
-                    if (offlineSettings.enabled()) {
-                        VoteEvent voteEvent = config.getMainConfig().modules.vote().events().vote();
+                    var offlineSettings = config.getMainConfig().modules.vote.offline;
+                    if (offlineSettings.enabled) {
+                        VoteEvent voteEvent = config.getMainConfig().modules.vote.events.vote;
                         
-                        if (offlineSettings.queueRewards()) {
+                        if (offlineSettings.queueRewards) {
                             Bukkit.getAsyncScheduler().runNow(plugin, (at) -> {
-                                for (var action : voteEvent.rewards().values()) {
+                                for (var action : voteEvent.rewards.values()) {
                                     if (shouldRun(action)) {
                                         processActionForQueue(finalUUID, playerName, action);
                                         if (action.preventFurtherRewards) break;
@@ -119,7 +131,7 @@ public class VoteListener implements Listener {
                         } 
                         else {
                             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(finalUUID);
-                            rewardHandler.process(offlinePlayer, voteEvent.rewards().values());
+                            rewardHandler.process(offlinePlayer, voteEvent.rewards.values());
                             log.debug("Processed immediate offline rewards for " + playerName);
                         }
                     }
@@ -129,19 +141,20 @@ public class VoteListener implements Listener {
     }
 
     private boolean shouldRun(RewardAction action) {
-        if (action.chance >= 100.0) return true;
+        if (action.chance >= 100.0)
+            return true;
         return ThreadLocalRandom.current().nextDouble(100.0) <= action.chance;
     }
 
     private void processActionForQueue(UUID uuid, String playerName, RewardAction action) {
-        if (action.commands.isEmpty()) return;
-        
+        if (action.commands.isEmpty())
+            return;
+
         if (action.pickOneRandom) {
             int index = ThreadLocalRandom.current().nextInt(action.commands.size());
             String cmd = action.commands.get(index);
             databaseManager.queueRewards(uuid, cmd);
-        } 
-        else {
+        } else {
             for (String cmd : action.commands) {
                 databaseManager.queueRewards(uuid, cmd);
             }

@@ -95,7 +95,7 @@ public class PinataListener implements Listener {
             return;
         }
         
-        if (!isItemAllowed(player, pinataConfig.interaction.allowedItems())) {
+        if (!isItemAllowed(player, pinataConfig.interaction.allowedItems)) {
             log.debug("Player " + player.getName() + " attempted to hit pinata " + pinata + " with disallowed item.");
             event.setCancelled(true);
             return;
@@ -127,16 +127,16 @@ public class PinataListener implements Listener {
             handlePinataDeath(pinata, player, pinataConfig);
         } else {
             pinata.getPersistentDataContainer().set(pinataManager.getHealthKey(), PersistentDataType.INTEGER, currentHits);
-            effectHandler.playEffects(pinataConfig.events.hit().effects(), pinata.getLocation(), false);
+            effectHandler.playEffects(pinataConfig.events.hit.effects, pinata.getLocation(), false);
             
-            if (pinataConfig.appearance.damageFlash()) {
+            if (pinataConfig.appearance.damageFlash) {
                 pinata.playHurtAnimation(0);
             }
             
             log.debug("Processing hit commands for player: " + player.getName());
-            rewardHandler.process(player, pinataConfig.events.hit().rewards().values());
+            rewardHandler.process(player, pinataConfig.events.hit.rewards.values());
             
-            String hitMessage = config.getMessageConfig().pinata.gameplay().hitSuccess();
+            String hitMessage = config.getMessageConfig().pinata.gameplay.hitSuccess;
             if (hitMessage != null && !hitMessage.isEmpty())
                 messageHandler.send(player, hitMessage);
             
@@ -165,11 +165,11 @@ public class PinataListener implements Listener {
     }
 
     private boolean checkPermission(Player player, PinataConfiguration pinataConfig) {
-        String permission = pinataConfig.interaction.permission();
+        String permission = pinataConfig.interaction.permission;
         if (permission == null || permission.isEmpty())
             return true;
         if (!player.hasPermission(permission)) {
-            String noPermission = config.getMessageConfig().pinata.gameplay().hitNoPermission();
+            String noPermission = config.getMessageConfig().pinata.gameplay.hitNoPermission;
             if (noPermission != null && !noPermission.isEmpty()) {
                 messageHandler.send(player, noPermission);
             }
@@ -179,14 +179,14 @@ public class PinataListener implements Listener {
     }
 
     private boolean isItemAllowed(Player player, ItemWhitelist allowedItems) {
-        if (!allowedItems.enabled() || allowedItems.materialNames() == null || allowedItems.materialNames().isEmpty()) {
+        if (!allowedItems.enabled || allowedItems.materialNames == null || allowedItems.materialNames.isEmpty()) {
             return true;
         }
 
         Material heldMaterial = player.getInventory().getItemInMainHand().getType();
         boolean isAllowed = false;
         
-        for (String configName : allowedItems.materialNames()) {
+        for (String configName : allowedItems.materialNames) {
             Material targetMaterial = Material.matchMaterial(configName);
             if (targetMaterial != null && targetMaterial == heldMaterial) {
                 isAllowed = true;
@@ -195,7 +195,7 @@ public class PinataListener implements Listener {
         }
 
         if (!isAllowed) {
-            String allowedItemsMessage = config.getMessageConfig().pinata.gameplay().hitWrongItem();
+            String allowedItemsMessage = config.getMessageConfig().pinata.gameplay.hitWrongItem;
             if (allowedItemsMessage != null && !allowedItemsMessage.isEmpty()) {
                 messageHandler.send(player, allowedItemsMessage, messageHandler.tag("item", heldMaterial.name()));
             }
@@ -211,18 +211,18 @@ public class PinataListener implements Listener {
         var event = new PinataDeathEvent(pinata, player);
         plugin.getServer().getPluginManager().callEvent(event);
         
-        effectHandler.playEffects(pinataConfig.events.death().effects(), pinata.getLocation(), false);
+        effectHandler.playEffects(pinataConfig.events.death.effects, pinata.getLocation(), false);
 
         log.debug("Processing last hit commands...");
-        rewardHandler.process(player, pinataConfig.events.lastHit().rewards().values());
+        rewardHandler.process(player, pinataConfig.events.lastHit.rewards.values());
         
-        String lastHitMessage = config.getMessageConfig().pinata.gameplay().lastHit();
+        String lastHitMessage = config.getMessageConfig().pinata.gameplay.lastHit;
         messageHandler.send(player, lastHitMessage, messageHandler.tag("player", player.getName())); 
 
         log.debug("Processing death commands...");
-        rewardHandler.process(player, pinataConfig.events.death().rewards().values());
+        rewardHandler.process(player, pinataConfig.events.death.rewards.values());
         
-        String downedMessage = config.getMessageConfig().pinata.events().defeated();
+        String downedMessage = config.getMessageConfig().pinata.events.defeated;
         messageHandler.send(plugin.getServer(), downedMessage, messageHandler.tag("player", player.getName()));
 
         pinataManager.safelyRemovePinata(pinata);

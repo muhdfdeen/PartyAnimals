@@ -30,196 +30,293 @@ public final class PinataConfig {
 
     @Configuration
     public static class PinataConfiguration {
-        public Appearance appearance = new Appearance(
-            List.of("LLAMA", "MULE"),
-            "<gradient:#FF5555:#FF55FF>🪅 <bold>Party Pinata</bold></gradient>",
-            new NameTagSettings(
-                true,
-                "TEXT",
-                List.of("<pinata>", "<health> <gray>/</gray> <max-health> <red>❤</red>", "<timer>"),
-                TextAlignment.CENTER,
-                new BackgroundSettings(
-                    false,
-                    64,
-                    0,
-                    0,
-                    0
-                ),
-                new TextShadowSettings(
-                    true,
-                    0,
-                    0
-                ),
-                Display.Billboard.VERTICAL,
-                true,
-                20,
-                new TransformSettings(
-                    new TranslationSettings(
-                        0,
-                        0.5,
-                        0
-                    ),
-                    new NameTagSettings.ScaleSettings(
-                        1,
-                        1,
-                        1
-                    )
-                )
-            ), 
-            new ScaleSettings(0.75, 1.25), 
-            false, 
-            true,
-            "LIGHT_PURPLE"
-        );
-
-        public HealthSettings health = new HealthSettings(
-            10,
-            true,
-            new BossBarSettings(true, true, BossBar.Color.GREEN, BossBar.Overlay.NOTCHED_10)
-        );
-        
-        public InteractionSettings interaction = new InteractionSettings(
-            "", 
-            new ItemWhitelist(false, Set.of("STICK", "BLAZE_ROD"))
-        );
-        
-        public TimerSettings timer = new TimerSettings(
-            new PhaseSettings(10,
-                new BossBarSettings(true, true, BossBar.Color.YELLOW, BossBar.Overlay.PROGRESS),
-                new EffectGroup(List.of(new SoundEffect("block.note_block.bit", 1f, 1f)), List.of(new ParticleEffect("FIREWORK", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
-                new EffectGroup(List.of(new SoundEffect("block.note_block.bit", 1f, 0.8f)), List.of(new ParticleEffect("NOTE", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
-                new EffectGroup(List.of(new SoundEffect("entity.firework_rocket.launch", 1f, 0.8f)), List.of(new ParticleEffect("SONIC_BOOM", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0)))
-            ),
-            new TimeoutSettings(true, 300),
-            new HitCooldown(true, 0.75, false, "ACTION_BAR")
-        );
-        
-        public BehaviorSettings behavior = new BehaviorSettings(
-            true, 
-            1.0,
-            new MovementSettings(new PathfindingRange(15.0, 5.0, 15.0), 1.75)
-        );
-        
-        public EventRegistry events = new EventRegistry(
-            new GameEvent(true,
-                new EffectGroup(List.of(new SoundEffect("entity.firework_rocket.twinkle", 1f, 1f)), List.of(new ParticleEffect("TOTEM_OF_UNDYING", 10, new ParticleOffset(0.5, 1.0, 0.5), 0.1))),
-                new HashMap<>(Map.of("announce", new RewardAction(100.0, List.of("say <green>A pinata has arrived!"))))
-            ),
-            new GameEvent(true,
-                new EffectGroup(List.of(new SoundEffect("entity.player.attack.crit", 1f, 1f)), List.of(new ParticleEffect("CRIT", 5, new ParticleOffset(0.3, 1.0, 0.3), 0.0))),
-                new HashMap<>()
-            ),
-            new GameEvent(true,
-                new EffectGroup(List.of(new SoundEffect("ui.toast.challenge_complete", 1f, 1f)), List.of(new ParticleEffect("HEART", 20, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
-                new HashMap<>(Map.of("vip_reward", new RewardAction(50.0, true, false, false, "partyanimals.vip", List.of("give {player} diamond 1"))))
-            ),
-            new GameEvent(true,
-                new EffectGroup(List.of(new SoundEffect("entity.generic.explode", 1f, 1f)), List.of(new ParticleEffect("EXPLOSION", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
-                new HashMap<>(Map.of("everyone_emerald", new RewardAction(100.0, true, false, false, "", List.of("give @a emerald 5"))))
-            )
-        ); 
+        public Appearance appearance = new Appearance();
+        public HealthSettings health = new HealthSettings();
+        public InteractionSettings interaction = new InteractionSettings();
+        public TimerSettings timer = new TimerSettings();
+        public BehaviorSettings behavior = new BehaviorSettings();
+        public EventRegistry events = new EventRegistry(); 
     }
 
-    public record ScaleSettings(
-        @Comment("Minimum size multiplier.") double min,
-        @Comment("Maximum size multiplier.") double max
-    ) {}
+    @Configuration
+    public static class ScaleSettings {
+        @Comment("Minimum size multiplier.") 
+        public double min = 0.75;
+        
+        @Comment("Maximum size multiplier.") 
+        public double max = 1.25;
 
-    public record Appearance(
+        public ScaleSettings() {}
+        public ScaleSettings(double min, double max) {
+            this.min = min;
+            this.max = max;
+        }
+    }
+
+    @Configuration
+    public static class Appearance {
         @Comment({"Entity types to use for the pinata.", "If multiple types are provided, one is chosen randomly.", "See: https://jd.papermc.io/paper/1.21.11/org/bukkit/entity/EntityType.html"}) 
-        List<String> entityTypes,
+        public List<String> entityTypes = List.of("LLAMA", "MULE");
 
         @Comment("Custom name of the pinata entity.")
-        String name,
+        public String name = "<gradient:#FF5555:#FF55FF>🪅 <bold>Party Pinata</bold></gradient>";
         
         @Comment("Custom name displayed above the pinata.")
-        NameTagSettings nameTag,
+        public NameTagSettings nameTag = new NameTagSettings(
+            true,
+            "TEXT",
+            List.of("<pinata>", "<health> <gray>/</gray> <max-health> <red>❤</red>", "<timer>"),
+            TextAlignment.CENTER,
+            new BackgroundSettings(false, 64, 0, 0, 0),
+            new TextShadowSettings(true, 0, 0),
+            Display.Billboard.VERTICAL,
+            true,
+            20,
+            new TransformSettings(
+                new TranslationSettings(0, 0.5, 0),
+                new NameTagSettings.ScaleSettings(1, 1, 1)
+            )
+        );
         
         @Comment("Size randomization settings.")
-        ScaleSettings scale,
+        public ScaleSettings scale = new ScaleSettings(0.75, 1.25);
         
         @Comment("Flash red when taking damage.")
-        boolean damageFlash,
+        public boolean damageFlash = false;
         
         @Comment("Show glowing outline.")
-        boolean glowing,
+        public boolean glowing = true;
         
         @Comment("Color of the glowing outline.")
-        String glowColor
-    ) {}
+        public String glowColor = "LIGHT_PURPLE";
+    }
 
-    public record BossBarSettings(
-        @Comment("Show a boss bar for this phase.") boolean enabled,
-        @Comment("If true, all players see the bar. If false, only those near the pinata.") boolean global,
-        @Comment({"Bar color.", "See: https://jd.advntr.dev/api/4.25.0/net/kyori/adventure/bossbar/BossBar.Color.html"}) BossBar.Color color,
-        @Comment({"Bar overlay.", "See: https://jd.advntr.dev/api/4.25.0/net/kyori/adventure/bossbar/BossBar.Overlay.html"}) BossBar.Overlay overlay
-    ) {}
+    @Configuration
+    public static class BossBarSettings {
+        @Comment("Show a boss bar for this phase.") 
+        public boolean enabled = true;
 
-    public record HealthSettings(
-        @Comment("Base health points.") int maxHealth,
-        @Comment("If true, health is multiplied according to player count.") boolean perPlayer,
-        @Comment("Health bar visual settings.") BossBarSettings bar
-    ) {}
+        @Comment("If true, all players see the bar. If false, only those near the pinata.") 
+        public boolean global = true;
 
-    public record ItemWhitelist(
-        @Comment("Only allow specific items to deal damage.") boolean enabled,
-        @Comment({"List of allowed material names.", "See: https://jd.papermc.io/paper/1.21.11/org/bukkit/Material.html"}) Set<String> materialNames
-    ) {}
+        @Comment({"Bar color.", "See: https://jd.advntr.dev/api/4.25.0/net/kyori/adventure/bossbar/BossBar.Color.html"}) 
+        public BossBar.Color color = BossBar.Color.PURPLE;
 
-    public record InteractionSettings(
-        @Comment("Permission required to hit the pinata.") String permission,
-        @Comment("Item restriction settings.") ItemWhitelist allowedItems
-    ) {}
+        @Comment({"Bar overlay.", "See: https://jd.advntr.dev/api/4.25.0/net/kyori/adventure/bossbar/BossBar.Overlay.html"}) 
+        public BossBar.Overlay overlay = BossBar.Overlay.PROGRESS;
 
-    public record TimeoutSettings(
-        @Comment("Enable despawning if not killed in time.") boolean enabled,
-        @Comment("Seconds before despawning.") int duration
-    ) {}
+        public BossBarSettings() {}
 
-    public record HitCooldown(
-        @Comment("Enable attack speed limits.") boolean enabled,
-        @Comment("Seconds between hits.") double duration,
-        @Comment("If true, the cooldown is global (all players share the timer).") boolean global,
-        @Comment({"Feedback type.", "Options: ACTION_BAR, CHAT"}) String notificationType
-    ) {}
+        public BossBarSettings(boolean enabled, boolean global, BossBar.Color color, BossBar.Overlay overlay) {
+            this.enabled = enabled;
+            this.global = global;
+            this.color = color;
+            this.overlay = overlay;
+        }
+    }
 
-    public record TimerSettings(
-        @Comment("Countdown before the pinata spawns.") PhaseSettings countdown,
-        @Comment("Maximum time to kill the pinata.") TimeoutSettings timeout,
-        @Comment("Anti-spam click settings.") HitCooldown hitCooldown
-    ) {}
+    @Configuration
+    public static class HealthSettings {
+        @Comment("Base health points.") 
+        public int maxHealth = 10;
 
-    public record PathfindingRange(double x, double y, double z) {}
+        @Comment("If true, health is multiplied according to player count.") 
+        public boolean perPlayer = true;
 
-    public record MovementSettings(
-        @Comment("Wandering radius.") PathfindingRange wanderRadius,
-        @Comment("Movement speed multiplier.") double speed
-    ) {}
+        @Comment("Health bar visual settings.") 
+        public BossBarSettings bar = new BossBarSettings(true, true, BossBar.Color.GREEN, BossBar.Overlay.NOTCHED_10);
+    }
 
-    public record BehaviorSettings(
-        @Comment("If false, the pinata acts like a statue.") boolean enabled,
-        @Comment({"Resistance to being pushed.", "Range: 0.0 to 1.0"}) double knockbackResistance,
-        @Comment("Movement logic settings.") MovementSettings movement
-    ) {}
+    @Configuration
+    public static class ItemWhitelist {
+        @Comment("Only allow specific items to deal damage.") 
+        public boolean enabled = false;
 
-    public record PhaseSettings(
-        @Comment("Duration in seconds.") int duration,
-        @Comment("Boss bar for this phase.") BossBarSettings bar,
-        @Comment("Effects at start of phase.") EffectGroup start,
-        @Comment("Effects during phase.") EffectGroup mid,
-        @Comment("Effects at end of phase.") EffectGroup end
-    ) {}
+        @Comment({"List of allowed material names.", "See: https://jd.papermc.io/paper/1.21.11/org/bukkit/Material.html"}) 
+        public Set<String> materialNames = Set.of("STICK", "BLAZE_ROD");
 
-    public record GameEvent(
-        @Comment("Enable this event.") boolean enabled,
-        @Comment("Visual/Audio effects.") EffectGroup effects,
-        @Comment("Rewards to give. Key is the internal ID of the reward.") Map<String, RewardAction> rewards
-    ) {}
+        public ItemWhitelist() {}
+        public ItemWhitelist(boolean enabled, Set<String> materialNames) {
+            this.enabled = enabled;
+            this.materialNames = materialNames;
+        }
+    }
 
-    public record EventRegistry(
-        @Comment("Triggered when pinata spawns.") GameEvent spawn,
-        @Comment("Triggered when pinata is damaged.") GameEvent hit,
-        @Comment("Triggered on the final killing blow.") GameEvent lastHit,
-        @Comment("Triggered when pinata dies.") GameEvent death
-    ) {}
+    @Configuration
+    public static class InteractionSettings {
+        @Comment("Permission required to hit the pinata.") 
+        public String permission = "";
+
+        @Comment("Item restriction settings.") 
+        public ItemWhitelist allowedItems = new ItemWhitelist(false, Set.of("STICK", "BLAZE_ROD"));
+    }
+
+    @Configuration
+    public static class TimeoutSettings {
+        @Comment("Enable despawning if not killed in time.") 
+        public boolean enabled = true;
+
+        @Comment("Seconds before despawning.") 
+        public int duration = 300;
+
+        public TimeoutSettings() {}
+        public TimeoutSettings(boolean enabled, int duration) {
+            this.enabled = enabled;
+            this.duration = duration;
+        }
+    }
+
+    @Configuration
+    public static class HitCooldown {
+        @Comment("Enable attack speed limits.") 
+        public boolean enabled = true;
+
+        @Comment("Seconds between hits.") 
+        public double duration = 0.75;
+
+        @Comment("If true, the cooldown is global (all players share the timer).") 
+        public boolean global = false;
+
+        @Comment({"Feedback type.", "Options: ACTION_BAR, CHAT"}) 
+        public String notificationType = "ACTION_BAR";
+
+        public HitCooldown() {}
+        public HitCooldown(boolean enabled, double duration, boolean global, String notificationType) {
+            this.enabled = enabled;
+            this.duration = duration;
+            this.global = global;
+            this.notificationType = notificationType;
+        }
+    }
+
+    @Configuration
+    public static class TimerSettings {
+        @Comment("Countdown before the pinata spawns.") 
+        public PhaseSettings countdown = new PhaseSettings(10,
+            new BossBarSettings(true, true, BossBar.Color.YELLOW, BossBar.Overlay.PROGRESS),
+            new EffectGroup(List.of(new SoundEffect("block.note_block.bit", 1f, 1f)), List.of(new ParticleEffect("FIREWORK", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
+            new EffectGroup(List.of(new SoundEffect("block.note_block.bit", 1f, 0.8f)), List.of(new ParticleEffect("NOTE", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
+            new EffectGroup(List.of(new SoundEffect("entity.firework_rocket.launch", 1f, 0.8f)), List.of(new ParticleEffect("SONIC_BOOM", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0)))
+        );
+
+        @Comment("Maximum time to kill the pinata.") 
+        public TimeoutSettings timeout = new TimeoutSettings(true, 300);
+
+        @Comment("Anti-spam click settings.") 
+        public HitCooldown hitCooldown = new HitCooldown(true, 0.75, false, "ACTION_BAR");
+    }
+
+    @Configuration
+    public static class PathfindingRange {
+        public double x = 15.0;
+        public double y = 5.0;
+        public double z = 15.0;
+
+        public PathfindingRange() {}
+        public PathfindingRange(double x, double y, double z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
+
+    @Configuration
+    public static class MovementSettings {
+        @Comment("Wandering radius.") 
+        public PathfindingRange wanderRadius = new PathfindingRange(15.0, 5.0, 15.0);
+
+        @Comment("Movement speed multiplier.") 
+        public double speed = 1.75;
+
+        public MovementSettings() {}
+        public MovementSettings(PathfindingRange wanderRadius, double speed) {
+            this.wanderRadius = wanderRadius;
+            this.speed = speed;
+        }
+    }
+
+    @Configuration
+    public static class BehaviorSettings {
+        @Comment("If false, the pinata acts like a statue.") 
+        public boolean enabled = true;
+
+        @Comment({"Resistance to being pushed.", "Range: 0.0 to 1.0"}) 
+        public double knockbackResistance = 1.0;
+
+        @Comment("Movement logic settings.") 
+        public MovementSettings movement = new MovementSettings(new PathfindingRange(15.0, 5.0, 15.0), 1.75);
+    }
+
+    @Configuration
+    public static class PhaseSettings {
+        @Comment("Duration in seconds.") 
+        public int duration = 10;
+
+        @Comment("Boss bar for this phase.") 
+        public BossBarSettings bar = new BossBarSettings();
+
+        @Comment("Effects at start of phase.") 
+        public EffectGroup start = new EffectGroup();
+
+        @Comment("Effects during phase.") 
+        public EffectGroup mid = new EffectGroup();
+
+        @Comment("Effects at end of phase.") 
+        public EffectGroup end = new EffectGroup();
+
+        public PhaseSettings() {}
+        public PhaseSettings(int duration, BossBarSettings bar, EffectGroup start, EffectGroup mid, EffectGroup end) {
+            this.duration = duration;
+            this.bar = bar;
+            this.start = start;
+            this.mid = mid;
+            this.end = end;
+        }
+    }
+
+    @Configuration
+    public static class GameEvent {
+        @Comment("Enable this event.") 
+        public boolean enabled = true;
+
+        @Comment("Visual/Audio effects.") 
+        public EffectGroup effects = new EffectGroup();
+
+        @Comment("Rewards to give. Key is the internal ID of the reward.") 
+        public Map<String, RewardAction> rewards = new HashMap<>();
+
+        public GameEvent() {}
+        public GameEvent(boolean enabled, EffectGroup effects, Map<String, RewardAction> rewards) {
+            this.enabled = enabled;
+            this.effects = effects;
+            this.rewards = rewards;
+        }
+    }
+
+    @Configuration
+    public static class EventRegistry {
+        @Comment("Triggered when pinata spawns.") 
+        public GameEvent spawn = new GameEvent(true,
+            new EffectGroup(List.of(new SoundEffect("entity.firework_rocket.twinkle", 1f, 1f)), List.of(new ParticleEffect("TOTEM_OF_UNDYING", 10, new ParticleOffset(0.5, 1.0, 0.5), 0.1))),
+            new HashMap<>(Map.of("announce", new RewardAction(100.0, List.of("say <green>A pinata has arrived!"))))
+        );
+
+        @Comment("Triggered when pinata is damaged.") 
+        public GameEvent hit = new GameEvent(true,
+            new EffectGroup(List.of(new SoundEffect("entity.player.attack.crit", 1f, 1f)), List.of(new ParticleEffect("CRIT", 5, new ParticleOffset(0.3, 1.0, 0.3), 0.0))),
+            new HashMap<>()
+        );
+
+        @Comment("Triggered on the final killing blow.") 
+        public GameEvent lastHit = new GameEvent(true,
+            new EffectGroup(List.of(new SoundEffect("ui.toast.challenge_complete", 1f, 1f)), List.of(new ParticleEffect("HEART", 20, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
+            new HashMap<>(Map.of("vip_reward", new RewardAction(50.0, true, false, false, "partyanimals.vip", List.of("give {player} diamond 1"))))
+        );
+
+        @Comment("Triggered when pinata dies.") 
+        public GameEvent death = new GameEvent(true,
+            new EffectGroup(List.of(new SoundEffect("entity.generic.explode", 1f, 1f)), List.of(new ParticleEffect("EXPLOSION", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
+            new HashMap<>(Map.of("everyone_emerald", new RewardAction(100.0, true, false, false, "", List.of("give @a emerald 5"))))
+        );
+    }
 }

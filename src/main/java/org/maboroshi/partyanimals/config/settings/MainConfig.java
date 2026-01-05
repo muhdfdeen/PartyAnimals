@@ -32,100 +32,144 @@ public final class MainConfig {
         public boolean debug = false;
 
         @Comment("Database settings.")
-        public DatabaseSettings database = new DatabaseSettings(
-            "sqlite", 
-            "localhost", 
-            3306, 
-            "partyanimals", 
-            "root", 
-            "password", 
-            "pa_",
-            new PoolSettings(10, 30000, 10000) 
-        );
+        public DatabaseSettings database = new DatabaseSettings();
 
         @Comment("Control which parts of the plugin should be active.")
-        public ModuleSettings modules = new ModuleSettings(
-            new PinataSettings(true, new HashMap<>(Map.of("default", new SerializableLocation()))),
-            new VoteSettings(
-                true,
-                true,
-                new OfflineVoteSettings(true, true),
-                new VoteReminderSettings(true, 10800, new EffectGroup(List.of(new SoundEffect("entity.player.levelup", 1f, 1f)), null)),
-                new EventRegistry(
-                    new VoteEvent(
-                        true,
-                        new EffectGroup(List.of(new SoundEffect("entity.player.levelup", 1f, 1f)), null),
-                        new HashMap<>(Map.of("announce", new RewardAction(100.0, List.of("say <green>Thank you {player} for voting!"))))
-                    )
-                )
-            )
-        );
+        public ModuleSettings modules = new ModuleSettings();
     }
 
-    public record DatabaseSettings(
-        @Comment("Type of database: 'sqlite' or 'mysql' or 'mariadb'.") String type,
-        @Comment("Hostname (for MySQL/MariaDB).") String host,
-        @Comment("Port (default 3306 for MySQL/MariaDB).") int port,
-        @Comment("Database name.") String database,
-        @Comment("Username.") String username,
-        @Comment("Password.") String password,
-        @Comment("Prefix for tables (e.g., 'pa_votes').") String tablePrefix,
-        @Comment("Advanced connection pool settings.") PoolSettings pool
-    ) {}
+    @Configuration
+    public static class DatabaseSettings {
+        @Comment("Type of database: 'sqlite' or 'mysql' or 'mariadb'.") 
+        public String type = "sqlite";
 
-    public record PoolSettings(
-        @Comment("Maximum number of concurrent connections (Default: 10).") int maximumPoolSize,
-        @Comment("How long to wait for a connection in milliseconds (Default: 30000).") int connectionTimeout,
-        @Comment("Warn if a connection is held longer than this (Default: 10000).") int leakDetectionThreshold
-    ) {}
+        @Comment("Hostname (for MySQL/MariaDB).") 
+        public String host = "localhost";
 
-    public record ModuleSettings(
-            @Comment("Toggle the pinata module.") PinataSettings pinata,
-            @Comment("Toggle the voting module.") VoteSettings vote
-    ) {}
+        @Comment("Port (default 3306 for MySQL/MariaDB).") 
+        public int port = 3306;
 
-    public record PinataSettings(
-            @Comment("Enable or disable the pinata module.") boolean enabled,
-            @Comment("Defined spawn points.") Map<String, SerializableLocation> spawnPoints
-    ) {}
+        @Comment("Database name.") 
+        public String database = "partyanimals";
 
-    public record VoteSettings(
-            @Comment("Enable or disable the voting module.") 
-            boolean enabled,
+        @Comment("Username.") 
+        public String username = "root";
 
-            @Comment({"If true, the plugin will always generate UUIDs based on the player name.",
-                      "Useful for offline-mode servers or testing environments.",
-                      "WARNING: Changing this after database creation will reset player data links!"})
-            boolean forceOfflineUUIDs,
+        @Comment("Password.") 
+        public String password = "password";
 
-            @Comment("Settings for handling offline votes.") 
-            OfflineVoteSettings offline,
+        @Comment("Prefix for tables (e.g., 'pa_votes').") 
+        public String tablePrefix = "pa_";
 
-            @Comment("Periodic reminders for players to vote.") 
-            VoteReminderSettings reminder,
+        @Comment("Advanced connection pool settings.") 
+        public PoolSettings pool = new PoolSettings();
+    }
 
-            @Comment("Event configurations for votes.") 
-            EventRegistry events
-    ) {}
+    @Configuration
+    public static class PoolSettings {
+        @Comment("Maximum number of concurrent connections (Default: 10).") 
+        public int maximumPoolSize = 10;
 
-    public record OfflineVoteSettings(
-        @Comment("Process votes even if the player is offline?") boolean enabled,
-        @Comment("If true, rewards are queued and given when the player joins. If false, rewards are given immediately.") boolean queueRewards
-    ) {}
+        @Comment("How long to wait for a connection in milliseconds (Default: 30000).") 
+        public int connectionTimeout = 30000;
 
-    public record VoteReminderSettings(
-        @Comment("Enable or disable the vote reminders.") boolean enabled,
-        @Comment("Interval in seconds (default 3 hours).") int interval,
-        @Comment("Visual/Audio effects.") EffectGroup effects
-    ) {}
+        @Comment("Warn if a connection is held longer than this (Default: 10000).") 
+        public int leakDetectionThreshold = 10000;
+    }
 
-    public record VoteEvent(
-        @Comment("Enable this event.") boolean enabled,
-        @Comment("Visual/Audio effects.") EffectGroup effects,
-        @Comment("Rewards to give.") Map<String, RewardAction> rewards
-    ) {}
+    @Configuration
+    public static class ModuleSettings {
+        @Comment("Toggle the pinata module.") 
+        public PinataSettings pinata = new PinataSettings();
 
-    public record EventRegistry(
-        @Comment("Triggered when a single vote is received.") VoteEvent vote
-    ) {}
+        @Comment("Toggle the voting module.") 
+        public VoteSettings vote = new VoteSettings();
+    }
+
+    @Configuration
+    public static class PinataSettings {
+        @Comment("Enable or disable the pinata module.") 
+        public boolean enabled = true;
+
+        @Comment("Defined spawn points.") 
+        public Map<String, SerializableLocation> spawnPoints = new HashMap<>(Map.of("default", new SerializableLocation()));
+    }
+
+    @Configuration
+    public static class VoteSettings {
+        @Comment("Enable or disable the voting module.") 
+        public boolean enabled = true;
+
+        @Comment({"If true, the plugin will always generate UUIDs based on the player name.",
+                  "Useful for offline-mode servers or testing environments.",
+                  "WARNING: Changing this after database creation will reset player data links!"})
+        public boolean forceOfflineUUIDs = false;
+
+        @Comment("Settings for handling offline votes.") 
+        public OfflineVoteSettings offline = new OfflineVoteSettings();
+
+        @Comment("Periodic reminders for players to vote.") 
+        public VoteReminderSettings reminder = new VoteReminderSettings();
+
+        @Comment("Community Goal settings.")
+        public CommunityGoalSettings communityGoal = new CommunityGoalSettings(); 
+        
+        @Comment("Event configurations for votes.") 
+        public EventRegistry events = new EventRegistry();
+    }
+
+    @Configuration
+    public static class OfflineVoteSettings {
+        @Comment("Process votes even if the player is offline?") 
+        public boolean enabled = true;
+
+        @Comment("If true, rewards are queued and given when the player joins. If false, rewards are given immediately.") 
+        public boolean queueRewards = true;
+    }
+
+    @Configuration
+    public static class VoteReminderSettings {
+        @Comment("Enable or disable the vote reminders.") 
+        public boolean enabled = true;
+
+        @Comment("Interval in seconds (default 3 hours).") 
+        public int interval = 10800;
+
+        @Comment("Visual/Audio effects.") 
+        public EffectGroup effects = new EffectGroup(List.of(new SoundEffect("entity.player.levelup", 1f, 1f)), null);
+    }
+
+    @Configuration
+    public static class CommunityGoalSettings {
+        @Comment("Enable the community goal system?") 
+        public boolean enabled = true;
+        
+        @Comment("How many votes are needed to trigger the rewards?") 
+        public int votesRequired = 50;
+        
+        @Comment("Rewards to execute when the goal is reached.") 
+        public Map<String, RewardAction> rewards = new HashMap<>();
+
+        public CommunityGoalSettings() {
+            this.rewards.put("community_reward", new RewardAction(100.0, List.of("say <green>Community goal reached!", "pa spawn default spawn")));
+        }
+    }
+
+    @Configuration
+    public static class VoteEvent {
+        @Comment("Enable this event.") 
+        public boolean enabled = true;
+
+        @Comment("Visual/Audio effects.") 
+        public EffectGroup effects = new EffectGroup(List.of(new SoundEffect("entity.player.levelup", 1f, 1f)), null);
+
+        @Comment("Rewards to give.") 
+        public Map<String, RewardAction> rewards = new HashMap<>(Map.of("announce", new RewardAction(100.0, List.of("say <green>Thank you {player} for voting!"))));
+    }
+
+    @Configuration
+    public static class EventRegistry {
+        @Comment("Triggered when a single vote is received.") 
+        public VoteEvent vote = new VoteEvent();
+    }
 }

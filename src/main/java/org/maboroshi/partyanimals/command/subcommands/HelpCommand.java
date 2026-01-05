@@ -28,7 +28,7 @@ public class HelpCommand {
     private int executeHelp(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
 
-        messageHandler.send(sender, plugin.getConfiguration().getMessageConfig().help.header());
+        messageHandler.send(sender, plugin.getConfiguration().getMessageConfig().help.header);
         
         sendHelpLine(sender, "pa reload", "Reload configuration", "partyanimals.reload");
         
@@ -50,7 +50,7 @@ public class HelpCommand {
             return;
         }
         
-        String format = plugin.getConfiguration().getMessageConfig().help.entry();
+        String format = plugin.getConfiguration().getMessageConfig().help.entry;
         
         messageHandler.send(sender, format, 
             messageHandler.tag("command", command),

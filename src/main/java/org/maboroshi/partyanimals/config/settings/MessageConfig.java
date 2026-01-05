@@ -24,91 +24,83 @@ public final class MessageConfig {
         public String prefix = "<gradient:#51CF66:#2f9e44>🪅 <bold>Party Animals</bold></gradient> <dark_gray>➟</dark_gray>";
 
         @Comment("General plugin notifications.")
-        public GeneralMessages general = new GeneralMessages(
-            "<prefix> <green>Configuration reloaded successfully.</green>",
-            "<prefix> <red>Reload failed! Check console for errors.</red>",
-            "<prefix> <gray>New version available: <green><latest-version></green> (Current: <red><current-version></red>)</gray>"
-        );
+        public GeneralMessages general = new GeneralMessages();
 
         @Comment("Generic command responses and errors.")
-        public CommandMessages commands = new CommandMessages(
-            "<prefix> <red>You do not have permission for this.</red>",
-            "<prefix> <red>This command is for players only.</red>",
-            "<prefix> <red>Usage: <gray><usage-help></gray></red>",
-            "<prefix> <red>Player <dark_red><player-name></dark_red> not found.</red>"
-        );
+        public CommandMessages commands = new CommandMessages();
 
         @Comment("Messages for the help command.")
-        public HelpMessages help = new HelpMessages(
-            "<gradient:#51CF66:#2f9e44>🪅 <bold>Party Animals Help</bold></gradient>",
-            "<gray>-</gray> <click:suggest_command:/<command>><white>/<command></white> <dark_gray>»</dark_gray> <gray><description></gray></click>"
-        );
+        public HelpMessages help = new HelpMessages();
 
         @Comment("Messages specific to the pinata module.")
-        public PinataMessages pinata = new PinataMessages(
-            new PinataEvents(
-                "<prefix> <gray>Countdown for <white><pinata></white> at <white><location></white> has <green>begun</green>!</gray>",
-                "<prefix> <gray>The pinata <white><pinata></white> has been <yellow>spawned</yellow> at <white><location></white>!</gray>",
-                "<prefix> <gray>A pinata has spawned at <white><location></white>!</gray>",
-                "<prefix> <gray>The pinata has been <green>defeated</green>!</gray>",
-                "<prefix> <gray>The pinata has <red>escaped</red>!</gray>"
-            ),
-            new PinataGameplay(
-                "<prefix> <gray>You landed a hit on the pinata!</gray>",
-                "<prefix> <gray>You must use <red><item></red> to hit this pinata!</gray>",
-                "<prefix> <red><bold>Too fast!</bold></red> <gray>Please wait a moment.</gray>",
-                "<prefix> <gray>You are <red>not allowed</red> to hit this pinata.</gray>",
-                "<prefix> <gray><white><player-name></white> dealt the final blow!</gray>"
-            ),
-            new PinataVisuals(
-                "A pinata party will begin in <white><countdown></white>. Get ready!",
-                "<pinata> <health> <gray>/</gray> <max-health> <red>❤</red> <gray>[<timer>]</gray>"
-            ),
-            new PinataAdmin(
-                "<prefix> <red>Unknown pinata template: <white><pinata></white></red>",
-                "<prefix> <gray><white><location></white> has been <green>added</green> as a spawn point.</gray>",
-                "<prefix> <gray><white><location></white> has been <red>removed</red> as a spawn point.</gray>",
-                "<prefix> <gray>The spawn point <white><location></white> does not exist.</gray>"
-            )
-        );
+        public PinataMessages pinata = new PinataMessages();
     }
 
-    public record GeneralMessages(String reloadSuccess, String reloadFail, String updateAvailable) {}
-    public record CommandMessages(String noPermission, String playerOnly, String usageHelp, String playerNotFound) {}
-    public record HelpMessages(String header, String entry) {}
+    @Configuration
+    public static class GeneralMessages {
+        public String reloadSuccess = "<prefix> <green>Configuration reloaded successfully.</green>";
+        public String reloadFail = "<prefix> <red>Reload failed! Check console for errors.</red>";
+        public String updateAvailable = "<prefix> <gray>New version available: <green><latest-version></green> (Current: <red><current-version></red>)</gray>";
+    }
 
-    public record PinataMessages(
-        @Comment("Broadcasts and public announcements.") PinataEvents events,
-        @Comment("Feedback messages sent to individual players.") PinataGameplay gameplay,
-        @Comment("Boss bar text configurations.") PinataVisuals visuals,
-        @Comment("Admin command responses.") PinataAdmin admin
-    ) {}
+    @Configuration
+    public static class CommandMessages {
+        public String noPermission = "<prefix> <red>You do not have permission for this.</red>";
+        public String playerOnly = "<prefix> <red>This command is for players only.</red>";
+        public String usageHelp = "<prefix> <red>Usage: <gray><usage-help></gray></red>";
+        public String playerNotFound = "<prefix> <red>Player <dark_red><player-name></dark_red> not found.</red>";
+    }
 
-    public record PinataEvents(
-        String countdownStarted,
-        String spawned,
-        String spawnedNaturally,
-        String defeated,
-        String timeout
-    ) {}
+    @Configuration
+    public static class HelpMessages {
+        public String header = "<gradient:#51CF66:#2f9e44>🪅 <bold>Party Animals Help</bold></gradient>";
+        public String entry = "<gray>-</gray> <click:suggest_command:/<command>><white>/<command></white> <dark_gray>»</dark_gray> <gray><description></gray></click>";
+    }
 
-    public record PinataGameplay(
-        String hitSuccess,
-        String hitWrongItem,
-        String hitCooldown,
-        String hitNoPermission,
-        String lastHit
-    ) {}
+    @Configuration
+    public static class PinataMessages {
+        @Comment("Broadcasts and public announcements.") 
+        public PinataEvents events = new PinataEvents();
+        
+        @Comment("Feedback messages sent to individual players.") 
+        public PinataGameplay gameplay = new PinataGameplay();
+        
+        @Comment("Boss bar text configurations.") 
+        public PinataVisuals visuals = new PinataVisuals();
+        
+        @Comment("Admin command responses.") 
+        public PinataAdmin admin = new PinataAdmin();
+    }
 
-    public record PinataVisuals(
-        String bossBarCountdown,
-        String bossBarActive
-    ) {}
+    @Configuration
+    public static class PinataEvents {
+        public String countdownStarted = "<prefix> <gray>Countdown for <white><pinata></white> at <white><location></white> has <green>begun</green>!</gray>";
+        public String spawned = "<prefix> <gray>The pinata <white><pinata></white> has been <yellow>spawned</yellow> at <white><location></white>!</gray>";
+        public String spawnedNaturally = "<prefix> <gray>A pinata has spawned at <white><location></white>!</gray>";
+        public String defeated = "<prefix> <gray>The pinata has been <green>defeated</green>!</gray>";
+        public String timeout = "<prefix> <gray>The pinata has <red>escaped</red>!</gray>";
+    }
 
-    public record PinataAdmin(
-        String unknownTemplate,
-        String spawnPointAdded,
-        String spawnPointRemoved,
-        String spawnPointUnknown
-    ) {}
+    @Configuration
+    public static class PinataGameplay {
+        public String hitSuccess = "<prefix> <gray>You landed a hit on the pinata!</gray>";
+        public String hitWrongItem = "<prefix> <gray>You must use <red><item></red> to hit this pinata!</gray>";
+        public String hitCooldown = "<prefix> <red><bold>Too fast!</bold></red> <gray>Please wait a moment.</gray>";
+        public String hitNoPermission = "<prefix> <gray>You are <red>not allowed</red> to hit this pinata.</gray>";
+        public String lastHit = "<prefix> <gray><white><player-name></white> dealt the final blow!</gray>";
+    }
+
+    @Configuration
+    public static class PinataVisuals {
+        public String bossBarCountdown = "A pinata party will begin in <white><countdown></white>. Get ready!";
+        public String bossBarActive = "<pinata> <health> <gray>/</gray> <max-health> <red>❤</red> <gray>[<timer>]</gray>";
+    }
+
+    @Configuration
+    public static class PinataAdmin {
+        public String unknownTemplate = "<prefix> <red>Unknown pinata template: <white><pinata></white></red>";
+        public String spawnPointAdded = "<prefix> <gray><white><location></white> has been <green>added</green> as a spawn point.</gray>";
+        public String spawnPointRemoved = "<prefix> <gray><white><location></white> has been <red>removed</red> as a spawn point.</gray>";
+        public String spawnPointUnknown = "<prefix> <gray>The spawn point <white><location></white> does not exist.</gray>";
+    }
 }

@@ -22,11 +22,11 @@ public class HitCooldownHandler {
 
     public boolean isOnCooldown(Player player, LivingEntity pinata) {
         PinataConfiguration pinataConfig = plugin.getPinataManager().getPinataConfig(pinata);
-        var cooldownConfig = pinataConfig.timer.hitCooldown();
-        double cooldownSeconds = cooldownConfig.duration();
+        var cooldownConfig = pinataConfig.timer.hitCooldown;
+        double cooldownSeconds = cooldownConfig.duration;
         if (cooldownSeconds <= 0) return false;
 
-        boolean global = cooldownConfig.global();
+        boolean global = cooldownConfig.global;
         long now = System.currentTimeMillis();
 
         PersistentDataHolder target = global ? pinata : player;
@@ -45,11 +45,11 @@ public class HitCooldownHandler {
     public void applyCooldown(Player player, LivingEntity pinata) {
         PinataConfiguration pinataConfig = plugin.getPinataManager().getPinataConfig(pinata);
 
-        var cooldownConfig = pinataConfig.timer.hitCooldown();
-        double cooldownSeconds = cooldownConfig.duration();
+        var cooldownConfig = pinataConfig.timer.hitCooldown;
+        double cooldownSeconds = cooldownConfig.duration;
         if (cooldownSeconds <= 0) return;
 
-        boolean global = cooldownConfig.global();
+        boolean global = cooldownConfig.global;
         long cooldownMillis = (long) (cooldownSeconds * 1000L);
         long now = System.currentTimeMillis();
 
@@ -60,14 +60,14 @@ public class HitCooldownHandler {
     }
 
     private void sendCooldownMessage(Player player, long remainingMillis, PinataConfiguration pinataConfig) {
-        String msg = config.getMessageConfig().pinata.gameplay().hitCooldown();
+        String msg = config.getMessageConfig().pinata.gameplay.hitCooldown;
         if (msg == null || msg.isEmpty()) return;
 
         double remainingSeconds = remainingMillis / 1000.0;
 
         var component = messageHandler.parse(player, msg, messageHandler.tag("countdown", String.format("%.1f", remainingSeconds)));
 
-        String displayType = pinataConfig.timer.hitCooldown().notificationType();
+        String displayType = pinataConfig.timer.hitCooldown.notificationType;
 
         switch (displayType.toLowerCase()) {
             case "action_bar", "actionbar" -> player.sendActionBar(component);

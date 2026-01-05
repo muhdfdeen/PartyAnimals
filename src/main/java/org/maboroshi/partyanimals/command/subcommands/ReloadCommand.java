@@ -28,10 +28,10 @@ public class ReloadCommand {
                     var sender = ctx.getSource().getSender();
                     if (plugin.reload()) {
                         plugin.getPluginLogger().info("Configuration reloaded by " + sender.getName());
-                        messageHandler.send(sender, config.getMessageConfig().general.reloadSuccess());
+                        messageHandler.send(sender, config.getMessageConfig().general.reloadSuccess);
                     } else {
                         plugin.getPluginLogger().warn("Failed to reload configuration by " + sender.getName());
-                        messageHandler.send(sender, config.getMessageConfig().general.reloadFail());
+                        messageHandler.send(sender, config.getMessageConfig().general.reloadFail);
                     }
                     return Command.SINGLE_SUCCESS;
                 });

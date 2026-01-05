@@ -26,6 +26,7 @@ public class DatabaseManager {
 
     private String votesTable;
     private String rewardsTable;
+    private String serverDataTable;
 
     public DatabaseManager(PartyAnimals plugin) {
         this.plugin = plugin;
@@ -34,31 +35,31 @@ public class DatabaseManager {
 
     public void connect() {
         DatabaseSettings settings = plugin.getConfiguration().getMainConfig().database;
-        PoolSettings pool = settings.pool();
+        PoolSettings pool = settings.pool;
 
-        this.votesTable = settings.tablePrefix() + "votes";
-        this.rewardsTable = settings.tablePrefix() + "offline_rewards";
+        this.votesTable = settings.tablePrefix + "votes";
+        this.rewardsTable = settings.tablePrefix + "offline_rewards";
+        this.serverDataTable = settings.tablePrefix + "server_data";
 
         HikariConfig config = new HikariConfig();
         config.setPoolName("PartyAnimals-Pool");
-        config.setConnectionTimeout(pool.connectionTimeout());
-        config.setMaximumPoolSize(pool.maximumPoolSize());
-        config.setLeakDetectionThreshold(pool.leakDetectionThreshold());
+        config.setConnectionTimeout(pool.connectionTimeout);
+        config.setMaximumPoolSize(pool.maximumPoolSize);
+        config.setLeakDetectionThreshold(pool.leakDetectionThreshold);
 
-        String type = settings.type().toLowerCase();
-
+        String type = settings.type.toLowerCase();
         if (type.equals("mariadb")) {
             config.setDriverClassName("org.mariadb.jdbc.Driver");
-            config.setJdbcUrl("jdbc:mariadb://" + settings.host() + ":" + settings.port() + "/" + settings.database());
-            config.setUsername(settings.username());
-            config.setPassword(settings.password());
+            config.setJdbcUrl("jdbc:mariadb://" + settings.host + ":" + settings.port + "/" + settings.database);
+            config.setUsername(settings.username);
+            config.setPassword(settings.password);
             log.info("Connecting to MariaDB database...");
             
         } else if (type.equals("mysql")) {
             config.setDriverClassName("com.mysql.cj.jdbc.Driver");
-            config.setJdbcUrl("jdbc:mysql://" + settings.host() + ":" + settings.port() + "/" + settings.database() + "?useSSL=false&autoReconnect=true");
-            config.setUsername(settings.username());
-            config.setPassword(settings.password());
+            config.setJdbcUrl("jdbc:mysql://" + settings.host + ":" + settings.port + "/" + settings.database + "?useSSL=false&autoReconnect=true");
+            config.setUsername(settings.username);
+            config.setPassword(settings.password);
             log.info("Connecting to MySQL database...");
             
         } else {
@@ -96,6 +97,11 @@ public class DatabaseManager {
             "command TEXT NOT NULL" +
             ");";
 
+        String createServerDataTable = "CREATE TABLE IF NOT EXISTS " + serverDataTable + " (" +
+            "key VARCHAR(64) PRIMARY KEY, " +
+            "value TEXT" +
+            ");";
+
         String indexName = votesTable + "_uuid_idx";
         String createIndex = "CREATE INDEX IF NOT EXISTS " + indexName + " ON " + votesTable + "(uuid);";
 
@@ -103,8 +109,9 @@ public class DatabaseManager {
              Statement statement = connection.createStatement()) {
             statement.execute(createVotesTable);
             statement.execute(createRewardsTable);
+            statement.execute(createServerDataTable);
             statement.execute(createIndex);
-            log.info("Database tables initialized (" + votesTable + ", " + rewardsTable + ").");
+            log.info("Database tables initialized (" + votesTable + ", " + rewardsTable + ", " + serverDataTable + ").");
         } catch (SQLException e) {
             log.error("Failed to create database tables: " + e.getMessage());
             e.printStackTrace();
@@ -145,7 +152,7 @@ public class DatabaseManager {
     }
 
     public UUID getPlayerUUID(String playerName) {
-        boolean forceOffline = plugin.getConfiguration().getMainConfig().modules.vote().forceOfflineUUIDs();
+        boolean forceOffline = plugin.getConfiguration().getMainConfig().modules.vote.forceOfflineUUIDs;
 
         if (forceOffline) {
             return UUID.nameUUIDFromBytes(("OfflinePlayer:" + playerName).getBytes(StandardCharsets.UTF_8));
@@ -199,6 +206,41 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return commands;
+    }
+    
+    public int getCommunityGoalProgress() {
+        String sql = "SELECT value FROM " + serverDataTable + " WHERE key = 'community_vote_count';";
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                return Integer.parseInt(rs.getString("value"));
+            }
+        } catch (Exception e) {
+        }
+        return 0;
+    }
+
+    public int incrementCommunityGoalProgress() {
+        int current = getCommunityGoalProgress();
+        int next = current + 1;
+        setCommunityGoalProgress(next);
+        return next;
+    }
+
+    public void resetCommunityGoalProgress() {
+        setCommunityGoalProgress(0);
+    }
+
+    private void setCommunityGoalProgress(int value) {
+        String sql = "REPLACE INTO " + serverDataTable + " (key, value) VALUES ('community_vote_count', ?);";
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, String.valueOf(value));
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            log.error("Failed to update community goal: " + e.getMessage());
+        }
     }
 
     public record TopVoter(String name, int votes) {}

@@ -88,7 +88,7 @@ public final class PartyAnimals extends JavaPlugin {
     }
 
 private void setupModules() {
-        boolean pinataEnabled = configManager.getMainConfig().modules.pinata().enabled();
+        boolean pinataEnabled = configManager.getMainConfig().modules.pinata.enabled;
         if (pinataEnabled) {
             if (this.pinataManager == null) {
                 this.pinataManager = new PinataManager(this);
@@ -105,7 +105,7 @@ private void setupModules() {
             }
         }
 
-        boolean voteEnabled = configManager.getMainConfig().modules.vote().enabled();
+        boolean voteEnabled = configManager.getMainConfig().modules.vote.enabled;
         boolean hasNuVotifier = getServer().getPluginManager().isPluginEnabled("Votifier");
 
         if (voteEnabled && hasNuVotifier) {

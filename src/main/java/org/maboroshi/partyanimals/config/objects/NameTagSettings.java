@@ -1,62 +1,135 @@
 package org.maboroshi.partyanimals.config.objects;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
 import de.exlll.configlib.Comment;
+import de.exlll.configlib.Configuration;
 
-public record NameTagSettings(
+@Configuration
+public class NameTagSettings {
+
     @Comment("Whether the name tag is enabled.")
-    boolean enabled,
+    public boolean enabled = true;
 
     @Comment("Type of display. Currently only TEXT is supported.")
-    String type,
+    public String type = "TEXT";
 
     @Comment("Lines of text. Supports MiniMessage and placeholders.")
-    List<String> text,
+    public List<String> text = new ArrayList<>(List.of("<pinata>", "<health> <gray>/</gray> <max-health> <red>❤</red>", "<timer>"));
 
     @Comment("Text alignment. Options: LEFT, RIGHT, CENTER.")
-    TextDisplay.TextAlignment textAlignment,
+    public TextDisplay.TextAlignment textAlignment = TextDisplay.TextAlignment.CENTER;
 
     @Comment("Background settings.")
-    BackgroundSettings background,
+    public BackgroundSettings background = new BackgroundSettings();
 
     @Comment("Shadow settings.")
-    TextShadowSettings shadow,
+    public TextShadowSettings shadow = new TextShadowSettings();
 
     @Comment("How the text rotates relative to the player. Options: FIXED, VERTICAL, HORIZONTAL, CENTER.")
-    Display.Billboard billboard,
+    public Display.Billboard billboard = Display.Billboard.VERTICAL;
 
     @Comment("Visible through walls.")
-    boolean seeThrough,
+    public boolean seeThrough = true;
 
     @Comment("How often to update placeholders (in ticks). Set to -1 to disable updates.")
-    int updateTextInterval,
+    public int updateTextInterval = 20;
 
     @Comment("Position and Scale offsets relative to the Pinata.")
-    TransformSettings transformation
-) {
+    public TransformSettings transformation = new TransformSettings();
 
-    public record BackgroundSettings(
-        boolean enabled,
-        int alpha,
-        int red,
-        int green,
-        int blue
-    ) {}
+    public NameTagSettings() {}
 
-    public record TextShadowSettings(
-        boolean enabled,
-        float radius,
-        float strength
-    ) {}
+    public NameTagSettings(boolean enabled, String type, List<String> text, TextDisplay.TextAlignment textAlignment, BackgroundSettings background, TextShadowSettings shadow, Display.Billboard billboard, boolean seeThrough, int updateTextInterval, TransformSettings transformation) {
+        this.enabled = enabled;
+        this.type = type;
+        this.text = text;
+        this.textAlignment = textAlignment;
+        this.background = background;
+        this.shadow = shadow;
+        this.billboard = billboard;
+        this.seeThrough = seeThrough;
+        this.updateTextInterval = updateTextInterval;
+        this.transformation = transformation;
+    }
 
-    public record TransformSettings(
-        TranslationSettings translation,
-        ScaleSettings scale
-    ) {}
+    @Configuration
+    public static class BackgroundSettings {
+        public boolean enabled = false;
+        public int alpha = 64;
+        public int red = 0;
+        public int green = 0;
+        public int blue = 0;
 
-    public record TranslationSettings(double x, double y, double z) {}
-    public record ScaleSettings(double x, double y, double z) {}
+        public BackgroundSettings() {}
+
+        public BackgroundSettings(boolean enabled, int alpha, int red, int green, int blue) {
+            this.enabled = enabled;
+            this.alpha = alpha;
+            this.red = red;
+            this.green = green;
+            this.blue = blue;
+        }
+    }
+
+    @Configuration
+    public static class TextShadowSettings {
+        public boolean enabled = true;
+        public float radius = 0;
+        public float strength = 0;
+
+        public TextShadowSettings() {}
+
+        public TextShadowSettings(boolean enabled, float radius, float strength) {
+            this.enabled = enabled;
+            this.radius = radius;
+            this.strength = strength;
+        }
+    }
+
+    @Configuration
+    public static class TransformSettings {
+        public TranslationSettings translation = new TranslationSettings();
+        public ScaleSettings scale = new ScaleSettings();
+
+        public TransformSettings() {}
+
+        public TransformSettings(TranslationSettings translation, ScaleSettings scale) {
+            this.translation = translation;
+            this.scale = scale;
+        }
+    }
+
+    @Configuration
+    public static class TranslationSettings {
+        public double x = 0.0;
+        public double y = 0.5;
+        public double z = 0.0;
+
+        public TranslationSettings() {}
+
+        public TranslationSettings(double x, double y, double z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
+
+    @Configuration
+    public static class ScaleSettings {
+        public double x = 1.0;
+        public double y = 1.0;
+        public double z = 1.0;
+
+        public ScaleSettings() {}
+
+        public ScaleSettings(double x, double y, double z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
 }

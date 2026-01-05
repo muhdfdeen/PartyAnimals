@@ -36,7 +36,7 @@ public class UpdateChecker implements Listener {
         Player player = event.getPlayer();
         if (updateAvailable && player.hasPermission("partyanimals.admin")) {
             plugin.getPluginLogger().debug("Notifying " + player.getName() + " about available update.");
-            messageHandler.send(player, config.getMessageConfig().general.updateAvailable(), messageHandler.tag("current-version", plugin.getPluginMeta().getVersion()), messageHandler.tag("latest-version", latestVersion));
+            messageHandler.send(player, config.getMessageConfig().general.updateAvailable, messageHandler.tag("current-version", plugin.getPluginMeta().getVersion()), messageHandler.tag("latest-version", latestVersion));
         }
     }
 

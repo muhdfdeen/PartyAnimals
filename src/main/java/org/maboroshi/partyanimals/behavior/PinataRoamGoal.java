@@ -24,7 +24,7 @@ public class PinataRoamGoal implements Goal<Creature> {
         this.mob = mob;
         PinataConfiguration config = plugin.getPinataManager().getPinataConfig(mob);
         this.key = GoalKey.of(Creature.class, new NamespacedKey(plugin, "pinata_roam"));
-        this.speed = config.behavior.movement().speed();
+        this.speed = config.behavior.movement.speed;
     }
 
     @Override
@@ -41,9 +41,9 @@ public class PinataRoamGoal implements Goal<Creature> {
     public void start() {
         PinataConfiguration config = plugin.getPinataManager().getPinataConfig(mob);
         
-        double rangeX = config.behavior.movement().wanderRadius().x();
-        int rangeY = (int) config.behavior.movement().wanderRadius().y(); 
-        double rangeZ = config.behavior.movement().wanderRadius().z();
+        double rangeX = config.behavior.movement.wanderRadius.x;
+        int rangeY = (int) config.behavior.movement.wanderRadius.y; 
+        double rangeZ = config.behavior.movement.wanderRadius.z;
 
         double x = (ThreadLocalRandom.current().nextDouble() * 2 - 1) * rangeX;
         double z = (ThreadLocalRandom.current().nextDouble() * 2 - 1) * rangeZ;

@@ -91,7 +91,7 @@ public class PinataCommand {
         Location location = resolveLocation(source, locationName, templateId, "start");
         if (location == null) return Command.SINGLE_SUCCESS;
         plugin.getPinataManager().startCountdown(location, templateId);
-        messageHandler.send(source.getSender(), config.getMessageConfig().pinata.events().countdownStarted());
+        messageHandler.send(source.getSender(), config.getMessageConfig().pinata.events.countdownStarted);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -99,24 +99,24 @@ public class PinataCommand {
         Location location = resolveLocation(source, locationName, templateId, "spawn");
         if (location == null) return Command.SINGLE_SUCCESS;
         plugin.getPinataManager().spawnPinata(location, templateId);
-        messageHandler.send(source.getSender(), config.getMessageConfig().pinata.events().spawned());
+        messageHandler.send(source.getSender(), config.getMessageConfig().pinata.events.spawned);
         return Command.SINGLE_SUCCESS;
     }
 
     private int handleAddSpawnPoint(CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
         if (!(source.getSender() instanceof Player player)) {
-            messageHandler.send(source.getSender(), config.getMessageConfig().commands.playerOnly());
+            messageHandler.send(source.getSender(), config.getMessageConfig().commands.playerOnly);
             return Command.SINGLE_SUCCESS;
         }
 
         String locationName = StringArgumentType.getString(ctx, "name");
         SerializableLocation spawnLocation = new SerializableLocation(player.getLocation());
 
-        config.getMainConfig().modules.pinata().spawnPoints().put(locationName, spawnLocation);
+        config.getMainConfig().modules.pinata.spawnPoints.put(locationName, spawnLocation);
         config.saveConfig();
 
-        messageHandler.send(player, config.getMessageConfig().pinata.admin().spawnPointAdded(),
+        messageHandler.send(player, config.getMessageConfig().pinata.admin.spawnPointAdded,
                 messageHandler.tag("location", locationName));
         return Command.SINGLE_SUCCESS;
     }
@@ -125,14 +125,14 @@ public class PinataCommand {
         CommandSourceStack source = ctx.getSource();
         String locationName = StringArgumentType.getString(ctx, "name");
 
-        SerializableLocation removed = config.getMainConfig().modules.pinata().spawnPoints().remove(locationName);
+        SerializableLocation removed = config.getMainConfig().modules.pinata.spawnPoints.remove(locationName);
 
         if (removed != null) {
             config.saveConfig();
-            messageHandler.send(source.getSender(), config.getMessageConfig().pinata.admin().spawnPointRemoved(),
+            messageHandler.send(source.getSender(), config.getMessageConfig().pinata.admin.spawnPointRemoved,
                     messageHandler.tag("location", locationName));
         } else {
-            messageHandler.send(source.getSender(), config.getMessageConfig().pinata.admin().spawnPointUnknown(),
+            messageHandler.send(source.getSender(), config.getMessageConfig().pinata.admin.spawnPointUnknown,
                     messageHandler.tag("location", locationName));
         }
         return Command.SINGLE_SUCCESS;
@@ -142,12 +142,12 @@ public class PinataCommand {
         if (locationName != null) {
             var pinataConfig = config.getPinataConfig(templateId);
             if (pinataConfig == null) {
-                messageHandler.send(source.getSender(), config.getMessageConfig().pinata.admin().unknownTemplate(), messageHandler.tagParsed("pinata", templateId));
+                messageHandler.send(source.getSender(), config.getMessageConfig().pinata.admin.unknownTemplate, messageHandler.tagParsed("pinata", templateId));
                 return null;
             }
-            SerializableLocation spawnLocation = config.getMainConfig().modules.pinata().spawnPoints().get(locationName);
+            SerializableLocation spawnLocation = config.getMainConfig().modules.pinata.spawnPoints.get(locationName);
             if (spawnLocation == null) {
-                messageHandler.send(source.getSender(), config.getMessageConfig().pinata.admin().spawnPointUnknown(), messageHandler.tagParsed("pinata", templateId), messageHandler.tag("location", locationName));
+                messageHandler.send(source.getSender(), config.getMessageConfig().pinata.admin.spawnPointUnknown, messageHandler.tagParsed("pinata", templateId), messageHandler.tag("location", locationName));
                 return null;
             }
             return spawnLocation.toBukkit();
@@ -160,7 +160,7 @@ public class PinataCommand {
     }
 
     private void sendUsage(CommandSender sender, String usage) {
-        messageHandler.send(sender, config.getMessageConfig().commands.usageHelp(), messageHandler.tag("usage-help", usage));
+        messageHandler.send(sender, config.getMessageConfig().commands.usageHelp, messageHandler.tag("usage-help", usage));
     }
 
     private CompletableFuture<Suggestions> suggestPinataTemplates(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
@@ -169,8 +169,8 @@ public class PinataCommand {
     }
 
     private CompletableFuture<Suggestions> suggestCentralLocations(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
-        if (config.getMainConfig().modules.pinata().spawnPoints() != null) {
-            config.getMainConfig().modules.pinata().spawnPoints().keySet().forEach(builder::suggest);
+        if (config.getMainConfig().modules.pinata.spawnPoints != null) {
+            config.getMainConfig().modules.pinata.spawnPoints.keySet().forEach(builder::suggest);
         }
         return builder.buildFuture();
     }
