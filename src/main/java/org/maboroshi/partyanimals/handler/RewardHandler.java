@@ -10,11 +10,9 @@ import org.maboroshi.partyanimals.PartyAnimals;
 import org.maboroshi.partyanimals.config.objects.RewardAction;
 
 public class RewardHandler {
-    private final PartyAnimals plugin;
     private final boolean hasPAPI;
 
     public RewardHandler(PartyAnimals plugin) {
-        this.plugin = plugin;
         this.hasPAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
     }
 

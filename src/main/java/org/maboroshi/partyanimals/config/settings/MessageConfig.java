@@ -68,9 +68,6 @@ public final class MessageConfig {
         @Comment("Feedback messages sent to individual players.")
         public PinataGameplay gameplay = new PinataGameplay();
 
-        @Comment("Boss bar text configurations.")
-        public PinataVisuals visuals = new PinataVisuals();
-
         @Comment("Admin command responses.")
         public PinataAdmin admin = new PinataAdmin();
     }
@@ -93,13 +90,6 @@ public final class MessageConfig {
         public String hitCooldown = "<prefix> <red><bold>Too fast!</bold></red> <gray>Please wait a moment.</gray>";
         public String hitNoPermission = "<prefix> <gray>You are <red>not allowed</red> to hit this pinata.</gray>";
         public String lastHit = "<prefix> <gray><white><player-name></white> dealt the final blow!</gray>";
-    }
-
-    @Configuration
-    public static class PinataVisuals {
-        public String bossBarCountdown = "A pinata party will begin in <white><countdown></white>. Get ready!";
-        public String bossBarActive =
-                "<pinata> <health> <gray>/</gray> <max-health> <red>❤</red> <gray>[<timer>]</gray>";
     }
 
     @Configuration

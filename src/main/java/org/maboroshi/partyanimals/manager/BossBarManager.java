@@ -11,24 +11,20 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 import org.maboroshi.partyanimals.PartyAnimals;
-import org.maboroshi.partyanimals.config.ConfigManager;
 import org.maboroshi.partyanimals.config.settings.PinataConfig.PinataConfiguration;
 import org.maboroshi.partyanimals.util.MessageUtils;
 
 public class BossBarManager {
-
-    private final ConfigManager config;
     private final MessageUtils messageUtils;
     private final Map<UUID, BossBar> activeBossBars = new HashMap<>();
 
     public BossBarManager(PartyAnimals plugin) {
-        this.config = plugin.getConfiguration();
         this.messageUtils = plugin.getMessageUtils();
     }
 
     public void createBossBar(
             LivingEntity pinata, int health, int maxHealth, int timeout, PinataConfiguration pinataConfig) {
-        String rawMsg = config.getMessageConfig().pinata.visuals.bossBarActive;
+        String rawMsg = pinataConfig.health.bar.text;
         String timeStr = formatTime(timeout, pinataConfig);
 
         Component barName = messageUtils.parse(
@@ -70,7 +66,7 @@ public class BossBarManager {
 
         bossBar.name(messageUtils.parse(
                 null,
-                config.getMessageConfig().pinata.visuals.bossBarActive,
+                pinataConfig.health.bar.text,
                 messageUtils.tagParsed("pinata", pinataConfig.appearance.name),
                 messageUtils.tag("health", currentHealth),
                 messageUtils.tag("max-health", maxHealth),

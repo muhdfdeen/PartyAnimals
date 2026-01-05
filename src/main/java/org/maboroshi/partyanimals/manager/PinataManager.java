@@ -93,7 +93,7 @@ public class PinataManager {
 
         effectHandler.playEffects(pinataConfig.timer.countdown.start, location, true);
 
-        String bossBarCountdown = config.getMessageConfig().pinata.visuals.bossBarCountdown;
+        String bossBarCountdown = config.getPinataConfig(templateId).timer.countdown.bar.text;
         var barSettings = pinataConfig.timer.countdown.bar;
 
         BossBar bossBar = BossBar.bossBar(

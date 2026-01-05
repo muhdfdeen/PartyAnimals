@@ -107,26 +107,39 @@ public final class PinataConfig {
         })
         public BossBar.Overlay overlay = BossBar.Overlay.PROGRESS;
 
+        @Comment("Text displayed on the boss bar.")
+        public String text = "";
+
         public BossBarSettings() {}
 
-        public BossBarSettings(boolean enabled, boolean global, BossBar.Color color, BossBar.Overlay overlay) {
+        public BossBarSettings(
+                boolean enabled, boolean global, BossBar.Color color, BossBar.Overlay overlay, String text) {
             this.enabled = enabled;
             this.global = global;
             this.color = color;
             this.overlay = overlay;
+            this.text = text;
         }
     }
 
     @Configuration
     public static class HealthSettings {
         @Comment("Base health points.")
-        public int maxHealth = 10;
+        public int baseHealth = 5;
 
         @Comment("If true, health is multiplied according to player count.")
         public boolean perPlayer = true;
 
+        @Comment("Maximum health points.")
+        public int maxHealth = 250;
+
         @Comment("Health bar visual settings.")
-        public BossBarSettings bar = new BossBarSettings(true, true, BossBar.Color.GREEN, BossBar.Overlay.NOTCHED_10);
+        public BossBarSettings bar = new BossBarSettings(
+                true,
+                true,
+                BossBar.Color.GREEN,
+                BossBar.Overlay.NOTCHED_10,
+                "<pinata> <health> <gray>/</gray> <max-health> <red>❤</red> <gray>[<timer>]</gray>");
     }
 
     @Configuration
@@ -203,7 +216,12 @@ public final class PinataConfig {
         @Comment("Countdown before the pinata spawns.")
         public PhaseSettings countdown = new PhaseSettings(
                 10,
-                new BossBarSettings(true, true, BossBar.Color.YELLOW, BossBar.Overlay.PROGRESS),
+                new BossBarSettings(
+                        true,
+                        true,
+                        BossBar.Color.YELLOW,
+                        BossBar.Overlay.PROGRESS,
+                        "A pinata party will begin in <white><countdown></white>. Get ready!"),
                 new EffectGroup(
                         List.of(new SoundEffect("block.note_block.bit", 1f, 1f)),
                         List.of(new ParticleEffect("FIREWORK", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
