@@ -21,180 +21,157 @@ import org.maboroshi.partyanimals.manager.DatabaseManager;
 import org.maboroshi.partyanimals.util.Logger;
 
 public class VoteListener implements Listener {
-  private final PartyAnimals plugin;
-  private final ConfigManager config;
-  private final Logger log;
-  private final EffectHandler effectHandler;
-  private final RewardHandler rewardHandler;
-  private final DatabaseManager databaseManager;
+    private final PartyAnimals plugin;
+    private final ConfigManager config;
+    private final Logger log;
+    private final EffectHandler effectHandler;
+    private final RewardHandler rewardHandler;
+    private final DatabaseManager databaseManager;
 
-  public VoteListener(PartyAnimals plugin) {
-    this.plugin = plugin;
-    this.config = plugin.getConfiguration();
-    this.log = plugin.getPluginLogger();
-    this.effectHandler = plugin.getEffectHandler();
-    this.rewardHandler = plugin.getRewardHandler();
-    this.databaseManager = plugin.getDatabaseManager();
-  }
-
-  @EventHandler
-  public void onJoin(PlayerJoinEvent event) {
-    if (!config.getMainConfig().modules.vote.offline.enabled
-        || !config.getMainConfig().modules.vote.offline.queueRewards) {
-      return;
+    public VoteListener(PartyAnimals plugin) {
+        this.plugin = plugin;
+        this.config = plugin.getConfiguration();
+        this.log = plugin.getPluginLogger();
+        this.effectHandler = plugin.getEffectHandler();
+        this.rewardHandler = plugin.getRewardHandler();
+        this.databaseManager = plugin.getDatabaseManager();
     }
 
-    Player player = event.getPlayer();
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        if (!config.getMainConfig().modules.vote.offline.enabled
+                || !config.getMainConfig().modules.vote.offline.queueRewards) {
+            return;
+        }
 
-    Bukkit.getAsyncScheduler()
-        .runNow(
-            plugin,
-            (task) -> {
-              UUID uuid = databaseManager.getPlayerUUID(player.getName());
+        Player player = event.getPlayer();
 
-              List<String> commands = databaseManager.retrieveRewards(uuid);
+        Bukkit.getAsyncScheduler().runNow(plugin, (task) -> {
+            UUID uuid = databaseManager.getPlayerUUID(player.getName());
 
-              if (!commands.isEmpty()) {
-                player
-                    .getScheduler()
-                    .run(
-                        plugin,
-                        (scheduledTask) -> {
-                          log.info(
-                              "Delivering "
-                                  + commands.size()
-                                  + " offline rewards to "
-                                  + player.getName());
-                          for (String cmd : commands) {
-                            String finalCmd =
-                                cmd.replace("{player}", player.getName())
-                                    .replace("{uuid}", player.getUniqueId().toString());
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCmd);
-                          }
-                        },
-                        null);
-              }
-            });
-  }
+            List<String> commands = databaseManager.retrieveRewards(uuid);
 
-  @EventHandler
-  public void onVoteEvent(VotifierEvent event) {
-    if (!config.getMainConfig().modules.vote.enabled) return;
+            if (!commands.isEmpty()) {
+                player.getScheduler()
+                        .run(
+                                plugin,
+                                (scheduledTask) -> {
+                                    log.info("Delivering "
+                                            + commands.size()
+                                            + " offline rewards to "
+                                            + player.getName());
+                                    for (String cmd : commands) {
+                                        String finalCmd = cmd.replace("{player}", player.getName())
+                                                .replace(
+                                                        "{uuid}",
+                                                        player.getUniqueId().toString());
+                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCmd);
+                                    }
+                                },
+                                null);
+            }
+        });
+    }
 
-    Vote vote = event.getVote();
-    String serviceName = vote.getServiceName();
-    String playerName = vote.getUsername();
-    String address = vote.getAddress();
-    String timeStamp = vote.getTimeStamp();
+    @EventHandler
+    public void onVoteEvent(VotifierEvent event) {
+        if (!config.getMainConfig().modules.vote.enabled) return;
 
-    Bukkit.getAsyncScheduler()
-        .runNow(
-            plugin,
-            (task) -> {
-              log.debug(
-                  "Received vote from "
-                      + playerName
-                      + " via "
-                      + serviceName
-                      + " at "
-                      + timeStamp
-                      + " (IP: "
-                      + address
-                      + ")");
-              UUID uuid = databaseManager.getPlayerUUID(playerName);
+        Vote vote = event.getVote();
+        String serviceName = vote.getServiceName();
+        String playerName = vote.getUsername();
+        String address = vote.getAddress();
+        String timeStamp = vote.getTimeStamp();
 
-              if (!serviceName.equals("TestVote (Dry Run)")) {
+        Bukkit.getAsyncScheduler().runNow(plugin, (task) -> {
+            log.debug("Received vote from "
+                    + playerName
+                    + " via "
+                    + serviceName
+                    + " at "
+                    + timeStamp
+                    + " (IP: "
+                    + address
+                    + ")");
+            UUID uuid = databaseManager.getPlayerUUID(playerName);
+
+            if (!serviceName.equals("TestVote (Dry Run)")) {
                 databaseManager.addVote(uuid, playerName, serviceName, 1);
                 var goalConfig = config.getMainConfig().modules.vote.communityGoal;
 
                 if (goalConfig.enabled && goalConfig.votesRequired > 0) {
-                  int currentTotal = databaseManager.incrementCommunityGoalProgress();
-                  int required = goalConfig.votesRequired;
+                    int currentTotal = databaseManager.incrementCommunityGoalProgress();
+                    int required = goalConfig.votesRequired;
 
-                  if (currentTotal % required == 0) {
-                    log.info(
-                        "Community Goal reached (Total Votes: "
-                            + currentTotal
-                            + ")! Firing rewards...");
+                    if (currentTotal % required == 0) {
+                        log.info("Community Goal reached (Total Votes: " + currentTotal + ")! Firing rewards...");
 
-                    Bukkit.getGlobalRegionScheduler()
-                        .execute(
-                            plugin,
-                            () -> {
-                              rewardHandler.process(null, goalConfig.rewards.values());
-                            });
-                  }
+                        Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+                            rewardHandler.process(null, goalConfig.rewards.values());
+                        });
+                    }
                 }
-              }
+            }
 
-              final UUID finalUUID = uuid;
+            final UUID finalUUID = uuid;
 
-              Bukkit.getGlobalRegionScheduler()
-                  .execute(
-                      plugin,
-                      () -> {
-                        Player player = Bukkit.getPlayer(playerName);
+            Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+                Player player = Bukkit.getPlayer(playerName);
 
-                        if (player != null) {
-                          player
-                              .getScheduler()
-                              .run(
-                                  plugin,
-                                  (st) -> {
-                                    VoteEvent voteEvent =
-                                        config.getMainConfig().modules.vote.events.vote;
-                                    if (!voteEvent.enabled) return;
+                if (player != null) {
+                    player.getScheduler()
+                            .run(
+                                    plugin,
+                                    (st) -> {
+                                        VoteEvent voteEvent = config.getMainConfig().modules.vote.events.vote;
+                                        if (!voteEvent.enabled) return;
 
-                                    effectHandler.playEffects(
-                                        voteEvent.effects, player.getLocation(), false);
-                                    rewardHandler.process(player, voteEvent.rewards.values());
-                                  },
-                                  null);
+                                        effectHandler.playEffects(voteEvent.effects, player.getLocation(), false);
+                                        rewardHandler.process(player, voteEvent.rewards.values());
+                                    },
+                                    null);
+                } else {
+                    var offlineSettings = config.getMainConfig().modules.vote.offline;
+                    if (offlineSettings.enabled) {
+                        VoteEvent voteEvent = config.getMainConfig().modules.vote.events.vote;
+
+                        if (offlineSettings.queueRewards) {
+                            Bukkit.getAsyncScheduler().runNow(plugin, (at) -> {
+                                for (var action : voteEvent.rewards.values()) {
+                                    if (shouldRun(action)) {
+                                        processActionForQueue(finalUUID, playerName, action);
+                                        if (action.preventFurtherRewards) break;
+                                    }
+                                }
+                            });
                         } else {
-                          var offlineSettings = config.getMainConfig().modules.vote.offline;
-                          if (offlineSettings.enabled) {
-                            VoteEvent voteEvent = config.getMainConfig().modules.vote.events.vote;
-
-                            if (offlineSettings.queueRewards) {
-                              Bukkit.getAsyncScheduler()
-                                  .runNow(
-                                      plugin,
-                                      (at) -> {
-                                        for (var action : voteEvent.rewards.values()) {
-                                          if (shouldRun(action)) {
-                                            processActionForQueue(finalUUID, playerName, action);
-                                            if (action.preventFurtherRewards) break;
-                                          }
-                                        }
-                                      });
-                            } else {
-                              OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(finalUUID);
-                              rewardHandler.process(offlinePlayer, voteEvent.rewards.values());
-                              log.debug("Processed immediate offline rewards for " + playerName);
-                            }
-                          }
+                            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(finalUUID);
+                            rewardHandler.process(offlinePlayer, voteEvent.rewards.values());
+                            log.debug("Processed immediate offline rewards for " + playerName);
                         }
-                      });
+                    }
+                }
             });
-  }
-
-  private boolean shouldRun(RewardAction action) {
-    if (action.chance >= 100.0) return true;
-    return ThreadLocalRandom.current().nextDouble(100.0) <= action.chance;
-  }
-
-  private void processActionForQueue(UUID uuid, String playerName, RewardAction action) {
-    if (action.commands.isEmpty()) return;
-
-    if (action.pickOneRandom) {
-      int index = ThreadLocalRandom.current().nextInt(action.commands.size());
-      String cmd = action.commands.get(index);
-      databaseManager.queueRewards(uuid, cmd);
-    } else {
-      for (String cmd : action.commands) {
-        databaseManager.queueRewards(uuid, cmd);
-      }
+        });
     }
-    log.debug("Queued offline rewards for " + playerName);
-  }
+
+    private boolean shouldRun(RewardAction action) {
+        if (action.chance >= 100.0) return true;
+        return ThreadLocalRandom.current().nextDouble(100.0) <= action.chance;
+    }
+
+    private void processActionForQueue(UUID uuid, String playerName, RewardAction action) {
+        if (action.commands.isEmpty()) return;
+
+        if (action.pickOneRandom) {
+            int index = ThreadLocalRandom.current().nextInt(action.commands.size());
+            String cmd = action.commands.get(index);
+            databaseManager.queueRewards(uuid, cmd);
+        } else {
+            for (String cmd : action.commands) {
+                databaseManager.queueRewards(uuid, cmd);
+            }
+        }
+        log.debug("Queued offline rewards for " + playerName);
+    }
 }

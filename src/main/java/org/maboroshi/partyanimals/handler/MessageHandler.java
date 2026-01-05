@@ -11,48 +11,47 @@ import org.bukkit.entity.Player;
 import org.maboroshi.partyanimals.config.ConfigManager;
 
 public class MessageHandler {
-  private final ConfigManager config;
-  private final MiniMessage mm;
-  private final boolean hasPAPI;
+    private final ConfigManager config;
+    private final MiniMessage mm;
+    private final boolean hasPAPI;
 
-  public MessageHandler(ConfigManager config) {
-    this.config = config;
-    this.mm = MiniMessage.miniMessage();
-    this.hasPAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
-  }
-
-  public Component parse(Audience receiver, String message, TagResolver... tags) {
-    if (message == null || message.isEmpty()) return Component.empty();
-
-    String parsedMessage = message;
-    if (hasPAPI && receiver instanceof Player player) {
-      parsedMessage = PlaceholderAPI.setPlaceholders(player, parsedMessage);
+    public MessageHandler(ConfigManager config) {
+        this.config = config;
+        this.mm = MiniMessage.miniMessage();
+        this.hasPAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
     }
 
-    String prefix = config.getMessageConfig().prefix;
-    TagResolver prefixTag = Placeholder.parsed("prefix", prefix != null ? prefix : "");
+    public Component parse(Audience receiver, String message, TagResolver... tags) {
+        if (message == null || message.isEmpty()) return Component.empty();
 
-    TagResolver defaultTags = TagResolver.empty();
-    if (receiver instanceof Player player) {
-      defaultTags = Placeholder.unparsed("player-name", player.getName());
+        String parsedMessage = message;
+        if (hasPAPI && receiver instanceof Player player) {
+            parsedMessage = PlaceholderAPI.setPlaceholders(player, parsedMessage);
+        }
+
+        String prefix = config.getMessageConfig().prefix;
+        TagResolver prefixTag = Placeholder.parsed("prefix", prefix != null ? prefix : "");
+
+        TagResolver defaultTags = TagResolver.empty();
+        if (receiver instanceof Player player) {
+            defaultTags = Placeholder.unparsed("player-name", player.getName());
+        }
+
+        TagResolver finalResolver = TagResolver.resolver(TagResolver.resolver(tags), defaultTags, prefixTag);
+
+        return mm.deserialize(parsedMessage, finalResolver);
     }
 
-    TagResolver finalResolver =
-        TagResolver.resolver(TagResolver.resolver(tags), defaultTags, prefixTag);
+    public void send(Audience receiver, String message, TagResolver... tags) {
+        if (message == null || message.isEmpty()) return;
+        receiver.sendMessage(parse(receiver, message, tags));
+    }
 
-    return mm.deserialize(parsedMessage, finalResolver);
-  }
+    public TagResolver tag(String key, Object value) {
+        return Placeholder.unparsed(key, String.valueOf(value));
+    }
 
-  public void send(Audience receiver, String message, TagResolver... tags) {
-    if (message == null || message.isEmpty()) return;
-    receiver.sendMessage(parse(receiver, message, tags));
-  }
-
-  public TagResolver tag(String key, Object value) {
-    return Placeholder.unparsed(key, String.valueOf(value));
-  }
-
-  public TagResolver tagParsed(String key, String value) {
-    return Placeholder.parsed(key, value);
-  }
+    public TagResolver tagParsed(String key, String value) {
+        return Placeholder.parsed(key, value);
+    }
 }

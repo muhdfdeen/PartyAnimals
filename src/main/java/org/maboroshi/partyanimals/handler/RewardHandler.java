@@ -10,81 +10,79 @@ import org.maboroshi.partyanimals.PartyAnimals;
 import org.maboroshi.partyanimals.config.objects.RewardAction;
 
 public class RewardHandler {
-  private final PartyAnimals plugin;
-  private final boolean hasPAPI;
+    private final PartyAnimals plugin;
+    private final boolean hasPAPI;
 
-  public RewardHandler(PartyAnimals plugin) {
-    this.plugin = plugin;
-    this.hasPAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
-  }
+    public RewardHandler(PartyAnimals plugin) {
+        this.plugin = plugin;
+        this.hasPAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
+    }
 
-  public void process(OfflinePlayer player, Collection<RewardAction> commands) {
-    if (commands == null || commands.isEmpty()) return;
+    public void process(OfflinePlayer player, Collection<RewardAction> commands) {
+        if (commands == null || commands.isEmpty()) return;
 
-    for (RewardAction action : commands) {
-      if (!action.global && action.permission != null && !action.permission.isEmpty()) {
-        Player onlinePlayer = player.getPlayer();
-        if (onlinePlayer != null && !onlinePlayer.hasPermission(action.permission)) {
-          continue;
+        for (RewardAction action : commands) {
+            if (!action.global && action.permission != null && !action.permission.isEmpty()) {
+                Player onlinePlayer = player.getPlayer();
+                if (onlinePlayer != null && !onlinePlayer.hasPermission(action.permission)) {
+                    continue;
+                }
+            }
+
+            if (action.chance < 100.0) {
+                double roll = ThreadLocalRandom.current().nextDouble(100.0);
+                if (roll > action.chance) continue;
+            }
+
+            if (action.global) {
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    executeAction(onlinePlayer, action);
+                }
+            } else {
+                executeAction(player, action);
+            }
+
+            if (action.preventFurtherRewards) {
+                break;
+            }
         }
-      }
+    }
 
-      if (action.chance < 100.0) {
-        double roll = ThreadLocalRandom.current().nextDouble(100.0);
-        if (roll > action.chance) continue;
-      }
-
-      if (action.global) {
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-          executeAction(onlinePlayer, action);
+    private void executeAction(OfflinePlayer target, RewardAction action) {
+        if (action.commands.isEmpty()) return;
+        if (action.pickOneRandom) {
+            int index = ThreadLocalRandom.current().nextInt(action.commands.size());
+            String randomCmd = action.commands.get(index);
+            dispatch(target, randomCmd);
+        } else {
+            for (String cmd : action.commands) {
+                dispatch(target, cmd);
+            }
         }
-      } else {
-        executeAction(player, action);
-      }
-
-      if (action.preventFurtherRewards) {
-        break;
-      }
-    }
-  }
-
-  private void executeAction(OfflinePlayer target, RewardAction action) {
-    if (action.commands.isEmpty()) return;
-    if (action.pickOneRandom) {
-      int index = ThreadLocalRandom.current().nextInt(action.commands.size());
-      String randomCmd = action.commands.get(index);
-      dispatch(target, randomCmd);
-    } else {
-      for (String cmd : action.commands) {
-        dispatch(target, cmd);
-      }
-    }
-  }
-
-  private void dispatch(OfflinePlayer player, String command) {
-    if (command == null || command.isEmpty()) return;
-
-    String parsed = command;
-    if (player != null) {
-      String name = player.getName();
-      parsed =
-          parsed
-              .replace("{player}", name != null ? name : "Unknown")
-              .replace("{uuid}", player.getUniqueId().toString());
     }
 
-    if (player != null && hasPAPI) {
-      parsed = PlaceholderAPI.setPlaceholders(player, parsed);
-    }
+    private void dispatch(OfflinePlayer player, String command) {
+        if (command == null || command.isEmpty()) return;
 
-    if (parsed.startsWith("/")) {
-      parsed = parsed.substring(1);
-    }
+        String parsed = command;
+        if (player != null) {
+            String name = player.getName();
+            parsed = parsed.replace("{player}", name != null ? name : "Unknown")
+                    .replace("{uuid}", player.getUniqueId().toString());
+        }
 
-    final String finalCommand = parsed;
-    Bukkit.getGlobalRegionScheduler()
-        .execute(
-            PartyAnimals.getPlugin(),
-            () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand));
-  }
+        if (player != null && hasPAPI) {
+            parsed = PlaceholderAPI.setPlaceholders(player, parsed);
+        }
+
+        if (parsed.startsWith("/")) {
+            parsed = parsed.substring(1);
+        }
+
+        final String finalCommand = parsed;
+        Bukkit.getGlobalRegionScheduler()
+                .execute(
+                        PartyAnimals.getPlugin(),
+                        () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand));
+    }
 }

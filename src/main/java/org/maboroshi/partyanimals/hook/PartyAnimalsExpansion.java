@@ -11,158 +11,158 @@ import org.maboroshi.partyanimals.manager.DatabaseManager.TopVoter;
 import org.maboroshi.partyanimals.manager.PinataManager;
 
 public class PartyAnimalsExpansion extends PlaceholderExpansion {
-  private final PartyAnimals plugin;
+    private final PartyAnimals plugin;
 
-  public PartyAnimalsExpansion(PartyAnimals plugin) {
-    this.plugin = plugin;
-  }
+    public PartyAnimalsExpansion(PartyAnimals plugin) {
+        this.plugin = plugin;
+    }
 
-  @Override
-  public String getIdentifier() {
-    return "partyanimals";
-  }
+    @Override
+    public String getIdentifier() {
+        return "partyanimals";
+    }
 
-  @Override
-  public String getAuthor() {
-    return plugin.getPluginMeta().getAuthors().toString();
-  }
+    @Override
+    public String getAuthor() {
+        return plugin.getPluginMeta().getAuthors().toString();
+    }
 
-  @Override
-  public String getVersion() {
-    return plugin.getPluginMeta().getVersion();
-  }
+    @Override
+    public String getVersion() {
+        return plugin.getPluginMeta().getVersion();
+    }
 
-  @Override
-  public boolean persist() {
-    return true;
-  }
+    @Override
+    public boolean persist() {
+        return true;
+    }
 
-  @Override
-  public String onPlaceholderRequest(Player player, @NotNull String params) {
-    PinataManager pinataManager = plugin.getPinataManager();
+    @Override
+    public String onPlaceholderRequest(Player player, @NotNull String params) {
+        PinataManager pinataManager = plugin.getPinataManager();
 
-    if (pinataManager != null && params.startsWith("pinata_")) {
-      if (params.equals("pinata_count")) {
-        return String.valueOf(pinataManager.getActivePinataCount());
-      }
-      if (params.equals("pinata_any_alive")) {
-        return String.valueOf(pinataManager.isPinataAlive());
-      }
+        if (pinataManager != null && params.startsWith("pinata_")) {
+            if (params.equals("pinata_count")) {
+                return String.valueOf(pinataManager.getActivePinataCount());
+            }
+            if (params.equals("pinata_any_alive")) {
+                return String.valueOf(pinataManager.isPinataAlive());
+            }
 
-      if (params.startsWith("pinata_nearest_")) {
-        if (player == null) return "";
+            if (params.startsWith("pinata_nearest_")) {
+                if (player == null) return "";
 
-        LivingEntity pinata = pinataManager.getNearestPinata(player.getLocation());
-        String subParam = params.substring("pinata_nearest_".length());
+                LivingEntity pinata = pinataManager.getNearestPinata(player.getLocation());
+                String subParam = params.substring("pinata_nearest_".length());
 
-        if (pinata == null) {
-          return switch (subParam) {
-            case "health", "max_health" -> "0";
-            case "alive" -> "false";
-            case "location" -> "N/A";
-            default -> null;
-          };
+                if (pinata == null) {
+                    return switch (subParam) {
+                        case "health", "max_health" -> "0";
+                        case "alive" -> "false";
+                        case "location" -> "N/A";
+                        default -> null;
+                    };
+                }
+
+                return switch (subParam) {
+                    case "alive" -> "true";
+                    case "health" -> String.valueOf(pinataManager.getPinataHealth(pinata));
+                    case "max_health" -> String.valueOf(pinataManager.getPinataMaxHealth(pinata));
+                    case "location" -> {
+                        Location loc = pinata.getLocation();
+                        yield loc.getWorld().getName()
+                                + ", "
+                                + loc.getBlockX()
+                                + ", "
+                                + loc.getBlockY()
+                                + ", "
+                                + loc.getBlockZ();
+                    }
+                    default -> null;
+                };
+            }
         }
 
-        return switch (subParam) {
-          case "alive" -> "true";
-          case "health" -> String.valueOf(pinataManager.getPinataHealth(pinata));
-          case "max_health" -> String.valueOf(pinataManager.getPinataMaxHealth(pinata));
-          case "location" -> {
-            Location loc = pinata.getLocation();
-            yield loc.getWorld().getName()
-                + ", "
-                + loc.getBlockX()
-                + ", "
-                + loc.getBlockY()
-                + ", "
-                + loc.getBlockZ();
-          }
-          default -> null;
-        };
-      }
-    }
-
-    if (plugin.getLeaderboardManager() != null && params.startsWith("top_")) {
-      return handleLeaderboardPlaceholders(params);
-    }
-
-    if (player != null && params.equals("votes")) {
-      UUID targetUUID = plugin.getDatabaseManager().getPlayerUUID(player.getName());
-      return String.valueOf(plugin.getDatabaseManager().getVotes(targetUUID));
-    }
-
-    if (params.startsWith("vote_community_")) {
-      var goalConfig = plugin.getConfiguration().getMainConfig().modules.vote.communityGoal;
-
-      if (!goalConfig.enabled) {
-        return "Disabled";
-      }
-
-      int rawTotal = plugin.getDatabaseManager().getCommunityGoalProgress();
-      int required = goalConfig.votesRequired;
-
-      int visualProgress = (required > 0) ? rawTotal % required : 0;
-
-      if (visualProgress == 0 && rawTotal > 0) {
-        visualProgress = required;
-      }
-
-      return switch (params) {
-        case "vote_community_current" -> String.valueOf(visualProgress);
-        case "vote_community_required" -> String.valueOf(required);
-        case "vote_community_percentage" -> {
-          if (required == 0) yield "0%";
-          int percent = (int) ((visualProgress / (double) required) * 100);
-          yield percent + "%";
+        if (plugin.getLeaderboardManager() != null && params.startsWith("top_")) {
+            return handleLeaderboardPlaceholders(params);
         }
 
-        case "vote_community_total" -> String.valueOf(rawTotal);
-
-        case "vote_community_remaining" -> {
-          int remaining = required - visualProgress;
-          if (remaining == 0) remaining = required;
-          yield String.valueOf(remaining);
+        if (player != null && params.equals("votes")) {
+            UUID targetUUID = plugin.getDatabaseManager().getPlayerUUID(player.getName());
+            return String.valueOf(plugin.getDatabaseManager().getVotes(targetUUID));
         }
 
-        case "vote_community_goals_met" -> {
-          yield String.valueOf(required > 0 ? rawTotal / required : 0);
+        if (params.startsWith("vote_community_")) {
+            var goalConfig = plugin.getConfiguration().getMainConfig().modules.vote.communityGoal;
+
+            if (!goalConfig.enabled) {
+                return "Disabled";
+            }
+
+            int rawTotal = plugin.getDatabaseManager().getCommunityGoalProgress();
+            int required = goalConfig.votesRequired;
+
+            int visualProgress = (required > 0) ? rawTotal % required : 0;
+
+            if (visualProgress == 0 && rawTotal > 0) {
+                visualProgress = required;
+            }
+
+            return switch (params) {
+                case "vote_community_current" -> String.valueOf(visualProgress);
+                case "vote_community_required" -> String.valueOf(required);
+                case "vote_community_percentage" -> {
+                    if (required == 0) yield "0%";
+                    int percent = (int) ((visualProgress / (double) required) * 100);
+                    yield percent + "%";
+                }
+
+                case "vote_community_total" -> String.valueOf(rawTotal);
+
+                case "vote_community_remaining" -> {
+                    int remaining = required - visualProgress;
+                    if (remaining == 0) remaining = required;
+                    yield String.valueOf(remaining);
+                }
+
+                case "vote_community_goals_met" -> {
+                    yield String.valueOf(required > 0 ? rawTotal / required : 0);
+                }
+
+                default -> null;
+            };
         }
 
-        default -> null;
-      };
+        return null;
     }
 
-    return null;
-  }
+    private String handleLeaderboardPlaceholders(String params) {
+        String[] parts = params.split("_");
 
-  private String handleLeaderboardPlaceholders(String params) {
-    String[] parts = params.split("_");
+        if (parts.length < 4) return null;
 
-    if (parts.length < 4) return null;
+        String field = parts[parts.length - 1];
 
-    String field = parts[parts.length - 1];
+        String rankStr = parts[parts.length - 2];
+        int rank;
+        try {
+            rank = Integer.parseInt(rankStr);
+        } catch (NumberFormatException e) {
+            return null;
+        }
 
-    String rankStr = parts[parts.length - 2];
-    int rank;
-    try {
-      rank = Integer.parseInt(rankStr);
-    } catch (NumberFormatException e) {
-      return null;
+        StringBuilder typeBuilder = new StringBuilder();
+        for (int i = 1; i < parts.length - 2; i++) {
+            if (i > 1) typeBuilder.append("_");
+            typeBuilder.append(parts[i]);
+        }
+        String type = typeBuilder.toString();
+
+        TopVoter top = plugin.getLeaderboardManager().getTopVoter(type, rank);
+
+        if (field.equalsIgnoreCase("name")) return top.name();
+        if (field.equalsIgnoreCase("votes")) return String.valueOf(top.votes());
+
+        return null;
     }
-
-    StringBuilder typeBuilder = new StringBuilder();
-    for (int i = 1; i < parts.length - 2; i++) {
-      if (i > 1) typeBuilder.append("_");
-      typeBuilder.append(parts[i]);
-    }
-    String type = typeBuilder.toString();
-
-    TopVoter top = plugin.getLeaderboardManager().getTopVoter(type, rank);
-
-    if (field.equalsIgnoreCase("name")) return top.name();
-    if (field.equalsIgnoreCase("votes")) return String.valueOf(top.votes());
-
-    return null;
-  }
 }
