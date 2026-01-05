@@ -1,4 +1,4 @@
-package org.maboroshi.partyanimals.handler;
+package org.maboroshi.partyanimals.util;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.audience.Audience;
@@ -10,12 +10,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.maboroshi.partyanimals.config.ConfigManager;
 
-public class MessageHandler {
+public class MessageUtils {
     private final ConfigManager config;
     private final MiniMessage mm;
     private final boolean hasPAPI;
 
-    public MessageHandler(ConfigManager config) {
+    public MessageUtils(ConfigManager config) {
         this.config = config;
         this.mm = MiniMessage.miniMessage();
         this.hasPAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");

@@ -33,8 +33,8 @@ import org.maboroshi.partyanimals.behavior.PinataRoamGoal;
 import org.maboroshi.partyanimals.config.ConfigManager;
 import org.maboroshi.partyanimals.config.settings.PinataConfig.PinataConfiguration;
 import org.maboroshi.partyanimals.handler.EffectHandler;
-import org.maboroshi.partyanimals.handler.MessageHandler;
 import org.maboroshi.partyanimals.util.Logger;
+import org.maboroshi.partyanimals.util.MessageUtils;
 
 public class PinataManager {
     private final PartyAnimals plugin;
@@ -42,7 +42,7 @@ public class PinataManager {
     private final ConfigManager config;
     private final BossBarManager bossBarManager;
     private final EffectHandler effectHandler;
-    private final MessageHandler messageHandler;
+    private final MessageUtils messageUtils;
 
     private final NamespacedKey is_pinata;
     private final NamespacedKey health;
@@ -60,7 +60,7 @@ public class PinataManager {
         this.config = plugin.getConfiguration();
         this.bossBarManager = plugin.getBossBarManager();
         this.effectHandler = plugin.getEffectHandler();
-        this.messageHandler = plugin.getMessageHandler();
+        this.messageUtils = plugin.getMessageUtils();
 
         this.is_pinata = new NamespacedKey(plugin, "is_pinata");
         this.health = new NamespacedKey(plugin, "health");
@@ -97,7 +97,7 @@ public class PinataManager {
         var barSettings = pinataConfig.timer.countdown.bar;
 
         BossBar bossBar = BossBar.bossBar(
-                messageHandler.parse(null, bossBarCountdown, messageHandler.tag("countdown", (int) countdownSeconds)),
+                messageUtils.parse(null, bossBarCountdown, messageUtils.tag("countdown", (int) countdownSeconds)),
                 1.0f,
                 barSettings.color,
                 barSettings.overlay);
@@ -154,8 +154,8 @@ public class PinataManager {
 
                                 if (displaySeconds != lastSeconds[0]) {
                                     effectHandler.playEffects(pinataConfig.timer.countdown.mid, location, true);
-                                    bossBar.name(messageHandler.parse(
-                                            null, bossBarCountdown, messageHandler.tag("countdown", displaySeconds)));
+                                    bossBar.name(messageUtils.parse(
+                                            null, bossBarCountdown, messageUtils.tag("countdown", displaySeconds)));
                                     lastSeconds[0] = displaySeconds;
                                 }
                             }
@@ -224,10 +224,10 @@ public class PinataManager {
         }
 
         String spawnMessage = config.getMessageConfig().pinata.events.spawnedNaturally;
-        messageHandler.send(
+        messageUtils.send(
                 plugin.getServer(),
                 spawnMessage,
-                messageHandler.tagParsed(
+                messageUtils.tagParsed(
                         "location", location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()));
     }
 
@@ -368,7 +368,7 @@ public class PinataManager {
                             if (pinata.isValid() && isPinata(pinata)) {
                                 safelyRemovePinata(pinata);
                                 String timeoutMsg = config.getMessageConfig().pinata.events.timeout;
-                                messageHandler.send(plugin.getServer(), timeoutMsg);
+                                messageUtils.send(plugin.getServer(), timeoutMsg);
                             }
                             timeoutTasks.remove(pinata.getUniqueId());
                         },
@@ -417,13 +417,13 @@ public class PinataManager {
                             List<Component> components = new ArrayList<>();
                             if (lines != null) {
                                 for (String line : lines) {
-                                    components.add(messageHandler.parse(
+                                    components.add(messageUtils.parse(
                                             null,
                                             line,
-                                            messageHandler.tagParsed("pinata", pinataConfig.appearance.name),
-                                            messageHandler.tag("health", currentHealth),
-                                            messageHandler.tag("max-health", maxHealthVal),
-                                            messageHandler.tag("timer", timeStr)));
+                                            messageUtils.tagParsed("pinata", pinataConfig.appearance.name),
+                                            messageUtils.tag("health", currentHealth),
+                                            messageUtils.tag("max-health", maxHealthVal),
+                                            messageUtils.tag("timer", timeStr)));
                                 }
                             }
                             nameTag.text(Component.join(JoinConfiguration.newlines(), components));
@@ -498,13 +498,13 @@ public class PinataManager {
 
         if (lines != null) {
             for (String line : lines) {
-                components.add(messageHandler.parse(
+                components.add(messageUtils.parse(
                         null,
                         line,
-                        messageHandler.tagParsed("pinata", pinataConfig.appearance.name),
-                        messageHandler.tag("health", currentHealth),
-                        messageHandler.tag("max-health", maxHealthVal),
-                        messageHandler.tag("timer", initialTimeStr)));
+                        messageUtils.tagParsed("pinata", pinataConfig.appearance.name),
+                        messageUtils.tag("health", currentHealth),
+                        messageUtils.tag("max-health", maxHealthVal),
+                        messageUtils.tag("timer", initialTimeStr)));
             }
         }
 

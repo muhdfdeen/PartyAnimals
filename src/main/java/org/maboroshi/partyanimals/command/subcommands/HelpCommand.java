@@ -7,15 +7,15 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
 import org.maboroshi.partyanimals.PartyAnimals;
-import org.maboroshi.partyanimals.handler.MessageHandler;
+import org.maboroshi.partyanimals.util.MessageUtils;
 
 public class HelpCommand {
     private final PartyAnimals plugin;
-    private final MessageHandler messageHandler;
+    private final MessageUtils messageUtils;
 
     public HelpCommand(PartyAnimals plugin) {
         this.plugin = plugin;
-        this.messageHandler = plugin.getMessageHandler();
+        this.messageUtils = plugin.getMessageUtils();
     }
 
     public LiteralArgumentBuilder<CommandSourceStack> build() {
@@ -25,7 +25,7 @@ public class HelpCommand {
     private int executeHelp(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
 
-        messageHandler.send(sender, plugin.getConfiguration().getMessageConfig().help.header);
+        messageUtils.send(sender, plugin.getConfiguration().getMessageConfig().help.header);
 
         sendHelpLine(sender, "pa reload", "Reload configuration", "partyanimals.reload");
 
@@ -50,7 +50,7 @@ public class HelpCommand {
 
         String format = plugin.getConfiguration().getMessageConfig().help.entry;
 
-        messageHandler.send(
-                sender, format, messageHandler.tag("command", command), messageHandler.tag("description", description));
+        messageUtils.send(
+                sender, format, messageUtils.tag("command", command), messageUtils.tag("description", description));
     }
 }

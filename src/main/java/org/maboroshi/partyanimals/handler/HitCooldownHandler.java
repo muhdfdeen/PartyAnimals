@@ -8,16 +8,17 @@ import org.bukkit.persistence.PersistentDataType;
 import org.maboroshi.partyanimals.PartyAnimals;
 import org.maboroshi.partyanimals.config.ConfigManager;
 import org.maboroshi.partyanimals.config.settings.PinataConfig.PinataConfiguration;
+import org.maboroshi.partyanimals.util.MessageUtils;
 
 public class HitCooldownHandler {
     private final PartyAnimals plugin;
     private final ConfigManager config;
-    private final MessageHandler messageHandler;
+    private final MessageUtils messageUtils;
 
     public HitCooldownHandler(PartyAnimals plugin) {
         this.plugin = plugin;
         this.config = plugin.getConfiguration();
-        this.messageHandler = plugin.getMessageHandler();
+        this.messageUtils = plugin.getMessageUtils();
     }
 
     public boolean isOnCooldown(Player player, LivingEntity pinata) {
@@ -65,8 +66,8 @@ public class HitCooldownHandler {
 
         double remainingSeconds = remainingMillis / 1000.0;
 
-        var component = messageHandler.parse(
-                player, msg, messageHandler.tag("countdown", String.format("%.1f", remainingSeconds)));
+        var component =
+                messageUtils.parse(player, msg, messageUtils.tag("countdown", String.format("%.1f", remainingSeconds)));
 
         String displayType = pinataConfig.interaction.hitCooldown.notificationType;
 

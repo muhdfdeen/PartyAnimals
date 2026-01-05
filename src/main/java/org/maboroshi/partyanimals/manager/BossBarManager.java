@@ -13,17 +13,17 @@ import org.bukkit.persistence.PersistentDataType;
 import org.maboroshi.partyanimals.PartyAnimals;
 import org.maboroshi.partyanimals.config.ConfigManager;
 import org.maboroshi.partyanimals.config.settings.PinataConfig.PinataConfiguration;
-import org.maboroshi.partyanimals.handler.MessageHandler;
+import org.maboroshi.partyanimals.util.MessageUtils;
 
 public class BossBarManager {
 
     private final ConfigManager config;
-    private final MessageHandler messageHandler;
+    private final MessageUtils messageUtils;
     private final Map<UUID, BossBar> activeBossBars = new HashMap<>();
 
     public BossBarManager(PartyAnimals plugin) {
         this.config = plugin.getConfiguration();
-        this.messageHandler = plugin.getMessageHandler();
+        this.messageUtils = plugin.getMessageUtils();
     }
 
     public void createBossBar(
@@ -31,13 +31,13 @@ public class BossBarManager {
         String rawMsg = config.getMessageConfig().pinata.visuals.bossBarActive;
         String timeStr = formatTime(timeout, pinataConfig);
 
-        Component barName = messageHandler.parse(
+        Component barName = messageUtils.parse(
                 null,
                 rawMsg,
-                messageHandler.tagParsed("pinata", pinataConfig.appearance.name),
-                messageHandler.tag("health", health),
-                messageHandler.tag("max-health", maxHealth),
-                messageHandler.tag("timer", timeStr));
+                messageUtils.tagParsed("pinata", pinataConfig.appearance.name),
+                messageUtils.tag("health", health),
+                messageUtils.tag("max-health", maxHealth),
+                messageUtils.tag("timer", timeStr));
 
         BossBar bossBar =
                 BossBar.bossBar(barName, 1.0f, pinataConfig.health.bar.color, pinataConfig.health.bar.overlay);
@@ -68,13 +68,13 @@ public class BossBarManager {
             timeStr = formatTime(remaining, pinataConfig);
         }
 
-        bossBar.name(messageHandler.parse(
+        bossBar.name(messageUtils.parse(
                 null,
                 config.getMessageConfig().pinata.visuals.bossBarActive,
-                messageHandler.tagParsed("pinata", pinataConfig.appearance.name),
-                messageHandler.tag("health", currentHealth),
-                messageHandler.tag("max-health", maxHealth),
-                messageHandler.tag("timer", timeStr)));
+                messageUtils.tagParsed("pinata", pinataConfig.appearance.name),
+                messageUtils.tag("health", currentHealth),
+                messageUtils.tag("max-health", maxHealth),
+                messageUtils.tag("timer", timeStr)));
 
         updateViewerList(pinata, bossBar, pinataConfig);
     }

@@ -14,16 +14,16 @@ import java.util.concurrent.CompletableFuture;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.maboroshi.partyanimals.PartyAnimals;
-import org.maboroshi.partyanimals.handler.MessageHandler;
+import org.maboroshi.partyanimals.util.MessageUtils;
 import org.maboroshi.partyanimals.util.VoteTester;
 
 public class VoteCommand {
     private final PartyAnimals plugin;
-    private final MessageHandler messageHandler;
+    private final MessageUtils messageUtils;
 
     public VoteCommand(PartyAnimals plugin) {
         this.plugin = plugin;
-        this.messageHandler = plugin.getMessageHandler();
+        this.messageUtils = plugin.getMessageUtils();
     }
 
     public LiteralArgumentBuilder<CommandSourceStack> build() {
@@ -83,7 +83,7 @@ public class VoteCommand {
         Bukkit.getAsyncScheduler().runNow(plugin, (task) -> {
             UUID uuid = plugin.getDatabaseManager().getPlayerUUID(targetName);
             int votes = plugin.getDatabaseManager().getVotes(uuid);
-            messageHandler.send(
+            messageUtils.send(
                     sender, "<prefix> <white>" + targetName + "</white> has <aqua>" + votes + "</aqua> votes.");
         });
 
@@ -109,7 +109,7 @@ public class VoteCommand {
             }
 
             if (finalChange == 0) {
-                messageHandler.send(
+                messageUtils.send(
                         sender,
                         "<prefix> <yellow>No changes made. " + targetName + " already has " + currentVotes + " votes.");
                 return;
@@ -117,8 +117,8 @@ public class VoteCommand {
 
             plugin.getDatabaseManager().addVote(uuid, targetName, "Admin", finalChange);
             int newTotal = currentVotes + finalChange;
-            messageHandler.send(sender, "<prefix> <green>Updated votes for <white>" + targetName + "</white>.");
-            messageHandler.send(
+            messageUtils.send(sender, "<prefix> <green>Updated votes for <white>" + targetName + "</white>.");
+            messageUtils.send(
                     sender,
                     "<prefix> <gray>Old: <yellow>" + currentVotes + "</yellow> -> New: <aqua>" + newTotal + "</aqua>");
         });
@@ -128,7 +128,7 @@ public class VoteCommand {
 
     private int handleTestSafe(CommandContext<CommandSourceStack> ctx, String serviceName) {
         String targetName = StringArgumentType.getString(ctx, "player");
-        VoteTester.triggerTestVote(ctx.getSource().getSender(), targetName, serviceName, messageHandler);
+        VoteTester.triggerTestVote(ctx.getSource().getSender(), targetName, serviceName, messageUtils);
         return Command.SINGLE_SUCCESS;
     }
 }

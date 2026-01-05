@@ -21,11 +21,11 @@ import org.maboroshi.partyanimals.config.settings.PinataConfig.ItemWhitelist;
 import org.maboroshi.partyanimals.config.settings.PinataConfig.PinataConfiguration;
 import org.maboroshi.partyanimals.handler.EffectHandler;
 import org.maboroshi.partyanimals.handler.HitCooldownHandler;
-import org.maboroshi.partyanimals.handler.MessageHandler;
 import org.maboroshi.partyanimals.handler.RewardHandler;
 import org.maboroshi.partyanimals.manager.BossBarManager;
 import org.maboroshi.partyanimals.manager.PinataManager;
 import org.maboroshi.partyanimals.util.Logger;
+import org.maboroshi.partyanimals.util.MessageUtils;
 
 public class PinataListener implements Listener {
     private final PartyAnimals plugin;
@@ -36,7 +36,7 @@ public class PinataListener implements Listener {
     private final HitCooldownHandler hitCooldownHandler;
     private final EffectHandler effectHandler;
     private final RewardHandler rewardHandler;
-    private final MessageHandler messageHandler;
+    private final MessageUtils messageUtils;
 
     public PinataListener(PartyAnimals plugin) {
         this.plugin = plugin;
@@ -47,7 +47,7 @@ public class PinataListener implements Listener {
         this.hitCooldownHandler = plugin.getHitCooldownHandler();
         this.effectHandler = plugin.getEffectHandler();
         this.rewardHandler = plugin.getRewardHandler();
-        this.messageHandler = plugin.getMessageHandler();
+        this.messageUtils = plugin.getMessageUtils();
     }
 
     @EventHandler
@@ -148,7 +148,7 @@ public class PinataListener implements Listener {
             rewardHandler.process(player, pinataConfig.events.hit.rewards.values());
 
             String hitMessage = config.getMessageConfig().pinata.gameplay.hitSuccess;
-            if (hitMessage != null && !hitMessage.isEmpty()) messageHandler.send(player, hitMessage);
+            if (hitMessage != null && !hitMessage.isEmpty()) messageUtils.send(player, hitMessage);
 
             NamespacedKey maxHealthKey = pinataManager.getMaxHealthKey();
             int actualMaxHealth = pinata.getPersistentDataContainer()
@@ -187,7 +187,7 @@ public class PinataListener implements Listener {
         if (!player.hasPermission(permission)) {
             String noPermission = config.getMessageConfig().pinata.gameplay.hitNoPermission;
             if (noPermission != null && !noPermission.isEmpty()) {
-                messageHandler.send(player, noPermission);
+                messageUtils.send(player, noPermission);
             }
             return false;
         }
@@ -213,7 +213,7 @@ public class PinataListener implements Listener {
         if (!isAllowed) {
             String allowedItemsMessage = config.getMessageConfig().pinata.gameplay.hitWrongItem;
             if (allowedItemsMessage != null && !allowedItemsMessage.isEmpty()) {
-                messageHandler.send(player, allowedItemsMessage, messageHandler.tag("item", heldMaterial.name()));
+                messageUtils.send(player, allowedItemsMessage, messageUtils.tag("item", heldMaterial.name()));
             }
             return false;
         }
@@ -238,13 +238,13 @@ public class PinataListener implements Listener {
         rewardHandler.process(player, pinataConfig.events.lastHit.rewards.values());
 
         String lastHitMessage = config.getMessageConfig().pinata.gameplay.lastHit;
-        messageHandler.send(player, lastHitMessage, messageHandler.tag("player", player.getName()));
+        messageUtils.send(player, lastHitMessage, messageUtils.tag("player", player.getName()));
 
         log.debug("Processing death commands...");
         rewardHandler.process(player, pinataConfig.events.death.rewards.values());
 
         String downedMessage = config.getMessageConfig().pinata.events.defeated;
-        messageHandler.send(plugin.getServer(), downedMessage, messageHandler.tag("player", player.getName()));
+        messageUtils.send(plugin.getServer(), downedMessage, messageUtils.tag("player", player.getName()));
 
         pinataManager.safelyRemovePinata(pinata);
     }

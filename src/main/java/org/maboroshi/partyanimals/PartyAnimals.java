@@ -13,7 +13,6 @@ import org.maboroshi.partyanimals.command.PartyAnimalsCommand;
 import org.maboroshi.partyanimals.config.ConfigManager;
 import org.maboroshi.partyanimals.handler.EffectHandler;
 import org.maboroshi.partyanimals.handler.HitCooldownHandler;
-import org.maboroshi.partyanimals.handler.MessageHandler;
 import org.maboroshi.partyanimals.handler.RewardHandler;
 import org.maboroshi.partyanimals.hook.PartyAnimalsExpansion;
 import org.maboroshi.partyanimals.listener.PinataListener;
@@ -23,6 +22,7 @@ import org.maboroshi.partyanimals.manager.DatabaseManager;
 import org.maboroshi.partyanimals.manager.LeaderboardManager;
 import org.maboroshi.partyanimals.manager.PinataManager;
 import org.maboroshi.partyanimals.util.Logger;
+import org.maboroshi.partyanimals.util.MessageUtils;
 import org.maboroshi.partyanimals.util.UpdateChecker;
 
 public final class PartyAnimals extends JavaPlugin {
@@ -31,7 +31,7 @@ public final class PartyAnimals extends JavaPlugin {
     private ConfigManager configManager;
     private Logger log;
     private PinataManager pinataManager;
-    private MessageHandler messageHandler;
+    private MessageUtils messageUtils;
     private BossBarManager bossBarManager;
     private HitCooldownHandler hitCooldownHandler;
     private EffectHandler effectHandler;
@@ -58,7 +58,7 @@ public final class PartyAnimals extends JavaPlugin {
         @SuppressWarnings("unused")
         Metrics metrics = new Metrics(this, 28389);
 
-        this.messageHandler = new MessageHandler(configManager);
+        this.messageUtils = new MessageUtils(configManager);
         this.bossBarManager = new BossBarManager(this);
         this.effectHandler = new EffectHandler(log);
         this.rewardHandler = new RewardHandler(this);
@@ -189,8 +189,8 @@ public final class PartyAnimals extends JavaPlugin {
         return pinataManager;
     }
 
-    public MessageHandler getMessageHandler() {
-        return messageHandler;
+    public MessageUtils getMessageUtils() {
+        return messageUtils;
     }
 
     public BossBarManager getBossBarManager() {
