@@ -99,12 +99,12 @@ public class PartyAnimalsExpansion extends PlaceholderExpansion {
         return "Disabled";
       }
 
-      int totalVotes = plugin.getDatabaseManager().getCommunityGoalProgress();
+      int rawTotal = plugin.getDatabaseManager().getCommunityGoalProgress();
       int required = goalConfig.votesRequired;
 
-      int visualProgress = (required > 0) ? totalVotes % required : 0;
+      int visualProgress = (required > 0) ? rawTotal % required : 0;
 
-      if (visualProgress == 0 && totalVotes > 0) {
+      if (visualProgress == 0 && rawTotal > 0) {
         visualProgress = required;
       }
 
@@ -116,6 +116,19 @@ public class PartyAnimalsExpansion extends PlaceholderExpansion {
           int percent = (int) ((visualProgress / (double) required) * 100);
           yield percent + "%";
         }
+
+        case "vote_community_total" -> String.valueOf(rawTotal);
+
+        case "vote_community_remaining" -> {
+          int remaining = required - visualProgress;
+          if (remaining == 0) remaining = required;
+          yield String.valueOf(remaining);
+        }
+
+        case "vote_community_goals_met" -> {
+          yield String.valueOf(required > 0 ? rawTotal / required : 0);
+        }
+
         default -> null;
       };
     }
