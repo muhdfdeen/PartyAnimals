@@ -3,6 +3,7 @@ package org.maboroshi.partyanimals.config.settings;
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.ConfigLib;
 import de.exlll.configlib.Configuration;
+import de.exlll.configlib.NameFormatters;
 import de.exlll.configlib.YamlConfigurationProperties;
 import de.exlll.configlib.YamlConfigurations;
 import java.io.File;
@@ -21,8 +22,9 @@ import org.maboroshi.partyanimals.config.objects.RewardAction;
 public final class PinataConfig {
 
     public static PinataConfiguration load(File pinataFile) {
-        YamlConfigurationProperties properties =
-                ConfigLib.BUKKIT_DEFAULT_PROPERTIES.toBuilder().build();
+        YamlConfigurationProperties properties = ConfigLib.BUKKIT_DEFAULT_PROPERTIES.toBuilder()
+                .setNameFormatter(NameFormatters.LOWER_KEBAB_CASE)
+                .build();
         return YamlConfigurations.update(pinataFile.toPath(), PinataConfiguration.class, properties);
     }
 
@@ -57,7 +59,7 @@ public final class PinataConfig {
         @Comment({
             "Entity types to use for the pinata.",
             "If multiple types are provided, one is chosen randomly.",
-            "See: https://jd.papermc.io/paper/1.21.11/org/bukkit/entity/EntityType.html"
+            "See: https://jd.papermc.io/paper/1.21.1/org/bukkit/entity/EntityType.html"
         })
         public List<String> entityTypes = List.of("LLAMA", "MULE");
 
@@ -223,14 +225,16 @@ public final class PinataConfig {
                         BossBar.Overlay.PROGRESS,
                         "A pinata party will begin in <white><countdown></white>. Get ready!"),
                 new EffectGroup(
-                        List.of(new SoundEffect("block.note_block.bit", 1f, 1f)),
-                        List.of(new ParticleEffect("FIREWORK", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
+                        Map.of("tick", new SoundEffect("block.note_block.bit", 1f, 1f)),
+                        Map.of(
+                                "spawn-flare",
+                                new ParticleEffect("FIREWORK", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
                 new EffectGroup(
-                        List.of(new SoundEffect("block.note_block.bit", 1f, 0.8f)),
-                        List.of(new ParticleEffect("NOTE", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
+                        Map.of("pulse", new SoundEffect("block.note_block.bit", 1f, 0.8f)),
+                        Map.of("note-trail", new ParticleEffect("NOTE", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
                 new EffectGroup(
-                        List.of(new SoundEffect("entity.firework_rocket.launch", 1f, 0.8f)),
-                        List.of(new ParticleEffect("SONIC_BOOM", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))));
+                        Map.of("launch", new SoundEffect("entity.firework_rocket.launch", 1f, 0.8f)),
+                        Map.of("boom", new ParticleEffect("SONIC_BOOM", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))));
 
         @Comment("Maximum time to kill the pinata.")
         public TimeoutSettings timeout = new TimeoutSettings(true, 300);
@@ -333,8 +337,10 @@ public final class PinataConfig {
         public GameEvent spawn = new GameEvent(
                 true,
                 new EffectGroup(
-                        List.of(new SoundEffect("entity.firework_rocket.twinkle", 1f, 1f)),
-                        List.of(new ParticleEffect("TOTEM_OF_UNDYING", 10, new ParticleOffset(0.5, 1.0, 0.5), 0.1))),
+                        Map.of("twinkle", new SoundEffect("entity.firework_rocket.twinkle", 1f, 1f)),
+                        Map.of(
+                                "totem",
+                                new ParticleEffect("TOTEM_OF_UNDYING", 10, new ParticleOffset(0.5, 1.0, 0.5), 0.1))),
                 new HashMap<>(
                         Map.of("announce", new RewardAction(100.0, List.of("say <green>A pinata has arrived!")))));
 
@@ -342,8 +348,8 @@ public final class PinataConfig {
         public GameEvent hit = new GameEvent(
                 true,
                 new EffectGroup(
-                        List.of(new SoundEffect("entity.player.attack.crit", 1f, 1f)),
-                        List.of(new ParticleEffect("CRIT", 5, new ParticleOffset(0.3, 1.0, 0.3), 0.0))),
+                        Map.of("crit-sound", new SoundEffect("entity.player.attack.crit", 1f, 1f)),
+                        Map.of("crit-particle", new ParticleEffect("CRIT", 5, new ParticleOffset(0.3, 1.0, 0.3), 0.0))),
                 new HashMap<>(Map.of(
                         "vip_reward",
                         new RewardAction(
@@ -353,16 +359,18 @@ public final class PinataConfig {
         public GameEvent lastHit = new GameEvent(
                 false,
                 new EffectGroup(
-                        List.of(new SoundEffect("ui.toast.challenge_complete", 1f, 1f)),
-                        List.of(new ParticleEffect("HEART", 20, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
+                        Map.of("challenge-complete", new SoundEffect("ui.toast.challenge_complete", 1f, 1f)),
+                        Map.of("hearts", new ParticleEffect("HEART", 20, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
                 new HashMap<>());
 
         @Comment("Triggered when pinata dies.")
         public GameEvent death = new GameEvent(
                 true,
                 new EffectGroup(
-                        List.of(new SoundEffect("entity.generic.explode", 1f, 1f)),
-                        List.of(new ParticleEffect("EXPLOSION", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
+                        Map.of("explosion-sound", new SoundEffect("entity.generic.explode", 1f, 1f)),
+                        Map.of(
+                                "explosion-particle",
+                                new ParticleEffect("EXPLOSION", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
                 new HashMap<>(Map.of(
                         "everyone_emerald",
                         new RewardAction(100.0, false, false, false, "", List.of("give @a emerald 5")))));

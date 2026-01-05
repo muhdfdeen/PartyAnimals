@@ -3,6 +3,7 @@ package org.maboroshi.partyanimals.config.settings;
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.ConfigLib;
 import de.exlll.configlib.Configuration;
+import de.exlll.configlib.NameFormatters;
 import de.exlll.configlib.YamlConfigurationProperties;
 import de.exlll.configlib.YamlConfigurations;
 import java.io.File;
@@ -11,8 +12,9 @@ import java.nio.file.Path;
 public final class MessageConfig {
 
     public static MessageConfiguration load(File dataFolder) {
-        YamlConfigurationProperties properties =
-                ConfigLib.BUKKIT_DEFAULT_PROPERTIES.toBuilder().build();
+        YamlConfigurationProperties properties = ConfigLib.BUKKIT_DEFAULT_PROPERTIES.toBuilder()
+                .setNameFormatter(NameFormatters.LOWER_KEBAB_CASE)
+                .build();
         Path messagesFile = new File(dataFolder, "messages.yml").toPath();
         return YamlConfigurations.update(messagesFile, MessageConfiguration.class, properties);
     }

@@ -2,8 +2,8 @@ package org.maboroshi.partyanimals.config.objects;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class EffectTypes {
 
@@ -58,12 +58,12 @@ public final class EffectTypes {
 
     @Configuration
     public static class EffectGroup {
-        public List<SoundEffect> sounds = new ArrayList<>();
-        public List<ParticleEffect> particles = new ArrayList<>();
+        public Map<String, SoundEffect> sounds = new HashMap<>();
+        public Map<String, ParticleEffect> particles = new HashMap<>();
 
         public EffectGroup() {}
 
-        public EffectGroup(List<SoundEffect> sounds, List<ParticleEffect> particles) {
+        public EffectGroup(Map<String, SoundEffect> sounds, Map<String, ParticleEffect> particles) {
             if (sounds != null) this.sounds = sounds;
             if (particles != null) this.particles = particles;
         }

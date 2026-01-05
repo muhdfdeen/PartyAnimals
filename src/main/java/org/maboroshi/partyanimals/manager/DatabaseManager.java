@@ -169,7 +169,7 @@ public class DatabaseManager {
     }
 
     public UUID getPlayerUUID(String playerName) {
-        boolean forceOffline = plugin.getConfiguration().getMainConfig().modules.vote.forceOfflineUUIDs;
+        boolean forceOffline = plugin.getConfiguration().getMainConfig().modules.vote.forceOfflineMode;
 
         if (forceOffline) {
             return UUID.nameUUIDFromBytes(("OfflinePlayer:" + playerName).getBytes(StandardCharsets.UTF_8));

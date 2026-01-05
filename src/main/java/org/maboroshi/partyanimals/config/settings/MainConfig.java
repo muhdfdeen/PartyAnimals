@@ -3,6 +3,7 @@ package org.maboroshi.partyanimals.config.settings;
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.ConfigLib;
 import de.exlll.configlib.Configuration;
+import de.exlll.configlib.NameFormatters;
 import de.exlll.configlib.YamlConfigurationProperties;
 import de.exlll.configlib.YamlConfigurations;
 import java.io.File;
@@ -18,8 +19,9 @@ import org.maboroshi.partyanimals.config.objects.SerializableLocation;
 public final class MainConfig {
 
     public static MainConfiguration load(File dataFolder) {
-        YamlConfigurationProperties properties =
-                ConfigLib.BUKKIT_DEFAULT_PROPERTIES.toBuilder().build();
+        YamlConfigurationProperties properties = ConfigLib.BUKKIT_DEFAULT_PROPERTIES.toBuilder()
+                .setNameFormatter(NameFormatters.LOWER_KEBAB_CASE)
+                .build();
         Path configFile = new File(dataFolder, "config.yml").toPath();
         return YamlConfigurations.update(configFile, MainConfiguration.class, properties);
     }
@@ -105,7 +107,7 @@ public final class MainConfig {
             "Useful for offline-mode servers or testing environments.",
             "WARNING: Changing this after database creation will reset player data links!"
         })
-        public boolean forceOfflineUUIDs = false;
+        public boolean forceOfflineMode = false;
 
         @Comment("Settings for handling offline votes.")
         public OfflineVoteSettings offline = new OfflineVoteSettings();
@@ -139,7 +141,9 @@ public final class MainConfig {
         public int interval = 10800;
 
         @Comment("Visual/Audio effects.")
-        public EffectGroup effects = new EffectGroup(List.of(new SoundEffect("entity.player.levelup", 1f, 1f)), null);
+        public EffectGroup effects = new EffectGroup(
+                new HashMap<>(Map.of("notification", new SoundEffect("block.note_block.pling", 1f, 1f))),
+                new HashMap<>());
     }
 
     @Configuration
@@ -166,7 +170,8 @@ public final class MainConfig {
         public boolean enabled = true;
 
         @Comment("Visual/Audio effects.")
-        public EffectGroup effects = new EffectGroup(List.of(new SoundEffect("entity.player.levelup", 1f, 1f)), null);
+        public EffectGroup effects = new EffectGroup(
+                new HashMap<>(Map.of("level-up", new SoundEffect("entity.player.levelup", 1f, 1f))), new HashMap<>());
 
         @Comment("Rewards to give.")
         public Map<String, RewardAction> rewards = new HashMap<>(

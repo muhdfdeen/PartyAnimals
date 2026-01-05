@@ -18,16 +18,16 @@ public class EffectHandler {
     public void playEffects(EffectGroup group, Location location, boolean globalSound) {
         if (group == null) return;
 
-        if (group.sounds != null) {
-            for (SoundEffect sound : group.sounds) {
+        if (group.sounds != null && !group.sounds.isEmpty()) {
+            for (SoundEffect sound : group.sounds.values()) {
                 playSound(sound, location, globalSound);
             }
         }
 
         if (location == null || location.getWorld() == null) return;
 
-        if (group.particles != null) {
-            for (ParticleEffect particle : group.particles) {
+        if (group.particles != null && !group.particles.isEmpty()) {
+            for (ParticleEffect particle : group.particles.values()) {
                 playParticle(particle, location);
             }
         }
