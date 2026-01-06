@@ -39,7 +39,7 @@ public class PinataCommand {
 
     private LiteralArgumentBuilder<CommandSourceStack> buildStart() {
         return Commands.literal("start")
-                .requires(s -> s.getSender().hasPermission("partyanimals.start"))
+                .requires(s -> s.getSender().hasPermission("partyanimals.pinata.start"))
                 .executes(ctx -> handleStart(ctx.getSource(), null, "default"))
                 .then(Commands.argument("pinata", StringArgumentType.word())
                         .suggests(this::suggestPinataTemplates)
@@ -55,7 +55,7 @@ public class PinataCommand {
 
     private LiteralArgumentBuilder<CommandSourceStack> buildSpawn() {
         return Commands.literal("spawn")
-                .requires(s -> s.getSender().hasPermission("partyanimals.spawn"))
+                .requires(s -> s.getSender().hasPermission("partyanimals.pinata.spawn"))
                 .executes(ctx -> handleSpawn(ctx.getSource(), null, "default"))
                 .then(Commands.argument("pinata", StringArgumentType.word())
                         .suggests(this::suggestPinataTemplates)
@@ -71,7 +71,7 @@ public class PinataCommand {
 
     private LiteralArgumentBuilder<CommandSourceStack> buildKillAll() {
         return Commands.literal("killall")
-                .requires(s -> s.getSender().hasPermission("partyanimals.killall"))
+                .requires(s -> s.getSender().hasPermission("partyanimals.pinata.killall"))
                 .executes(ctx -> {
                     plugin.getPinataManager().cleanup();
                     messageUtils.send(ctx.getSource().getSender(), "<prefix> <green>Killed all active pinatas.");
@@ -82,11 +82,11 @@ public class PinataCommand {
     private LiteralArgumentBuilder<CommandSourceStack> buildSpawnPoint() {
         return Commands.literal("spawnpoint")
                 .then(Commands.literal("add")
-                        .requires(s -> s.getSender().hasPermission("partyanimals.addlocation"))
+                        .requires(s -> s.getSender().hasPermission("partyanimals.pinata.spawnpoint.add"))
                         .then(Commands.argument("name", StringArgumentType.word())
                                 .executes(this::handleAddSpawnPoint)))
                 .then(Commands.literal("remove")
-                        .requires(s -> s.getSender().hasPermission("partyanimals.removelocation"))
+                        .requires(s -> s.getSender().hasPermission("partyanimals.pinata.spawnpoint.remove"))
                         .then(Commands.argument("name", StringArgumentType.word())
                                 .suggests(this::suggestCentralLocations)
                                 .executes(this::handleRemoveSpawnPoint)));

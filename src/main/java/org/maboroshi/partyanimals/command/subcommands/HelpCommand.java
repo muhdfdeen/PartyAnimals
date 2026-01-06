@@ -29,16 +29,27 @@ public class HelpCommand {
 
         sendHelpLine(sender, "pa reload", "Reload configuration", "partyanimals.reload");
 
-        sendHelpLine(sender, "pa pinata start <pinata> <loc>", "Start pinata countdown", "partyanimals.start");
-        sendHelpLine(sender, "pa pinata spawn <pinata> <loc>", "Spawn pinata immediately", "partyanimals.spawn");
-        sendHelpLine(sender, "pa pinata killall", "Remove all active pinatas", "partyanimals.killall");
+        sendHelpLine(sender, "pa pinata start <pinata> <loc>", "Start pinata countdown", "partyanimals.pinata.start");
+        sendHelpLine(sender, "pa pinata spawn <pinata> <loc>", "Spawn pinata immediately", "partyanimals.pinata.spawn");
+        sendHelpLine(sender, "pa pinata killall", "Remove all active pinatas", "partyanimals.pinata.killall");
 
-        sendHelpLine(sender, "pa pinata spawnpoint add <name>", "Save current location", "partyanimals.addlocation");
         sendHelpLine(
-                sender, "pa pinata spawnpoint remove <name>", "Remove saved location", "partyanimals.removelocation");
+                sender,
+                "pa pinata spawnpoint add <name>",
+                "Save current location",
+                "partyanimals.pinata.spawnpoint.add");
+        sendHelpLine(
+                sender,
+                "pa pinata spawnpoint remove <name>",
+                "Remove saved location",
+                "partyanimals.pinata.spawnpoint.remove");
 
-        sendHelpLine(sender, "pa vote check <player>", "Check player votes", "partyanimals.votes");
-        sendHelpLine(sender, "pa vote <add|remove|set>", "Modify vote data", "partyanimals.votes.admin");
+        sendHelpLine(sender, "pa vote check <player>", "Check player votes", "partyanimals.vote.check");
+        sendHelpLine(sender, "pa vote <add|remove|set>", "Modify vote data", "partyanimals.vote.add/remove/set");
+        sendHelpLine(sender, "pa vote send", "Send a legitimate vote", "partyanimals.vote.send");
+        sendHelpLine(sender, "pa vote test", "Send a fake vote", "partyanimals.vote.test");
+        sendHelpLine(
+                sender, "pa vote migrate <plugin>", "Migrate data from another plugin", "partyanimals.vote.migrate");
 
         return Command.SINGLE_SUCCESS;
     }

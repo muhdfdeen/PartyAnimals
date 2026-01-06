@@ -14,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.maboroshi.partyanimals.PartyAnimals;
+import org.maboroshi.partyanimals.hook.migration.PinataPartyMigration;
 import org.maboroshi.partyanimals.util.MessageUtils;
 import org.maboroshi.partyanimals.util.VoteTester;
 
@@ -34,34 +35,43 @@ public class VoteCommand {
                                 .suggests(this::suggestPlayers)
                                 .executes(this::handleCheck)))
                 .then(Commands.literal("add")
-                        .requires(s -> s.getSender().hasPermission("partyanimals.votes.admin"))
+                        .requires(s -> s.getSender().hasPermission("partyanimals.vote.add"))
                         .then(Commands.argument("player", StringArgumentType.word())
                                 .suggests(this::suggestPlayers)
                                 .then(Commands.argument("amount", IntegerArgumentType.integer(1))
                                         .executes(ctx -> handleModify(ctx, "add")))))
                 .then(Commands.literal("remove")
-                        .requires(s -> s.getSender().hasPermission("partyanimals.votes.admin"))
+                        .requires(s -> s.getSender().hasPermission("partyanimals.vote.remove"))
                         .then(Commands.argument("player", StringArgumentType.word())
                                 .suggests(this::suggestPlayers)
                                 .then(Commands.argument("amount", IntegerArgumentType.integer(1))
                                         .executes(ctx -> handleModify(ctx, "remove")))))
                 .then(Commands.literal("set")
-                        .requires(s -> s.getSender().hasPermission("partyanimals.votes.admin"))
+                        .requires(s -> s.getSender().hasPermission("partyanimals.vote.set"))
                         .then(Commands.argument("player", StringArgumentType.word())
                                 .suggests(this::suggestPlayers)
                                 .then(Commands.argument("amount", IntegerArgumentType.integer(0))
-                                        .executes(ctx -> handleModify(ctx, "set")))));
+                                        .executes(ctx -> handleModify(ctx, "set")))))
+                .then(Commands.literal("migrate")
+                        .requires(s -> s.getSender().hasPermission("partyanimals.vote.migrate"))
+                        .then(Commands.literal("PinataParty").executes(ctx -> {
+                            var sender = ctx.getSource().getSender();
+                            messageUtils.send(sender, "<yellow>Starting PinataParty migration...");
+                            new PinataPartyMigration(plugin).migrate();
+                            messageUtils.send(sender, "<yellow>Migration process finished. Check console for results.");
+                            return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+                        })));
 
         if (Bukkit.getPluginManager().isPluginEnabled("Votifier")) {
 
             voteNode.then(Commands.literal("test")
-                    .requires(s -> s.getSender().hasPermission("partyanimals.votes.admin"))
+                    .requires(s -> s.getSender().hasPermission("partyanimals.vote.test"))
                     .then(Commands.argument("player", StringArgumentType.word())
                             .suggests(this::suggestPlayers)
                             .executes(ctx -> handleTestSafe(ctx, "TestVote (Dry Run)"))));
 
             voteNode.then(Commands.literal("send")
-                    .requires(s -> s.getSender().hasPermission("partyanimals.votes.admin"))
+                    .requires(s -> s.getSender().hasPermission("partyanimals.vote.send"))
                     .then(Commands.argument("player", StringArgumentType.word())
                             .suggests(this::suggestPlayers)
                             .executes(ctx -> handleTestSafe(ctx, "TestVote"))));
