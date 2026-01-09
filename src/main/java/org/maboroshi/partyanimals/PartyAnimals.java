@@ -145,8 +145,16 @@ public final class PartyAnimals extends JavaPlugin {
                 pinataManager.cleanup(false);
             }
 
+            if (databaseManager != null) {
+                databaseManager.disconnect();
+            }
+
             configManager.loadConfig();
             configManager.loadMessages();
+
+            if (databaseManager != null) {
+                databaseManager.connect();
+            }
 
             setupModules();
 
