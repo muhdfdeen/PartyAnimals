@@ -36,7 +36,8 @@ public class PinataPartyMigration {
         log.info("Migration: Starting import of " + section.getKeys(false).size() + " records...");
 
         String votesTable = plugin.getConfiguration().getMainConfig().database.tablePrefix + "votes";
-        String sql = "INSERT INTO " + votesTable + " (uuid, username, service, amount, timestamp) VALUES (?, ?, ?, ?, ?);";
+        String sql =
+                "INSERT INTO " + votesTable + " (uuid, username, service, amount, timestamp) VALUES (?, ?, ?, ?, ?);";
 
         try (Connection conn = plugin.getDatabaseManager().getConnection()) {
             conn.setAutoCommit(false);
