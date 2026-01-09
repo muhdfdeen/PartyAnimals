@@ -36,9 +36,7 @@ public class PinataPartyMigration {
         log.info("Migration: Starting import of " + section.getKeys(false).size() + " records...");
 
         String votesTable = plugin.getConfiguration().getMainConfig().database.tablePrefix + "votes";
-        String sql =
-                "INSERT INTO " + votesTable + " (uuid, username, service, amount, timestamp) VALUES (?, ?, ?, ?, ?);";
-        long now = System.currentTimeMillis();
+        String sql = "INSERT INTO " + votesTable + " (uuid, username, service, amount, timestamp) VALUES (?, ?, ?, ?, ?);";
 
         try (Connection conn = plugin.getDatabaseManager().getConnection()) {
             conn.setAutoCommit(false);
@@ -51,7 +49,7 @@ public class PinataPartyMigration {
                     stmt.setString(2, "Legacy-Player");
                     stmt.setString(3, "PinataParty-Migration");
                     stmt.setInt(4, votes);
-                    stmt.setLong(5, now);
+                    stmt.setLong(5, 0L);
                     stmt.addBatch();
                 }
                 stmt.executeBatch();
