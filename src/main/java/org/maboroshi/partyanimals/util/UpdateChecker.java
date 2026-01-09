@@ -75,8 +75,8 @@ public class UpdateChecker implements Listener {
     }
 
     private boolean isNewer(String current, String remote) {
-        current = current.replace("v", "").split("-")[0];
-        remote = remote.replace("v", "").split("-")[0];
+        current = current.replace("v", "").split("-")[0].trim();
+        remote = remote.replace("v", "").split("-")[0].trim();
         String[] currentParts = current.split("\\.");
         String[] remoteParts = remote.split("\\.");
 
