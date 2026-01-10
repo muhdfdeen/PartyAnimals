@@ -34,8 +34,8 @@ public class PartyAnimalsCommand {
 
         root.then(new HelpCommand(plugin).build());
         root.then(new ReloadCommand(plugin).build());
-        root.then(new VoteCommand(plugin).build());
         root.then(new PinataCommand(plugin).build());
+        root.then(new VoteCommand(plugin).build());
 
         return root.build();
     }

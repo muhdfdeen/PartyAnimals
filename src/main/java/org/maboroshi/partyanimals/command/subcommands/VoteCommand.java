@@ -7,8 +7,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.model.VotifierEvent;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import java.util.UUID;
@@ -16,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.maboroshi.partyanimals.PartyAnimals;
+import org.maboroshi.partyanimals.hook.VotifierHook;
 import org.maboroshi.partyanimals.hook.migration.PinataPartyMigration;
 import org.maboroshi.partyanimals.util.MessageUtils;
 
@@ -137,23 +136,9 @@ public class VoteCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    public static void triggerTestVote(
-            CommandSender sender, String targetName, String serviceName, MessageUtils messageUtils) {
-        Vote vote = new Vote(serviceName, targetName, "127.0.0.1", String.valueOf(System.currentTimeMillis()));
-        VotifierEvent event = new VotifierEvent(vote);
-        Bukkit.getPluginManager().callEvent(event);
-        messageUtils.send(
-                sender,
-                "<prefix> <green>Triggered vote event for <white>"
-                        + targetName
-                        + "</white> via <white>"
-                        + serviceName
-                        + "</white>.");
-    }
-
     private int handleTestSafe(CommandContext<CommandSourceStack> ctx, String serviceName) {
         String targetName = StringArgumentType.getString(ctx, "player");
-        triggerTestVote(ctx.getSource().getSender(), targetName, serviceName, messageUtils);
+        VotifierHook.triggerTestVote(ctx.getSource().getSender(), targetName, serviceName, messageUtils);
         return Command.SINGLE_SUCCESS;
     }
 }
