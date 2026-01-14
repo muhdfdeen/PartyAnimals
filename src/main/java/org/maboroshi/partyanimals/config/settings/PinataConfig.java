@@ -257,18 +257,165 @@ public final class PinataConfig {
 
     @Configuration
     public static class MovementSettings {
-        @Comment("Wandering radius.")
-        public PathfindingRange wanderRadius = new PathfindingRange(15.0, 5.0, 15.0);
+        @Comment({"Active movement type.", "Options: ROAM, FLEE, BOTH, NONE"})
+        public String type = "FLEE";
+
+        @Comment("Radius for random movement.")
+        public PathfindingRange radius = new PathfindingRange(15.0, 5.0, 15.0);
 
         @Comment("Movement speed multiplier.")
         public double speed = 1.75;
 
         public MovementSettings() {}
 
-        public MovementSettings(PathfindingRange wanderRadius, double speed) {
-            this.wanderRadius = wanderRadius;
+        public MovementSettings(String type, PathfindingRange radius, double speed) {
+            this.type = type;
+            this.radius = radius;
             this.speed = speed;
         }
+    }
+
+    @Configuration
+    public static class ShockwaveReflex {
+        public boolean enabled = true;
+
+        @Comment("Chance to trigger on hit.")
+        public double chance = 20.0;
+
+        @Comment("Strength multiplier.")
+        public double strength = 1.5;
+
+        @Comment("Radius in blocks to find players to affect.")
+        public double radius = 5.0;
+
+        @Comment("Visual/Audio effects.")
+        public EffectGroup effects = new EffectGroup();
+
+        @Comment("Commands to execute when triggered.")
+        public Map<String, RewardAction> commands = new HashMap<>();
+    }
+
+    @Configuration
+    public static class MorphReflex {
+        public boolean enabled = true;
+
+        @Comment("Chance to trigger on hit.")
+        public double chance = 20.0;
+
+        @Comment("Duration in ticks.")
+        public int duration = 60;
+
+        @Comment({"Toggle whether to morph into a different age or scale randomly.", "Options: AGE, SCALE"})
+        public String type = "AGE";
+
+        @Comment({
+            "Scale settings.",
+            "Set 'type' to SCALE to use these. If both scale values are the same, a fixed size is used."
+        })
+        public ScaleSettings scale = new ScaleSettings(0.5, 1.5);
+
+        @Comment("Visual/Audio effects.")
+        public EffectGroup effects = new EffectGroup();
+
+        @Comment("Commands to execute when triggered.")
+        public Map<String, RewardAction> commands = new HashMap<>();
+    }
+
+    @Configuration
+    public static class BlinkReflex {
+        public boolean enabled = true;
+
+        @Comment("Chance to trigger on hit.")
+        public double chance = 10.0;
+
+        @Comment("Teleportation distance in blocks.")
+        public double distance = 10.0;
+
+        @Comment("If true, y-coordinates are ignored from the teleportation calculation.")
+        public boolean ignoreYLevel = true;
+
+        @Comment("Visual/Audio effects.")
+        public EffectGroup effects = new EffectGroup();
+
+        @Comment("Commands to execute when triggered.")
+        public Map<String, RewardAction> commands = new HashMap<>();
+    }
+
+    @Configuration
+    public static class LeapReflex {
+        public boolean enabled = true;
+
+        @Comment("Chance to trigger on hit.")
+        public double chance = 20.0;
+
+        @Comment("Strength multiplier.")
+        public double strength = 1.0;
+
+        @Comment("Visual/Audio effects.")
+        public EffectGroup effects = new EffectGroup();
+
+        @Comment("Commands to execute when triggered.")
+        public Map<String, RewardAction> commands = new HashMap<>();
+    }
+
+    @Configuration
+    public static class SugarRushReflex {
+        public boolean enabled = true;
+
+        @Comment("Chance to trigger when hit.")
+        public double chance = 20.0;
+
+        @Comment("Duration of speed burst (ticks).")
+        public int duration = 40;
+
+        @Comment("Speed level (0 = Speed I, 1 = Speed II, 2 = Speed III).")
+        public int amplifier = 2;
+
+        @Comment("Visual/Audio effects.")
+        public EffectGroup effects = new EffectGroup();
+
+        @Comment("Commands to execute when triggered.")
+        public Map<String, RewardAction> commands = new HashMap<>();
+    }
+
+    @Configuration
+    public static class DazzleReflex {
+        public boolean enabled = true;
+
+        @Comment("Chance to trigger when hit.")
+        public double chance = 20.0;
+
+        @Comment("Duration of blindness (ticks).")
+        public int duration = 30;
+
+        @Comment({"Visual/Audio effects.", "These apply to the players' view."})
+        public EffectGroup effects = new EffectGroup(
+                Map.of(),
+                Map.of("blind-flash", new ParticleEffect("GLOW", 10, new ParticleOffset(0.2, 0.2, 0.2), 0.1)));
+
+        @Comment("Commands to execute when triggered.")
+        public Map<String, RewardAction> commands = new HashMap<>();
+    }
+
+    @Configuration
+    public static class ReflexSettings {
+        @Comment("Shockwave settings.")
+        public ShockwaveReflex shockwave = new ShockwaveReflex();
+
+        @Comment("Morph settings.")
+        public MorphReflex morph = new MorphReflex();
+
+        @Comment("Blink settings.")
+        public BlinkReflex blink = new BlinkReflex();
+
+        @Comment("Leap settings.")
+        public LeapReflex leap = new LeapReflex();
+
+        @Comment("Sugar Rush settings.")
+        public SugarRushReflex sugarRush = new SugarRushReflex();
+
+        @Comment("Dazzle settings.")
+        public DazzleReflex dazzle = new DazzleReflex();
     }
 
     @Configuration
@@ -280,7 +427,10 @@ public final class PinataConfig {
         public double knockbackResistance = 1.0;
 
         @Comment("Movement logic settings.")
-        public MovementSettings movement = new MovementSettings(new PathfindingRange(15.0, 5.0, 15.0), 1.75);
+        public MovementSettings movement = new MovementSettings("FLEE", new PathfindingRange(15.0, 5.0, 15.0), 1.75);
+
+        @Comment("Defensive reactions to being attacked or stuck.")
+        public ReflexSettings reflexes = new ReflexSettings();
     }
 
     @Configuration

@@ -95,16 +95,35 @@ public class PinataCommand {
     private int handleStart(CommandSourceStack source, String locationName, String templateId) {
         Location location = resolveLocation(source, locationName, templateId, "start");
         if (location == null) return Command.SINGLE_SUCCESS;
+
         plugin.getPinataManager().startCountdown(location, templateId);
-        messageUtils.send(source.getSender(), config.getMessageConfig().pinata.events.countdownStarted);
+
+        String pinataName = config.getPinataConfig(templateId).appearance.name;
+
+        messageUtils.send(
+                source.getSender(),
+                config.getMessageConfig().pinata.events.starting,
+                messageUtils.tagParsed("pinata", pinataName),
+                messageUtils.tagParsed(
+                        "location", location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()));
         return Command.SINGLE_SUCCESS;
     }
 
     private int handleSpawn(CommandSourceStack source, String locationName, String templateId) {
         Location location = resolveLocation(source, locationName, templateId, "spawn");
         if (location == null) return Command.SINGLE_SUCCESS;
+
         plugin.getPinataManager().spawnPinata(location, templateId);
-        messageUtils.send(source.getSender(), config.getMessageConfig().pinata.events.spawned);
+
+        String pinataName = config.getPinataConfig(templateId).appearance.name;
+
+        messageUtils.send(
+                source.getSender(),
+                config.getMessageConfig().pinata.events.spawned,
+                messageUtils.tagParsed("pinata", pinataName),
+                messageUtils.tagParsed(
+                        "location", location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()));
+
         return Command.SINGLE_SUCCESS;
     }
 

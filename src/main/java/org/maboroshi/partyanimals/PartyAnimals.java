@@ -14,6 +14,7 @@ import org.maboroshi.partyanimals.command.PartyAnimalsCommand;
 import org.maboroshi.partyanimals.config.ConfigManager;
 import org.maboroshi.partyanimals.handler.EffectHandler;
 import org.maboroshi.partyanimals.handler.HitCooldownHandler;
+import org.maboroshi.partyanimals.handler.ReflexHandler;
 import org.maboroshi.partyanimals.handler.RewardHandler;
 import org.maboroshi.partyanimals.hook.PartyAnimalsExpansion;
 import org.maboroshi.partyanimals.listener.PinataListener;
@@ -31,13 +32,14 @@ public final class PartyAnimals extends JavaPlugin {
 
     private ConfigManager configManager;
     private Logger log;
-    private PinataManager pinataManager;
     private MessageUtils messageUtils;
+    private DatabaseManager databaseManager;
+    private PinataManager pinataManager;
     private BossBarManager bossBarManager;
     private HitCooldownHandler hitCooldownHandler;
     private EffectHandler effectHandler;
     private RewardHandler rewardHandler;
-    private DatabaseManager databaseManager;
+    private ReflexHandler reflexHandler;
     private VoteListener voteListener;
     private ScheduledTask voteReminderTask;
 
@@ -63,6 +65,7 @@ public final class PartyAnimals extends JavaPlugin {
         this.bossBarManager = new BossBarManager(this);
         this.effectHandler = new EffectHandler(log);
         this.rewardHandler = new RewardHandler(this);
+        this.reflexHandler = new ReflexHandler(this);
 
         this.databaseManager = new DatabaseManager(this);
         this.databaseManager.connect();
@@ -207,12 +210,16 @@ public final class PartyAnimals extends JavaPlugin {
         return configManager;
     }
 
-    public PinataManager getPinataManager() {
-        return pinataManager;
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
     }
 
     public MessageUtils getMessageUtils() {
         return messageUtils;
+    }
+
+    public PinataManager getPinataManager() {
+        return pinataManager;
     }
 
     public BossBarManager getBossBarManager() {
@@ -231,7 +238,7 @@ public final class PartyAnimals extends JavaPlugin {
         return rewardHandler;
     }
 
-    public DatabaseManager getDatabaseManager() {
-        return databaseManager;
+    public ReflexHandler getReflexHandler() {
+        return reflexHandler;
     }
 }

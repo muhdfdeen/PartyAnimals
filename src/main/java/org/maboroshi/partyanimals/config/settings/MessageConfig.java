@@ -76,7 +76,7 @@ public final class MessageConfig {
 
     @Configuration
     public static class PinataEvents {
-        public String countdownStarted =
+        public String starting =
                 "<prefix> <gray>Countdown for <white><pinata></white> at <white><location></white> has <green>begun</green>!</gray>";
         public String spawned =
                 "<prefix> <gray>The pinata <white><pinata></white> has been <yellow>spawned</yellow> at <white><location></white>!</gray>";

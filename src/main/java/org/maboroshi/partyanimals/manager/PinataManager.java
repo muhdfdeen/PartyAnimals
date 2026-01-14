@@ -17,7 +17,6 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.Creature;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -29,6 +28,7 @@ import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Transformation;
 import org.maboroshi.partyanimals.PartyAnimals;
 import org.maboroshi.partyanimals.api.event.pinata.PinataSpawnEvent;
+import org.maboroshi.partyanimals.behavior.PinataFleeGoal;
 import org.maboroshi.partyanimals.behavior.PinataFloatGoal;
 import org.maboroshi.partyanimals.behavior.PinataRoamGoal;
 import org.maboroshi.partyanimals.config.ConfigManager;
@@ -231,6 +231,7 @@ public class PinataManager {
         messageUtils.send(
                 plugin.getServer(),
                 spawnMessage,
+                messageUtils.tagParsed("pinata", pinataConfig.appearance.name),
                 messageUtils.tagParsed(
                         "location", location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()));
     }
@@ -445,10 +446,29 @@ public class PinataManager {
             return;
         }
         pinata.setAI(true);
-        if (pinata instanceof Creature creature) {
-            Bukkit.getMobGoals().removeAllGoals(creature);
-            Bukkit.getMobGoals().addGoal(creature, 0, new PinataFloatGoal(plugin, creature));
-            Bukkit.getMobGoals().addGoal(creature, 2, new PinataRoamGoal(plugin, creature));
+        if (pinata instanceof Mob mob) {
+            Bukkit.getMobGoals().removeAllGoals(mob);
+            Bukkit.getMobGoals().addGoal(mob, 0, new PinataFloatGoal(plugin, mob));
+
+            String rawType = pinataConfig.behavior.movement.type;
+            String activeMovementType = (rawType != null) ? rawType.toUpperCase() : "BOTH";
+
+            if (!java.util.List.of("FLEE", "ROAM", "NONE", "BOTH").contains(activeMovementType)) {
+                plugin.getPluginLogger()
+                        .warn("Unknown movement type '" + activeMovementType + "' for pinata " + mob.getUniqueId()
+                                + ". Defaulting to BOTH.");
+                activeMovementType = "BOTH";
+            }
+
+            switch (activeMovementType) {
+                case "FLEE" -> Bukkit.getMobGoals().addGoal(mob, 2, new PinataFleeGoal(plugin, mob));
+                case "ROAM" -> Bukkit.getMobGoals().addGoal(mob, 2, new PinataRoamGoal(plugin, mob));
+                case "NONE" -> {}
+                case "BOTH" -> {
+                    Bukkit.getMobGoals().addGoal(mob, 2, new PinataFleeGoal(plugin, mob));
+                    Bukkit.getMobGoals().addGoal(mob, 3, new PinataRoamGoal(plugin, mob));
+                }
+            }
         }
         var knockbackAttribute = pinata.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
         if (knockbackAttribute != null) {

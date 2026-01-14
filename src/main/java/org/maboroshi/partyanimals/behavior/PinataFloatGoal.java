@@ -8,19 +8,19 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Creature;
+import org.bukkit.entity.Mob;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
-public class PinataFloatGoal implements Goal<Creature> {
-    private final Creature mob;
-    private final GoalKey<Creature> key;
+public class PinataFloatGoal implements Goal<Mob> {
+    private final Mob mob;
+    private final GoalKey<Mob> key;
     private Vector cachedLandDirection = null;
     private int cooldown = 0;
 
-    public PinataFloatGoal(Plugin plugin, Creature mob) {
+    public PinataFloatGoal(Plugin plugin, Mob mob) {
         this.mob = mob;
-        this.key = GoalKey.of(Creature.class, new NamespacedKey(plugin, "pinata_float"));
+        this.key = GoalKey.of(Mob.class, new NamespacedKey(plugin, "pinata_float"));
     }
 
     @Override
@@ -98,7 +98,7 @@ public class PinataFloatGoal implements Goal<Creature> {
     }
 
     @Override
-    public GoalKey<Creature> getKey() {
+    public GoalKey<Mob> getKey() {
         return key;
     }
 

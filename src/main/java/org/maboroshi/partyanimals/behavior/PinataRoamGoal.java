@@ -8,21 +8,21 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Creature;
+import org.bukkit.entity.Mob;
 import org.maboroshi.partyanimals.PartyAnimals;
 import org.maboroshi.partyanimals.config.settings.PinataConfig.PinataConfiguration;
 
-public class PinataRoamGoal implements Goal<Creature> {
+public class PinataRoamGoal implements Goal<Mob> {
     private final PartyAnimals plugin;
-    private final Creature mob;
-    private final GoalKey<Creature> key;
+    private final Mob mob;
+    private final GoalKey<Mob> key;
     private final double speed;
 
-    public PinataRoamGoal(PartyAnimals plugin, Creature mob) {
+    public PinataRoamGoal(PartyAnimals plugin, Mob mob) {
         this.plugin = plugin;
         this.mob = mob;
         PinataConfiguration config = plugin.getPinataManager().getPinataConfig(mob);
-        this.key = GoalKey.of(Creature.class, new NamespacedKey(plugin, "pinata_roam"));
+        this.key = GoalKey.of(Mob.class, new NamespacedKey(plugin, "pinata_roam"));
         this.speed = config.behavior.movement.speed;
     }
 
@@ -40,9 +40,9 @@ public class PinataRoamGoal implements Goal<Creature> {
     public void start() {
         PinataConfiguration config = plugin.getPinataManager().getPinataConfig(mob);
 
-        double rangeX = config.behavior.movement.wanderRadius.x;
-        int rangeY = (int) config.behavior.movement.wanderRadius.y;
-        double rangeZ = config.behavior.movement.wanderRadius.z;
+        double rangeX = config.behavior.movement.radius.x;
+        int rangeY = (int) config.behavior.movement.radius.y;
+        double rangeZ = config.behavior.movement.radius.z;
 
         double x = (ThreadLocalRandom.current().nextDouble() * 2 - 1) * rangeX;
         double z = (ThreadLocalRandom.current().nextDouble() * 2 - 1) * rangeZ;
@@ -81,7 +81,7 @@ public class PinataRoamGoal implements Goal<Creature> {
     }
 
     @Override
-    public GoalKey<Creature> getKey() {
+    public GoalKey<Mob> getKey() {
         return key;
     }
 
