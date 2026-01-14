@@ -280,10 +280,10 @@ public final class PinataConfig {
         public boolean enabled = true;
 
         @Comment("Chance to trigger on hit.")
-        public double chance = 10.0;
+        public double chance = 20.0;
 
         @Comment("Strength multiplier.")
-        public double strength = 1.0;
+        public double strength = 1.5;
 
         @Comment("Radius in blocks to find players to affect.")
         public double radius = 5.0;
@@ -297,16 +297,15 @@ public final class PinataConfig {
         public boolean enabled = true;
 
         @Comment("Chance to trigger on hit.")
-        public double chance = 10.0;
+        public double chance = 20.0;
 
         @Comment("Duration in ticks.")
         public int duration = 60;
 
-        @Comment("If true, the pinata turns into baby (if applicable) instead of random scale.")
-        public boolean baby = true;
+        @Comment({"Toggle whether to morph into a different age or scale randomly.", "Options: AGE, SCALE"})
+        public String type = "AGE";
 
-        @Comment(
-                "Scale settings. Set baby to false to use these. If both scale values are the same, a fixed size is used.")
+        @Comment({"Scale settings.", "Set 'type' to SCALE to use these. If both scale values are the same, a fixed size is used."})
         public ScaleSettings scale = new ScaleSettings(0.5, 1.5);
 
         @Comment("Visual/Audio effects.")
@@ -318,7 +317,7 @@ public final class PinataConfig {
         public boolean enabled = true;
 
         @Comment("Chance to trigger on hit.")
-        public double chance = 15.0;
+        public double chance = 10.0;
 
         @Comment("Teleportation distance in blocks.")
         public double distance = 10.0;
@@ -335,10 +334,10 @@ public final class PinataConfig {
         public boolean enabled = true;
 
         @Comment("Chance to trigger on hit.")
-        public double chance = 10.0;
+        public double chance = 20.0;
 
         @Comment("Strength multiplier.")
-        public double strength = 1.1;
+        public double strength = 1.0;
 
         @Comment("Visual/Audio effects.")
         public EffectGroup effects = new EffectGroup();
@@ -349,7 +348,7 @@ public final class PinataConfig {
         public boolean enabled = true;
 
         @Comment("Chance to trigger when hit.")
-        public double chance = 10.0;
+        public double chance = 20.0;
 
         @Comment("Duration of speed burst (ticks).")
         public int duration = 40;
@@ -366,7 +365,7 @@ public final class PinataConfig {
         public boolean enabled = true;
 
         @Comment("Chance to trigger when hit.")
-        public double chance = 10.0;
+        public double chance = 20.0;
 
         @Comment("Duration of blindness (ticks).")
         public int duration = 30;

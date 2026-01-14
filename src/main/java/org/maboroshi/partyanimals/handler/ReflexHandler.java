@@ -51,7 +51,7 @@ public class ReflexHandler {
         if (morph.enabled && shouldTrigger(morph.chance)) {
             effectHandler.playEffects(morph.effects, pinata.getLocation(), false);
 
-            if (morph.baby) {
+            if (morph.type.equalsIgnoreCase("AGE")) {
                 if (pinata instanceof Ageable ageable) {
                     ageable.setBaby();
                     pinata.getScheduler()
@@ -65,7 +65,7 @@ public class ReflexHandler {
                                     null,
                                     morph.duration);
                 }
-            } else {
+            } else if (morph.type.equalsIgnoreCase("SCALE")) {
                 var scaleAttribute = pinata.getAttribute(Attribute.SCALE);
                 if (scaleAttribute != null) {
                     var originalScale = scaleAttribute.getBaseValue();
@@ -86,6 +86,8 @@ public class ReflexHandler {
                                     null,
                                     morph.duration);
                 }
+            } else {
+                plugin.getPluginLogger().warn("Unknown morph type: " + morph.type);
             }
         }
 
