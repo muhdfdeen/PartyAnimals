@@ -257,16 +257,20 @@ public final class PinataConfig {
 
     @Configuration
     public static class MovementSettings {
-        @Comment("Wandering radius.")
-        public PathfindingRange wanderRadius = new PathfindingRange(15.0, 5.0, 15.0);
+        @Comment({"Active movement type.", "Options: ROAM, FLEE, BOTH, NONE"})
+        public String type = "BOTH";
+
+        @Comment("Radius for random movement.")
+        public PathfindingRange radius = new PathfindingRange(15.0, 5.0, 15.0);
 
         @Comment("Movement speed multiplier.")
         public double speed = 1.75;
 
         public MovementSettings() {}
 
-        public MovementSettings(PathfindingRange wanderRadius, double speed) {
-            this.wanderRadius = wanderRadius;
+        public MovementSettings(String type, PathfindingRange radius, double speed) {
+            this.type = type;
+            this.radius = radius;
             this.speed = speed;
         }
     }
@@ -301,7 +305,8 @@ public final class PinataConfig {
         @Comment("If true, the pinata turns into baby (if applicable) instead of random scale.")
         public boolean baby = true;
 
-        @Comment("Scale settings. Set baby to false to use these. If both scale values are the same, a fixed size is used.")
+        @Comment(
+                "Scale settings. Set baby to false to use these. If both scale values are the same, a fixed size is used.")
         public ScaleSettings scale = new ScaleSettings(0.5, 1.5);
 
         @Comment("Visual/Audio effects.")
@@ -342,7 +347,7 @@ public final class PinataConfig {
     @Configuration
     public static class SugarRushReflex {
         public boolean enabled = true;
-        
+
         @Comment("Chance to trigger when hit.")
         public double chance = 10.0;
 
@@ -359,7 +364,7 @@ public final class PinataConfig {
     @Configuration
     public static class DazzleReflex {
         public boolean enabled = true;
-        
+
         @Comment("Chance to trigger when hit.")
         public double chance = 10.0;
 
@@ -373,22 +378,22 @@ public final class PinataConfig {
     @Configuration
     public static class ReflexSettings {
         @Comment("Shockwave settings.")
-        public ShockwaveReflex shockwave;
+        public ShockwaveReflex shockwave = new ShockwaveReflex();
 
         @Comment("Morph settings.")
-        public MorphReflex morph;
+        public MorphReflex morph = new MorphReflex();
 
         @Comment("Blink settings.")
-        public BlinkReflex blink;
+        public BlinkReflex blink = new BlinkReflex();
 
         @Comment("Leap settings.")
-        public LeapReflex leap;
+        public LeapReflex leap = new LeapReflex();
 
         @Comment("Sugar Rush settings.")
-        public SugarRushReflex sugarRush;
+        public SugarRushReflex sugarRush = new SugarRushReflex();
 
         @Comment("Dazzle settings.")
-        public DazzleReflex dazzle;
+        public DazzleReflex dazzle = new DazzleReflex();
     }
 
     @Configuration
@@ -400,7 +405,7 @@ public final class PinataConfig {
         public double knockbackResistance = 1.0;
 
         @Comment("Movement logic settings.")
-        public MovementSettings movement = new MovementSettings(new PathfindingRange(15.0, 5.0, 15.0), 1.75);
+        public MovementSettings movement = new MovementSettings("FLEE", new PathfindingRange(15.0, 5.0, 15.0), 1.75);
 
         @Comment("Defensive reactions to being attacked or stuck.")
         public ReflexSettings reflexes = new ReflexSettings();
