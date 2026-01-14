@@ -290,6 +290,9 @@ public final class PinataConfig {
 
         @Comment("Visual/Audio effects.")
         public EffectGroup effects = new EffectGroup();
+
+        @Comment("Commands to execute when triggered.")
+        public Map<String, RewardAction> commands = new HashMap<>();
     }
 
     @Configuration
@@ -310,6 +313,9 @@ public final class PinataConfig {
 
         @Comment("Visual/Audio effects.")
         public EffectGroup effects = new EffectGroup();
+
+        @Comment("Commands to execute when triggered.")
+        public Map<String, RewardAction> commands = new HashMap<>();
     }
 
     @Configuration
@@ -327,6 +333,9 @@ public final class PinataConfig {
 
         @Comment("Visual/Audio effects.")
         public EffectGroup effects = new EffectGroup();
+
+        @Comment("Commands to execute when triggered.")
+        public Map<String, RewardAction> commands = new HashMap<>();
     }
 
     @Configuration
@@ -341,6 +350,9 @@ public final class PinataConfig {
 
         @Comment("Visual/Audio effects.")
         public EffectGroup effects = new EffectGroup();
+
+        @Comment("Commands to execute when triggered.")
+        public Map<String, RewardAction> commands = new HashMap<>();
     }
 
     @Configuration
@@ -358,6 +370,9 @@ public final class PinataConfig {
 
         @Comment("Visual/Audio effects.")
         public EffectGroup effects = new EffectGroup();
+
+        @Comment("Commands to execute when triggered.")
+        public Map<String, RewardAction> commands = new HashMap<>();
     }
 
     @Configuration
@@ -370,8 +385,11 @@ public final class PinataConfig {
         @Comment("Duration of blindness (ticks).")
         public int duration = 30;
 
-        @Comment("Visual/Audio effects.")
-        public EffectGroup effects = new EffectGroup();
+        @Comment({"Visual/Audio effects.", "These apply to the players' view."})
+        public EffectGroup effects = new EffectGroup(Map.of(), Map.of("blind-flash", new ParticleEffect("GLOW", 10, new ParticleOffset(0.2, 0.2, 0.2), 0.1)));
+
+        @Comment("Commands to execute when triggered.")
+        public Map<String, RewardAction> commands = new HashMap<>();
     }
 
     @Configuration

@@ -2,7 +2,6 @@ package org.maboroshi.partyanimals.handler;
 
 import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.LivingEntity;
@@ -16,10 +15,12 @@ import org.maboroshi.partyanimals.config.settings.PinataConfig.PinataConfigurati
 public class ReflexHandler {
     private final PartyAnimals plugin;
     private final EffectHandler effectHandler;
+    private final RewardHandler rewardHandler;
 
     public ReflexHandler(PartyAnimals plugin) {
         this.plugin = plugin;
         this.effectHandler = plugin.getEffectHandler();
+        this.rewardHandler = plugin.getRewardHandler();
     }
 
     public void onDamage(LivingEntity pinata, Player attacker, PinataConfiguration config) {
@@ -45,12 +46,14 @@ public class ReflexHandler {
                             player.setVelocity(direction);
                         }
                     });
+            if (!shockwave.commands.isEmpty()) {
+                rewardHandler.process(attacker, shockwave.commands.values());
+            }
         }
 
         var morph = config.behavior.reflexes.morph;
         if (morph.enabled && shouldTrigger(morph.chance)) {
             effectHandler.playEffects(morph.effects, pinata.getLocation(), false);
-
             if (morph.type.equalsIgnoreCase("AGE")) {
                 if (pinata instanceof Ageable ageable) {
                     ageable.setBaby();
@@ -89,6 +92,9 @@ public class ReflexHandler {
             } else {
                 plugin.getPluginLogger().warn("Unknown morph type: " + morph.type);
             }
+            if (!morph.commands.isEmpty()) {
+                rewardHandler.process(attacker, morph.commands.values());
+            }
         }
 
         var blink = config.behavior.reflexes.blink;
@@ -109,6 +115,10 @@ public class ReflexHandler {
             Location target = new Location(pinata.getWorld(), x, y, z);
             if (!target.getBlock().isPassable()) return;
             pinata.teleport(target);
+
+            if (!blink.commands.isEmpty()) {
+                rewardHandler.process(attacker, blink.commands.values());
+            }
         }
 
         var leap = config.behavior.reflexes.leap;
@@ -122,12 +132,18 @@ public class ReflexHandler {
             effectHandler.playEffects(leap.effects, pinata.getLocation(), false);
             pinata.setVelocity(new Vector(0, leap.strength, 0));
             pinata.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 100, 0, false, false));
+            if (!leap.commands.isEmpty()) {
+                rewardHandler.process(attacker, leap.commands.values());
+            }
         }
 
         var sugarRush = config.behavior.reflexes.sugarRush;
         if (sugarRush.enabled && shouldTrigger(sugarRush.chance)) {
             effectHandler.playEffects(sugarRush.effects, pinata.getLocation(), false);
             pinata.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, sugarRush.duration, sugarRush.amplifier));
+            if (!sugarRush.commands.isEmpty()) {
+                rewardHandler.process(attacker, sugarRush.commands.values());
+            }
         }
 
         var dazzle = config.behavior.reflexes.dazzle;
@@ -135,7 +151,9 @@ public class ReflexHandler {
             effectHandler.playEffects(dazzle.effects, attacker.getEyeLocation(), false);
             attacker.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, dazzle.duration, 0));
             attacker.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, dazzle.duration, 0));
-            pinata.getWorld().spawnParticle(Particle.GLOW, attacker.getEyeLocation(), 10, 0.2, 0.2, 0.2, 0.1);
+            if (!dazzle.commands.isEmpty()) {
+                rewardHandler.process(attacker, dazzle.commands.values());
+            }
         }
     }
 
