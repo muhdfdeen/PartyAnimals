@@ -231,6 +231,7 @@ public class PinataManager {
         messageUtils.send(
                 plugin.getServer(),
                 spawnMessage,
+                messageUtils.tagParsed("pinata", pinataConfig.appearance.name),
                 messageUtils.tagParsed(
                         "location", location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()));
     }
