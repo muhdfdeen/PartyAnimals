@@ -65,6 +65,7 @@ public final class PartyAnimals extends JavaPlugin {
         this.bossBarManager = new BossBarManager(this);
         this.effectHandler = new EffectHandler(log);
         this.rewardHandler = new RewardHandler(this);
+        this.reflexHandler = new ReflexHandler(this);
 
         this.databaseManager = new DatabaseManager(this);
         this.databaseManager.connect();
