@@ -308,7 +308,10 @@ public final class PinataConfig {
         @Comment({"Toggle whether to morph into a different age or scale randomly.", "Options: AGE, SCALE"})
         public String type = "AGE";
 
-        @Comment({"Scale settings.", "Set 'type' to SCALE to use these. If both scale values are the same, a fixed size is used."})
+        @Comment({
+            "Scale settings.",
+            "Set 'type' to SCALE to use these. If both scale values are the same, a fixed size is used."
+        })
         public ScaleSettings scale = new ScaleSettings(0.5, 1.5);
 
         @Comment("Visual/Audio effects.")
@@ -386,7 +389,9 @@ public final class PinataConfig {
         public int duration = 30;
 
         @Comment({"Visual/Audio effects.", "These apply to the players' view."})
-        public EffectGroup effects = new EffectGroup(Map.of(), Map.of("blind-flash", new ParticleEffect("GLOW", 10, new ParticleOffset(0.2, 0.2, 0.2), 0.1)));
+        public EffectGroup effects = new EffectGroup(
+                Map.of(),
+                Map.of("blind-flash", new ParticleEffect("GLOW", 10, new ParticleOffset(0.2, 0.2, 0.2), 0.1)));
 
         @Comment("Commands to execute when triggered.")
         public Map<String, RewardAction> commands = new HashMap<>();

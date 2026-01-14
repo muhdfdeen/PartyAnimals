@@ -104,8 +104,8 @@ public class PinataCommand {
                 source.getSender(),
                 config.getMessageConfig().pinata.events.starting,
                 messageUtils.tagParsed("pinata", pinataName),
-                messageUtils.tagParsed("location", location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ())
-        );
+                messageUtils.tagParsed(
+                        "location", location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()));
         return Command.SINGLE_SUCCESS;
     }
 
@@ -121,8 +121,8 @@ public class PinataCommand {
                 source.getSender(),
                 config.getMessageConfig().pinata.events.spawned,
                 messageUtils.tagParsed("pinata", pinataName),
-                messageUtils.tagParsed("location", location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ())
-        );
+                messageUtils.tagParsed(
+                        "location", location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()));
 
         return Command.SINGLE_SUCCESS;
     }
