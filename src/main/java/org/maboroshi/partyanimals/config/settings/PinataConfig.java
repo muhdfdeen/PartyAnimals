@@ -272,6 +272,126 @@ public final class PinataConfig {
     }
 
     @Configuration
+    public static class ShockwaveReflex {
+        public boolean enabled = true;
+
+        @Comment("Chance to trigger on hit.")
+        public double chance = 10.0;
+
+        @Comment("Strength multiplier.")
+        public double strength = 1.0;
+
+        @Comment("Radius in blocks to find players to affect.")
+        public double radius = 5.0;
+
+        @Comment("Visual/Audio effects.")
+        public EffectGroup effects = new EffectGroup();
+    }
+
+    @Configuration
+    public static class MorphReflex {
+        public boolean enabled = true;
+
+        @Comment("Chance to trigger on hit.")
+        public double chance = 10.0;
+
+        @Comment("Duration in ticks.")
+        public int duration = 60;
+
+        @Comment("If true, the pinata turns into baby (if applicable) instead of random scale.")
+        public boolean baby = true;
+
+        @Comment("Scale settings. Set baby to false to use these. If both scale values are the same, a fixed size is used.")
+        public ScaleSettings scale = new ScaleSettings(0.5, 1.5);
+
+        @Comment("Visual/Audio effects.")
+        public EffectGroup effects = new EffectGroup();
+    }
+
+    @Configuration
+    public static class BlinkReflex {
+        public boolean enabled = true;
+
+        @Comment("Chance to trigger on hit.")
+        public double chance = 15.0;
+
+        @Comment("Teleportation distance in blocks.")
+        public double distance = 10.0;
+
+        @Comment("If true, y-coordinates are ignored from the teleportation calculation.")
+        public boolean ignoreYLevel = true;
+
+        @Comment("Visual/Audio effects.")
+        public EffectGroup effects = new EffectGroup();
+    }
+
+    @Configuration
+    public static class LeapReflex {
+        public boolean enabled = true;
+
+        @Comment("Chance to trigger on hit.")
+        public double chance = 10.0;
+
+        @Comment("Strength multiplier.")
+        public double strength = 1.1;
+
+        @Comment("Visual/Audio effects.")
+        public EffectGroup effects = new EffectGroup();
+    }
+
+    @Configuration
+    public static class SugarRushReflex {
+        public boolean enabled = true;
+        
+        @Comment("Chance to trigger when hit.")
+        public double chance = 10.0;
+
+        @Comment("Duration of speed burst (ticks).")
+        public int duration = 40;
+
+        @Comment("Speed level (0 = Speed I, 1 = Speed II, 2 = Speed III).")
+        public int amplifier = 2;
+
+        @Comment("Visual/Audio effects.")
+        public EffectGroup effects = new EffectGroup();
+    }
+
+    @Configuration
+    public static class DazzleReflex {
+        public boolean enabled = true;
+        
+        @Comment("Chance to trigger when hit.")
+        public double chance = 10.0;
+
+        @Comment("Duration of blindness (ticks).")
+        public int duration = 30;
+
+        @Comment("Visual/Audio effects.")
+        public EffectGroup effects = new EffectGroup();
+    }
+
+    @Configuration
+    public static class ReflexSettings {
+        @Comment("Shockwave settings.")
+        public ShockwaveReflex shockwave;
+
+        @Comment("Morph settings.")
+        public MorphReflex morph;
+
+        @Comment("Blink settings.")
+        public BlinkReflex blink;
+
+        @Comment("Leap settings.")
+        public LeapReflex leap;
+
+        @Comment("Sugar Rush settings.")
+        public SugarRushReflex sugarRush;
+
+        @Comment("Dazzle settings.")
+        public DazzleReflex dazzle;
+    }
+
+    @Configuration
     public static class BehaviorSettings {
         @Comment("If false, the pinata acts like a statue.")
         public boolean enabled = true;
@@ -281,6 +401,9 @@ public final class PinataConfig {
 
         @Comment("Movement logic settings.")
         public MovementSettings movement = new MovementSettings(new PathfindingRange(15.0, 5.0, 15.0), 1.75);
+
+        @Comment("Defensive reactions to being attacked or stuck.")
+        public ReflexSettings reflexes = new ReflexSettings();
     }
 
     @Configuration

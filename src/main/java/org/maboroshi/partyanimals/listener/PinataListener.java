@@ -21,6 +21,7 @@ import org.maboroshi.partyanimals.config.settings.PinataConfig.ItemWhitelist;
 import org.maboroshi.partyanimals.config.settings.PinataConfig.PinataConfiguration;
 import org.maboroshi.partyanimals.handler.EffectHandler;
 import org.maboroshi.partyanimals.handler.HitCooldownHandler;
+import org.maboroshi.partyanimals.handler.ReflexHandler;
 import org.maboroshi.partyanimals.handler.RewardHandler;
 import org.maboroshi.partyanimals.manager.BossBarManager;
 import org.maboroshi.partyanimals.manager.PinataManager;
@@ -31,23 +32,25 @@ public class PinataListener implements Listener {
     private final PartyAnimals plugin;
     private final Logger log;
     private final ConfigManager config;
+    private final MessageUtils messageUtils;
     private final PinataManager pinataManager;
     private final BossBarManager bossBarManager;
     private final HitCooldownHandler hitCooldownHandler;
     private final EffectHandler effectHandler;
     private final RewardHandler rewardHandler;
-    private final MessageUtils messageUtils;
+    private final ReflexHandler reflexHandler;
 
     public PinataListener(PartyAnimals plugin) {
         this.plugin = plugin;
         this.log = plugin.getPluginLogger();
         this.config = plugin.getConfiguration();
+        this.messageUtils = plugin.getMessageUtils();
         this.pinataManager = plugin.getPinataManager();
         this.bossBarManager = plugin.getBossBarManager();
         this.hitCooldownHandler = plugin.getHitCooldownHandler();
         this.effectHandler = plugin.getEffectHandler();
         this.rewardHandler = plugin.getRewardHandler();
-        this.messageUtils = plugin.getMessageUtils();
+        this.reflexHandler = plugin.getReflexHandler();
     }
 
     @EventHandler
@@ -110,6 +113,8 @@ public class PinataListener implements Listener {
         }
 
         hitCooldownHandler.applyCooldown(player, pinata);
+
+        reflexHandler.onDamage(pinata, player, pinataConfig);
 
         var hitEvent = new PinataHitEvent(pinata, player);
         plugin.getServer().getPluginManager().callEvent(hitEvent);
