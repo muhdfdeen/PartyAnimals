@@ -6,6 +6,7 @@ description: A highly customizable Minecraft plugin that spawn pinata entities t
 author: Maboroshi
 website: https://github.com/MaboroshiKobo/PartyAnimals
 api-version: "1.21"
+folia-supported: true
 dependencies:
   server:
     PlaceholderAPI:
