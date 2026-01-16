@@ -22,7 +22,7 @@ public class RewardAction {
     @Comment("Permission node required to be eligible for this reward.")
     public String permission = "";
 
-    @Comment("List of console commands to execute. Use {player} for the player name.")
+    @Comment("List of console commands to execute. Use <player> for the player name.")
     public List<String> commands = List.of();
 
     public RewardAction() {}

@@ -44,7 +44,7 @@ public final class MessageConfig {
         public String reloadSuccess = "<prefix> <green>Configuration reloaded successfully.</green>";
         public String reloadFail = "<prefix> <red>Reload failed! Check console for errors.</red>";
         public String updateAvailable =
-                "<prefix> <gray>New version available: <green><latest-version></green> (Current: <red><current-version></red>)</gray>";
+                "<prefix> <gray>New version available: <green><latest_version></green> (Current: <red><current_version></red>)</gray>";
     }
 
     @Configuration
@@ -52,7 +52,7 @@ public final class MessageConfig {
         public String noPermission = "<prefix> <red>You do not have permission for this.</red>";
         public String playerOnly = "<prefix> <red>This command is for players only.</red>";
         public String usageHelp = "<prefix> <red>Usage: <gray><usage-help></gray></red>";
-        public String playerNotFound = "<prefix> <red>Player <dark_red><player-name></dark_red> not found.</red>";
+        public String playerNotFound = "<prefix> <red>Player <dark_red><player></dark_red> not found.</red>";
     }
 
     @Configuration
@@ -91,7 +91,7 @@ public final class MessageConfig {
         public String hitWrongItem = "<prefix> <gray>You must use <red><item></red> to hit this pinata!</gray>";
         public String hitCooldown = "<prefix> <red><bold>Too fast!</bold></red> <gray>Please wait a moment.</gray>";
         public String hitNoPermission = "<prefix> <gray>You are <red>not allowed</red> to hit this pinata.</gray>";
-        public String lastHit = "<prefix> <gray><white><player-name></white> dealt the final blow!</gray>";
+        public String lastHit = "<prefix> <gray><white><player></white> dealt the final blow!</gray>";
     }
 
     @Configuration

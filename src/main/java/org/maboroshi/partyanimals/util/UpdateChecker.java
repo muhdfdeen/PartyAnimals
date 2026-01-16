@@ -36,8 +36,8 @@ public class UpdateChecker implements Listener {
             messageUtils.send(
                     player,
                     config.getMessageConfig().general.updateAvailable,
-                    messageUtils.tag("current-version", plugin.getPluginMeta().getVersion()),
-                    messageUtils.tag("latest-version", latestVersion));
+                    messageUtils.tag("current_version", plugin.getPluginMeta().getVersion()),
+                    messageUtils.tag("latest_version", latestVersion));
         }
     }
 

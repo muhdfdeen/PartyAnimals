@@ -506,7 +506,7 @@ public final class PinataConfig {
                 new HashMap<>(Map.of(
                         "vip_reward",
                         new RewardAction(
-                                50.0, false, false, false, "partyanimals.vip", List.of("give {player} diamond 1")))));
+                                50.0, false, false, false, "partyanimals.vip", List.of("give <player> diamond 1")))));
 
         @Comment("Triggered on the final killing blow.")
         public GameEvent lastHit = new GameEvent(
