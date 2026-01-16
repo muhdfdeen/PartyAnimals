@@ -43,9 +43,12 @@ public final class PartyAnimals extends JavaPlugin {
     private VoteListener voteListener;
     private ScheduledTask voteReminderTask;
 
+    private static boolean isFolia;
+
     @Override
     public void onEnable() {
         plugin = this;
+        isFolia = checkFolia();
         this.configManager = new ConfigManager(this, getDataFolder());
         this.log = new Logger(this);
 
@@ -84,6 +87,15 @@ public final class PartyAnimals extends JavaPlugin {
         });
 
         new UpdateChecker(this).checkForUpdates();
+    }
+
+    private static boolean checkFolia() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     private void setupModules() {
@@ -200,6 +212,10 @@ public final class PartyAnimals extends JavaPlugin {
 
     public static PartyAnimals getPlugin() {
         return plugin;
+    }
+
+    public static boolean isFolia() {
+        return isFolia;
     }
 
     public Logger getPluginLogger() {

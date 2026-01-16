@@ -256,6 +256,9 @@ public class PinataManager {
 
         livingEntity.setGlowing(pinataConfig.appearance.glowing);
         if (pinataConfig.appearance.glowing) {
+            if (plugin.isFolia()) {
+
+            } else {
             String colorName = pinataConfig.appearance.glowColor;
             NamedTextColor glowColor = NamedTextColor.NAMES.value(colorName.toLowerCase());
             if (glowColor != null) {
@@ -265,6 +268,7 @@ public class PinataManager {
                 if (team == null) team = mainBoard.registerNewTeam(teamName);
                 team.color(glowColor);
                 team.addEntry(livingEntity.getUniqueId().toString());
+            }
             }
         }
     }
