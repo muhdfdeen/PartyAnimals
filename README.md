@@ -18,7 +18,7 @@ PartyAnimals handles player retention with a focus on these core functions:
 
 ### Prerequisites
 
-To use this plugin, your server must be running **Paper** on `1.21` or higher. It requires **Java 21** and the [NuVotifier](https://github.com/NuVotifier/NuVotifier) plugin to properly handle voting features.
+To use this plugin, your server must be running **Paper** on `1.21` or higher.
 
 #### Dependencies
 
