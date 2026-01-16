@@ -34,7 +34,7 @@ public class MessageUtils {
 
         TagResolver defaultTags = TagResolver.empty();
         if (receiver instanceof Player player) {
-            defaultTags = Placeholder.unparsed("player-name", player.getName());
+            defaultTags = Placeholder.unparsed("player", player.getName());
         }
 
         TagResolver finalResolver = TagResolver.resolver(TagResolver.resolver(tags), defaultTags, prefixTag);

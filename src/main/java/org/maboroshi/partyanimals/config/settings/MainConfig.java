@@ -173,7 +173,7 @@ public final class MainConfig {
 
         @Comment("Rewards to give.")
         public Map<String, RewardAction> rewards = new HashMap<>(
-                Map.of("announce", new RewardAction(100.0, List.of("say <green>Thank you {player} for voting!"))));
+                Map.of("announce", new RewardAction(100.0, List.of("say <green>Thank you <player> for voting!"))));
     }
 
     @Configuration

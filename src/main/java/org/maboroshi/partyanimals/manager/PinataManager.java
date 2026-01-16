@@ -259,16 +259,16 @@ public class PinataManager {
             if (plugin.isFolia()) {
 
             } else {
-            String colorName = pinataConfig.appearance.glowColor;
-            NamedTextColor glowColor = NamedTextColor.NAMES.value(colorName.toLowerCase());
-            if (glowColor != null) {
-                Scoreboard mainBoard = Bukkit.getScoreboardManager().getMainScoreboard();
-                String teamName = "PA_" + glowColor.toString().toUpperCase();
-                Team team = mainBoard.getTeam(teamName);
-                if (team == null) team = mainBoard.registerNewTeam(teamName);
-                team.color(glowColor);
-                team.addEntry(livingEntity.getUniqueId().toString());
-            }
+                String colorName = pinataConfig.appearance.glowColor;
+                NamedTextColor glowColor = NamedTextColor.NAMES.value(colorName.toLowerCase());
+                if (glowColor != null) {
+                    Scoreboard mainBoard = Bukkit.getScoreboardManager().getMainScoreboard();
+                    String teamName = "PA_" + glowColor.toString().toUpperCase();
+                    Team team = mainBoard.getTeam(teamName);
+                    if (team == null) team = mainBoard.registerNewTeam(teamName);
+                    team.color(glowColor);
+                    team.addEntry(livingEntity.getUniqueId().toString());
+                }
             }
         }
     }

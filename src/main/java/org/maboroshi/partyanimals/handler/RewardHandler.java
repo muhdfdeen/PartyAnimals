@@ -65,8 +65,8 @@ public class RewardHandler {
         String parsed = command;
         if (player != null) {
             String name = player.getName();
-            parsed = parsed.replace("{player}", name != null ? name : "Unknown")
-                    .replace("{uuid}", player.getUniqueId().toString());
+            parsed = parsed.replace("<player>", name != null ? name : "Unknown")
+                    .replace("<uuid>", player.getUniqueId().toString());
         }
 
         if (player != null && hasPAPI) {

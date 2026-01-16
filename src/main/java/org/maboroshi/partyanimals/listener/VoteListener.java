@@ -61,9 +61,9 @@ public class VoteListener implements Listener {
                                             + " offline rewards to "
                                             + player.getName());
                                     for (String cmd : commands) {
-                                        String finalCmd = cmd.replace("{player}", player.getName())
+                                        String finalCmd = cmd.replace("<player>", player.getName())
                                                 .replace(
-                                                        "{uuid}",
+                                                        "<uuid>",
                                                         player.getUniqueId().toString());
                                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCmd);
                                     }
