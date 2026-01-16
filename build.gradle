@@ -19,6 +19,9 @@ repositories {
     maven {
         url = 'https://jitpack.io'
     }
+    maven {
+        url = 'https://repo.codemc.io/repository/maven-releases/'
+    }
 }
 
 dependencies {
@@ -30,6 +33,7 @@ dependencies {
     implementation("org.bstats:bstats-bukkit:3.1.0")
     compileOnly("me.clip:placeholderapi:2.11.7")
     compileOnly("com.github.NuVotifier:NuVotifier:2.7.2")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.11.1")
 }
 
 tasks.named('shadowJar') {
