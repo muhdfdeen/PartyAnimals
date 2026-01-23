@@ -36,9 +36,7 @@ public class VoteReminder implements Runnable {
                                         if (player.isOnline()) {
                                             plugin.getEffectHandler()
                                                     .playEffects(settings.effects, player.getLocation(), false);
-                                            settings.message.forEach(msg -> {
-                                                plugin.getMessageUtils().send(player, msg);
-                                            });
+                                            plugin.getActionHandler().process(player, settings.actions.values());
                                         }
                                     },
                                     null);

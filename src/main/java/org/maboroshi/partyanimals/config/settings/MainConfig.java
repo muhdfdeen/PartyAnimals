@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.maboroshi.partyanimals.config.objects.RewardAction;
+import org.maboroshi.partyanimals.config.objects.CommandAction;
 import org.maboroshi.partyanimals.config.objects.SerializableLocation;
 import org.maboroshi.partyanimals.config.objects.effects.EffectGroup;
 import org.maboroshi.partyanimals.config.objects.effects.SoundEffect;
@@ -133,14 +133,19 @@ public final class MainConfig {
         @Comment("Interval in seconds (default 3 hours).")
         public int interval = 10800;
 
-        @Comment("Message to send to players.")
-        public List<String> message = List.of(
-                "<prefix> <yellow>Don't forget to vote for our server! <click:open_url:\"https://example.com/vote\"><u><blue>Click here to vote!</blue></u></click>");
-
         @Comment("Visual/Audio effects.")
         public EffectGroup effects = new EffectGroup(
                 new HashMap<>(Map.of("notification", new SoundEffect("block.note_block.pling", 1f, 1f))),
                 new HashMap<>());
+
+        @Comment("Actions to execute.")
+        public Map<String, CommandAction> actions = new HashMap<>(
+                Map.of(
+                        "reminder",
+                        new CommandAction(
+                                100.0,
+                                List.of(
+                                        "msg <player> <prefix> <yellow>Don't forget to vote for our server! <click:open_url:\\\"https://example.com/vote\\\"><u><blue>Click here to vote!</blue></u></click>"))));
     }
 
     @Configuration
@@ -152,12 +157,12 @@ public final class MainConfig {
         public int votesRequired = 50;
 
         @Comment("Rewards to execute when the goal is reached.")
-        public Map<String, RewardAction> rewards = new HashMap<>();
+        public Map<String, CommandAction> rewards = new HashMap<>();
 
         public CommunityGoalSettings() {
             this.rewards.put(
                     "community_reward",
-                    new RewardAction(
+                    new CommandAction(
                             100.0, List.of("say <green>Community goal reached!", "pa pinata start default default")));
         }
     }
@@ -167,7 +172,7 @@ public final class MainConfig {
         @Comment("Enable daily vote limits per player.")
         public boolean enabled = false;
 
-        @Comment("Maximum number of votes before a player stops receiving rewards (-1 for unlimited).")
+        @Comment("Maximum number of votes before rewards are skipped (-1 for unlimited).")
         public int amount = 5;
 
         @Comment({
@@ -177,10 +182,14 @@ public final class MainConfig {
         })
         public boolean countExcessVotes = true;
 
+        @Comment("Visual/Audio effects.")
+        public EffectGroup effects = new EffectGroup(
+                new HashMap<>(Map.of("limit-reached", new SoundEffect("entity.villager.no", 1f, 1f))), new HashMap<>());
+
         @Comment("Actions to execute when the limit is reached (e.g. warn the player).")
-        public Map<String, RewardAction> actions = new HashMap<>(Map.of(
-                "warn",
-                new RewardAction(100.0, List.of("msg <player> <red>You have reached your daily vote reward limit!"))));
+        public Map<String, CommandAction> actions = new HashMap<>(Map.of(
+                "limit_reached",
+                new CommandAction(100.0, List.of("msg <player> <red>You have reached your daily vote reward limit!"))));
     }
 
     @Configuration
@@ -196,8 +205,8 @@ public final class MainConfig {
                 new HashMap<>(Map.of("level-up", new SoundEffect("entity.player.levelup", 1f, 1f))), new HashMap<>());
 
         @Comment("Rewards to give.")
-        public Map<String, RewardAction> rewards = new HashMap<>(
-                Map.of("announce", new RewardAction(100.0, List.of("say <green>Thank you <player> for voting!"))));
+        public Map<String, CommandAction> rewards = new HashMap<>(
+                Map.of("announce", new CommandAction(100.0, List.of("say <green>Thank you <player> for voting!"))));
     }
 
     @Configuration
