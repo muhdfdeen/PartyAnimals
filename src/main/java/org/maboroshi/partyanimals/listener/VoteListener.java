@@ -29,6 +29,8 @@ public class VoteListener implements Listener {
     private final RewardHandler rewardHandler;
     private final DatabaseManager databaseManager;
 
+    private static final Object LOCK = new Object();
+
     public VoteListener(PartyAnimals plugin) {
         this.plugin = plugin;
         this.config = plugin.getConfiguration();
@@ -44,15 +46,11 @@ public class VoteListener implements Listener {
                 || !config.getMainConfig().modules.vote.offline.queueRewards) {
             return;
         }
-
         Player player = event.getPlayer();
-
         Bukkit.getAsyncScheduler().runNow(plugin, (task) -> {
             UUID uuid = databaseManager.getPlayerUUID(player.getName());
             if (uuid == null) return;
-
             List<String> commands = databaseManager.retrieveRewards(uuid);
-
             if (!commands.isEmpty()) {
                 player.getScheduler()
                         .run(
@@ -80,63 +78,62 @@ public class VoteListener implements Listener {
         Vote vote = event.getVote();
         String serviceName = vote.getServiceName();
         String playerName = vote.getUsername();
-        String address = vote.getAddress();
-        String timeStamp = vote.getTimeStamp();
 
         Bukkit.getAsyncScheduler().runNow(plugin, (task) -> {
-            log.debug("Processing vote from " + playerName + " (Address: " + address + ") at " + timeStamp + " via "
-                    + serviceName);
-
             UUID uuid = databaseManager.getPlayerUUID(playerName);
             if (uuid == null) return;
 
-            MainConfig.VoteLimitSettings limitSettings =
-                    config.getMainConfig().modules.vote.events.playerVote.dailyLimit;
+            synchronized (LOCK) {
+                MainConfig.VoteLimitSettings limitSettings =
+                        config.getMainConfig().modules.vote.events.playerVote.dailyLimit;
 
-            int limit = limitSettings.enabled ? limitSettings.amount : -1;
-            boolean countExcess = limitSettings.countExcessVotes;
+                int limit = limitSettings.enabled ? limitSettings.amount : -1;
+                boolean countExcess = limitSettings.countExcessVotes;
 
-            DatabaseManager.VoteResult result =
-                    databaseManager.processVote(uuid, playerName, serviceName, 1, limit, countExcess);
+                DatabaseManager.VoteResult result =
+                        databaseManager.processVote(uuid, playerName, serviceName, 1, limit, countExcess);
 
-            if (result != DatabaseManager.VoteResult.FAIL_IGNORED && !serviceName.equals("TestVote (Dry Run)")) {
-                var goalConfig = config.getMainConfig().modules.vote.communityGoal;
-                if (goalConfig.enabled && goalConfig.votesRequired > 0) {
-                    int currentTotal = databaseManager.incrementCommunityGoalProgress();
-                    if (currentTotal % goalConfig.votesRequired == 0) {
-                        Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
-                            rewardHandler.process(null, goalConfig.rewards.values());
-                        });
+                if (result != DatabaseManager.VoteResult.FAIL_IGNORED && !serviceName.equals("TestVote (Dry Run)")) {
+                    var goalConfig = config.getMainConfig().modules.vote.communityGoal;
+                    if (goalConfig.enabled && goalConfig.votesRequired > 0) {
+                        int currentTotal = databaseManager.incrementCommunityGoalProgress();
+                        if (currentTotal % goalConfig.votesRequired == 0) {
+                            Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+                                rewardHandler.process(null, goalConfig.rewards.values());
+                            });
+                        }
                     }
                 }
-            }
 
-            if (result == DatabaseManager.VoteResult.SUCCESS_NO_REWARD) {
-                log.debug(playerName + " limit reached (Vote saved, Reward skipped).");
-                Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
-                    Player player = Bukkit.getPlayer(playerName);
-                    if (player != null) {
-                        rewardHandler.process(player, limitSettings.actions.values());
-                    }
-                });
-            } else if (result == DatabaseManager.VoteResult.SUCCESS_REWARD) {
-                Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
-                    Player player = Bukkit.getPlayer(playerName);
-                    if (player != null) {
-                        player.getScheduler()
-                                .run(
-                                        plugin,
-                                        (st) -> {
-                                            VoteEvent voteEvent = config.getMainConfig().modules.vote.events.playerVote;
-                                            if (!voteEvent.enabled) return;
-                                            effectHandler.playEffects(voteEvent.effects, player.getLocation(), false);
-                                            rewardHandler.process(player, voteEvent.rewards.values());
-                                        },
-                                        null);
-                    } else {
-                        processOfflineRewards(uuid, playerName);
-                    }
-                });
+                if (result == DatabaseManager.VoteResult.SUCCESS_NO_REWARD) {
+                    log.debug(playerName + " limit reached (Vote saved, Reward skipped).");
+                    Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+                        Player player = Bukkit.getPlayer(playerName);
+                        if (player != null) {
+                            rewardHandler.process(player, limitSettings.actions.values());
+                        }
+                    });
+                } else if (result == DatabaseManager.VoteResult.SUCCESS_REWARD) {
+                    Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+                        Player player = Bukkit.getPlayer(playerName);
+                        if (player != null) {
+                            player.getScheduler()
+                                    .run(
+                                            plugin,
+                                            (st) -> {
+                                                VoteEvent voteEvent =
+                                                        config.getMainConfig().modules.vote.events.playerVote;
+                                                if (!voteEvent.enabled) return;
+                                                effectHandler.playEffects(
+                                                        voteEvent.effects, player.getLocation(), false);
+                                                rewardHandler.process(player, voteEvent.rewards.values());
+                                            },
+                                            null);
+                        } else {
+                            processOfflineRewards(uuid, playerName);
+                        }
+                    });
+                }
             }
         });
     }

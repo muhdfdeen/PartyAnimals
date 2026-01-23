@@ -164,7 +164,7 @@ public class DatabaseManager {
         try {
             connection = getConnection();
 
-            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+            connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             connection.setAutoCommit(false);
 
             java.util.Calendar cal = java.util.Calendar.getInstance();
