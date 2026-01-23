@@ -2,6 +2,7 @@ package org.maboroshi.partyanimals.listener;
 
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.model.VotifierEvent;
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -14,6 +15,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.maboroshi.partyanimals.PartyAnimals;
 import org.maboroshi.partyanimals.config.ConfigManager;
 import org.maboroshi.partyanimals.config.objects.RewardAction;
+import org.maboroshi.partyanimals.config.settings.MainConfig;
 import org.maboroshi.partyanimals.config.settings.MainConfig.VoteEvent;
 import org.maboroshi.partyanimals.handler.EffectHandler;
 import org.maboroshi.partyanimals.handler.RewardHandler;
@@ -56,7 +58,7 @@ public class VoteListener implements Listener {
                         .run(
                                 plugin,
                                 (scheduledTask) -> {
-                                    log.info("Delivering "
+                                    log.debug("Delivering "
                                             + commands.size()
                                             + " offline rewards to "
                                             + player.getName());
@@ -104,8 +106,7 @@ public class VoteListener implements Listener {
                     int required = goalConfig.votesRequired;
 
                     if (currentTotal % required == 0) {
-                        log.info("Community Goal reached (Total Votes: " + currentTotal + ")! Firing rewards...");
-
+                        log.debug("Community Goal reached (Total Votes: " + currentTotal + ")! Firing rewards...");
                         Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
                             rewardHandler.process(null, goalConfig.rewards.values());
                         });
@@ -114,6 +115,32 @@ public class VoteListener implements Listener {
             }
 
             final UUID finalUUID = uuid;
+
+            MainConfig.VoteLimitSettings limitSettings =
+                    config.getMainConfig().modules.vote.events.playerVote.dailyLimit;
+            if (limitSettings.enabled) {
+                if (limitSettings.amount > 0) {
+                    Calendar cal = Calendar.getInstance();
+                    cal.set(Calendar.HOUR_OF_DAY, 0);
+                    cal.set(Calendar.MINUTE, 0);
+                    cal.set(Calendar.SECOND, 0);
+                    cal.set(Calendar.MILLISECOND, 0);
+                    long startOfDay = cal.getTimeInMillis();
+                    int votesToday = databaseManager.getVotesSince(finalUUID, startOfDay);
+
+                    if (votesToday > limitSettings.amount) {
+                        log.debug(playerName + " has reached the daily vote reward limit (" + votesToday + "/"
+                                + limitSettings.amount + "). Skipping reward.");
+                        Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
+                            Player player = Bukkit.getPlayer(playerName);
+                            if (player != null) {
+                                rewardHandler.process(player, limitSettings.actions.values());
+                            }
+                        });
+                        return;
+                    }
+                }
+            }
 
             Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
                 Player player = Bukkit.getPlayer(playerName);

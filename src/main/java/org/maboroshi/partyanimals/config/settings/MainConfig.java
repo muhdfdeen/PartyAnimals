@@ -163,9 +163,26 @@ public final class MainConfig {
     }
 
     @Configuration
+    public static class VoteLimitSettings {
+        @Comment("Enable daily vote limits per player.")
+        public boolean enabled = true;
+
+        @Comment("Maximum number of votes before a player stops receiving rewards (-1 for unlimited).")
+        public int amount = 5;
+
+        @Comment("Actions to execute when the limit is reached (e.g. warn the player).")
+        public Map<String, RewardAction> actions = new HashMap<>(Map.of(
+                "warn",
+                new RewardAction(100.0, List.of("msg <player> <red>You have reached your daily vote reward limit!"))));
+    }
+
+    @Configuration
     public static class VoteEvent {
         @Comment("Enable this event.")
         public boolean enabled = true;
+
+        @Comment("Vote limit settings.")
+        public VoteLimitSettings dailyLimit = new VoteLimitSettings();
 
         @Comment("Visual/Audio effects.")
         public EffectGroup effects = new EffectGroup(
