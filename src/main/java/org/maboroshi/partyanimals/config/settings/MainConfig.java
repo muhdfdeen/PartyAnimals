@@ -11,10 +11,10 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.maboroshi.partyanimals.config.objects.EffectTypes.EffectGroup;
-import org.maboroshi.partyanimals.config.objects.EffectTypes.SoundEffect;
 import org.maboroshi.partyanimals.config.objects.RewardAction;
 import org.maboroshi.partyanimals.config.objects.SerializableLocation;
+import org.maboroshi.partyanimals.config.objects.effects.EffectGroup;
+import org.maboroshi.partyanimals.config.objects.effects.SoundEffect;
 
 public final class MainConfig {
 

@@ -14,10 +14,10 @@ import java.util.Set;
 import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay.TextAlignment;
-import org.maboroshi.partyanimals.config.objects.EffectTypes.*;
 import org.maboroshi.partyanimals.config.objects.NameTagSettings;
 import org.maboroshi.partyanimals.config.objects.NameTagSettings.*;
 import org.maboroshi.partyanimals.config.objects.RewardAction;
+import org.maboroshi.partyanimals.config.objects.effects.*;
 
 public final class PinataConfig {
 

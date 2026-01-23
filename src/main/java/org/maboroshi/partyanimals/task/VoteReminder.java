@@ -1,4 +1,4 @@
-package org.maboroshi.partyanimals.util;
+package org.maboroshi.partyanimals.task;
 
 import java.util.ArrayList;
 import java.util.List;

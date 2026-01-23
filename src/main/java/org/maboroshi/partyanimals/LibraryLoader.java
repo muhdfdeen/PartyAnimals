@@ -1,4 +1,4 @@
-package org.maboroshi.partyanimals.util;
+package org.maboroshi.partyanimals;
 
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.PluginLoader;

@@ -16,16 +16,16 @@ import org.maboroshi.partyanimals.handler.EffectHandler;
 import org.maboroshi.partyanimals.handler.HitCooldownHandler;
 import org.maboroshi.partyanimals.handler.ReflexHandler;
 import org.maboroshi.partyanimals.handler.RewardHandler;
-import org.maboroshi.partyanimals.hook.PartyAnimalsExpansion;
+import org.maboroshi.partyanimals.hook.Placeholders;
 import org.maboroshi.partyanimals.listener.PinataListener;
 import org.maboroshi.partyanimals.listener.VoteListener;
 import org.maboroshi.partyanimals.manager.BossBarManager;
 import org.maboroshi.partyanimals.manager.DatabaseManager;
 import org.maboroshi.partyanimals.manager.PinataManager;
+import org.maboroshi.partyanimals.task.VoteReminder;
 import org.maboroshi.partyanimals.util.Logger;
 import org.maboroshi.partyanimals.util.MessageUtils;
 import org.maboroshi.partyanimals.util.UpdateChecker;
-import org.maboroshi.partyanimals.util.VoteReminder;
 
 public final class PartyAnimals extends JavaPlugin {
     private static PartyAnimals plugin;
@@ -73,7 +73,7 @@ public final class PartyAnimals extends JavaPlugin {
         setupModules();
 
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            new PartyAnimalsExpansion(this).register();
+            new Placeholders(this).register();
             log.info("Hooked into PlaceholderAPI.");
         }
 
