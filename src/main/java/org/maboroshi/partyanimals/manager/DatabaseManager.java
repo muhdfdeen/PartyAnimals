@@ -152,6 +152,88 @@ public class DatabaseManager {
         }
     }
 
+    public enum VoteResult {
+        SUCCESS_REWARD,
+        SUCCESS_NO_REWARD,
+        FAIL_IGNORED
+    }
+
+    public VoteResult processVote(
+            UUID uuid, String username, String service, int amount, int limit, boolean countExcess) {
+        Connection connection = null;
+        try {
+            connection = getConnection();
+
+            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+            connection.setAutoCommit(false);
+
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            cal.set(java.util.Calendar.MINUTE, 0);
+            cal.set(java.util.Calendar.SECOND, 0);
+            cal.set(java.util.Calendar.MILLISECOND, 0);
+            long startOfDay = cal.getTimeInMillis();
+
+            int votesToday = 0;
+            String countSql = "SELECT SUM(amount) FROM " + votesTable + " WHERE uuid = ? AND timestamp >= ?;";
+            try (PreparedStatement countStmt = connection.prepareStatement(countSql)) {
+                countStmt.setString(1, uuid.toString());
+                countStmt.setLong(2, startOfDay);
+                try (ResultSet rs = countStmt.executeQuery()) {
+                    if (rs.next()) {
+                        votesToday = rs.getInt(1);
+                    }
+                }
+            }
+
+            boolean underLimit = (limit <= 0) || (votesToday < limit);
+            boolean shouldInsert = underLimit || countExcess;
+
+            VoteResult result;
+
+            if (shouldInsert) {
+                String insertSql = "INSERT INTO " + votesTable
+                        + " (uuid, username, service, amount, timestamp) VALUES (?, ?, ?, ?, ?);";
+                try (PreparedStatement insertStmt = connection.prepareStatement(insertSql)) {
+                    insertStmt.setString(1, uuid.toString());
+                    insertStmt.setString(2, username);
+                    insertStmt.setString(3, service);
+                    insertStmt.setInt(4, amount);
+                    insertStmt.setLong(5, System.currentTimeMillis());
+                    insertStmt.executeUpdate();
+                }
+
+                result = underLimit ? VoteResult.SUCCESS_REWARD : VoteResult.SUCCESS_NO_REWARD;
+            } else {
+                result = VoteResult.FAIL_IGNORED;
+            }
+
+            connection.commit();
+            return result;
+
+        } catch (SQLException e) {
+            log.error("Failed to process atomic vote: " + e.getMessage());
+            e.printStackTrace();
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            return VoteResult.FAIL_IGNORED;
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.setAutoCommit(true);
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public int getVotes(UUID uuid) {
         if (uuid == null) return 0;
         String sql = "SELECT SUM(amount) FROM " + votesTable + " WHERE uuid = ?;";
