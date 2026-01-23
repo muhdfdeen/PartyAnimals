@@ -18,7 +18,7 @@ jobs:
       artifact-name: ${{ steps.upload.outputs.artifact-id }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v5
