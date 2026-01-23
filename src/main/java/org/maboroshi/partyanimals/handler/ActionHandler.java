@@ -7,19 +7,19 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.maboroshi.partyanimals.PartyAnimals;
-import org.maboroshi.partyanimals.config.objects.RewardAction;
+import org.maboroshi.partyanimals.config.objects.CommandAction;
 
-public class RewardHandler {
+public class ActionHandler {
     private final boolean hasPAPI;
 
-    public RewardHandler(PartyAnimals plugin) {
+    public ActionHandler(PartyAnimals plugin) {
         this.hasPAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
     }
 
-    public void process(OfflinePlayer player, Collection<RewardAction> commands) {
+    public void process(OfflinePlayer player, Collection<CommandAction> commands) {
         if (commands == null || commands.isEmpty()) return;
 
-        for (RewardAction action : commands) {
+        for (CommandAction action : commands) {
             if (!action.global && action.permission != null && !action.permission.isEmpty()) {
                 Player onlinePlayer = player.getPlayer();
                 if (onlinePlayer != null && !onlinePlayer.hasPermission(action.permission)) {
@@ -40,13 +40,13 @@ public class RewardHandler {
                 executeAction(player, action);
             }
 
-            if (action.preventFurtherRewards) {
+            if (action.stopProcessing) {
                 break;
             }
         }
     }
 
-    private void executeAction(OfflinePlayer target, RewardAction action) {
+    private void executeAction(OfflinePlayer target, CommandAction action) {
         if (action.commands.isEmpty()) return;
         if (action.pickOneRandom) {
             int index = ThreadLocalRandom.current().nextInt(action.commands.size());

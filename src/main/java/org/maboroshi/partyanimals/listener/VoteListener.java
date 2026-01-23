@@ -13,11 +13,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.maboroshi.partyanimals.PartyAnimals;
 import org.maboroshi.partyanimals.config.ConfigManager;
-import org.maboroshi.partyanimals.config.objects.RewardAction;
+import org.maboroshi.partyanimals.config.objects.CommandAction;
 import org.maboroshi.partyanimals.config.settings.MainConfig;
 import org.maboroshi.partyanimals.config.settings.MainConfig.VoteEvent;
+import org.maboroshi.partyanimals.handler.ActionHandler;
 import org.maboroshi.partyanimals.handler.EffectHandler;
-import org.maboroshi.partyanimals.handler.RewardHandler;
 import org.maboroshi.partyanimals.manager.DatabaseManager;
 import org.maboroshi.partyanimals.util.Logger;
 
@@ -26,7 +26,7 @@ public class VoteListener implements Listener {
     private final ConfigManager config;
     private final Logger log;
     private final EffectHandler effectHandler;
-    private final RewardHandler rewardHandler;
+    private final ActionHandler actionHandler;
     private final DatabaseManager databaseManager;
 
     private static final Object LOCK = new Object();
@@ -36,7 +36,7 @@ public class VoteListener implements Listener {
         this.config = plugin.getConfiguration();
         this.log = plugin.getPluginLogger();
         this.effectHandler = plugin.getEffectHandler();
-        this.rewardHandler = plugin.getRewardHandler();
+        this.actionHandler = plugin.getActionHandler();
         this.databaseManager = plugin.getDatabaseManager();
     }
 
@@ -99,7 +99,7 @@ public class VoteListener implements Listener {
                         int currentTotal = databaseManager.incrementCommunityGoalProgress();
                         if (currentTotal % goalConfig.votesRequired == 0) {
                             Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
-                                rewardHandler.process(null, goalConfig.rewards.values());
+                                actionHandler.process(null, goalConfig.rewards.values());
                             });
                         }
                     }
@@ -110,7 +110,7 @@ public class VoteListener implements Listener {
                     Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
                         Player player = Bukkit.getPlayer(playerName);
                         if (player != null) {
-                            rewardHandler.process(player, limitSettings.actions.values());
+                            actionHandler.process(player, limitSettings.actions.values());
                         }
                     });
                 } else if (result == DatabaseManager.VoteResult.SUCCESS_REWARD) {
@@ -126,7 +126,7 @@ public class VoteListener implements Listener {
                                                 if (!voteEvent.enabled) return;
                                                 effectHandler.playEffects(
                                                         voteEvent.effects, player.getLocation(), false);
-                                                rewardHandler.process(player, voteEvent.rewards.values());
+                                                actionHandler.process(player, voteEvent.rewards.values());
                                             },
                                             null);
                         } else {
@@ -147,23 +147,23 @@ public class VoteListener implements Listener {
                     for (var action : voteEvent.rewards.values()) {
                         if (shouldRun(action)) {
                             processActionForQueue(uuid, playerName, action);
-                            if (action.preventFurtherRewards) break;
+                            if (action.stopProcessing) break;
                         }
                     }
                 });
             } else {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-                rewardHandler.process(offlinePlayer, voteEvent.rewards.values());
+                actionHandler.process(offlinePlayer, voteEvent.rewards.values());
             }
         }
     }
 
-    private boolean shouldRun(RewardAction action) {
+    private boolean shouldRun(CommandAction action) {
         if (action.chance >= 100.0) return true;
         return ThreadLocalRandom.current().nextDouble(100.0) <= action.chance;
     }
 
-    private void processActionForQueue(UUID uuid, String playerName, RewardAction action) {
+    private void processActionForQueue(UUID uuid, String playerName, CommandAction action) {
         if (action.commands.isEmpty()) return;
 
         if (action.pickOneRandom) {

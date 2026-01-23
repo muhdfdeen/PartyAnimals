@@ -223,8 +223,8 @@ public class PinataManager {
             }
         });
 
-        if (plugin.getRewardHandler() != null) {
-            plugin.getRewardHandler().process(null, pinataConfig.events.spawn.rewards.values());
+        if (plugin.getActionHandler() != null) {
+            plugin.getActionHandler().process(null, pinataConfig.events.spawn.rewards.values());
         }
 
         String spawnMessage = config.getMessageConfig().pinata.events.spawnedNaturally;

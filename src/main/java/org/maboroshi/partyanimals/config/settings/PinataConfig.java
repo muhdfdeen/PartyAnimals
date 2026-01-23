@@ -14,9 +14,9 @@ import java.util.Set;
 import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay.TextAlignment;
+import org.maboroshi.partyanimals.config.objects.CommandAction;
 import org.maboroshi.partyanimals.config.objects.NameTagSettings;
 import org.maboroshi.partyanimals.config.objects.NameTagSettings.*;
-import org.maboroshi.partyanimals.config.objects.RewardAction;
 import org.maboroshi.partyanimals.config.objects.effects.*;
 
 public final class PinataConfig {
@@ -295,7 +295,7 @@ public final class PinataConfig {
         public EffectGroup effects = new EffectGroup();
 
         @Comment("Commands to execute when triggered.")
-        public Map<String, RewardAction> commands = new HashMap<>();
+        public Map<String, CommandAction> commands = new HashMap<>();
     }
 
     @Configuration
@@ -321,7 +321,7 @@ public final class PinataConfig {
         public EffectGroup effects = new EffectGroup();
 
         @Comment("Commands to execute when triggered.")
-        public Map<String, RewardAction> commands = new HashMap<>();
+        public Map<String, CommandAction> commands = new HashMap<>();
     }
 
     @Configuration
@@ -341,7 +341,7 @@ public final class PinataConfig {
         public EffectGroup effects = new EffectGroup();
 
         @Comment("Commands to execute when triggered.")
-        public Map<String, RewardAction> commands = new HashMap<>();
+        public Map<String, CommandAction> commands = new HashMap<>();
     }
 
     @Configuration
@@ -358,7 +358,7 @@ public final class PinataConfig {
         public EffectGroup effects = new EffectGroup();
 
         @Comment("Commands to execute when triggered.")
-        public Map<String, RewardAction> commands = new HashMap<>();
+        public Map<String, CommandAction> commands = new HashMap<>();
     }
 
     @Configuration
@@ -378,7 +378,7 @@ public final class PinataConfig {
         public EffectGroup effects = new EffectGroup();
 
         @Comment("Commands to execute when triggered.")
-        public Map<String, RewardAction> commands = new HashMap<>();
+        public Map<String, CommandAction> commands = new HashMap<>();
     }
 
     @Configuration
@@ -397,7 +397,7 @@ public final class PinataConfig {
                 Map.of("blind-flash", new ParticleEffect("GLOW", 10, new ParticleOffset(0.2, 0.2, 0.2), 0.1)));
 
         @Comment("Commands to execute when triggered.")
-        public Map<String, RewardAction> commands = new HashMap<>();
+        public Map<String, CommandAction> commands = new HashMap<>();
     }
 
     @Configuration
@@ -473,11 +473,11 @@ public final class PinataConfig {
         public EffectGroup effects = new EffectGroup();
 
         @Comment("Rewards to give. Key is the internal ID of the reward.")
-        public Map<String, RewardAction> rewards = new HashMap<>();
+        public Map<String, CommandAction> rewards = new HashMap<>();
 
         public GameEvent() {}
 
-        public GameEvent(boolean enabled, EffectGroup effects, Map<String, RewardAction> rewards) {
+        public GameEvent(boolean enabled, EffectGroup effects, Map<String, CommandAction> rewards) {
             this.enabled = enabled;
             this.effects = effects;
             this.rewards = rewards;
@@ -495,7 +495,7 @@ public final class PinataConfig {
                                 "totem",
                                 new ParticleEffect("TOTEM_OF_UNDYING", 10, new ParticleOffset(0.5, 1.0, 0.5), 0.1))),
                 new HashMap<>(
-                        Map.of("announce", new RewardAction(100.0, List.of("say <green>A pinata has arrived!")))));
+                        Map.of("announce", new CommandAction(100.0, List.of("say <green>A pinata has arrived!")))));
 
         @Comment("Triggered when pinata is damaged.")
         public GameEvent hit = new GameEvent(
@@ -505,7 +505,7 @@ public final class PinataConfig {
                         Map.of("crit-particle", new ParticleEffect("CRIT", 5, new ParticleOffset(0.3, 1.0, 0.3), 0.0))),
                 new HashMap<>(Map.of(
                         "vip_reward",
-                        new RewardAction(
+                        new CommandAction(
                                 50.0, false, false, false, "partyanimals.vip", List.of("give <player> diamond 1")))));
 
         @Comment("Triggered on the final killing blow.")
@@ -526,6 +526,6 @@ public final class PinataConfig {
                                 new ParticleEffect("EXPLOSION", 5, new ParticleOffset(0.0, 0.0, 0.0), 0.0))),
                 new HashMap<>(Map.of(
                         "everyone_emerald",
-                        new RewardAction(100.0, false, false, false, "", List.of("give @a emerald 5")))));
+                        new CommandAction(100.0, false, false, false, "", List.of("give @a emerald 5")))));
     }
 }

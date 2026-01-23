@@ -12,10 +12,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.maboroshi.partyanimals.api.event.PartyAnimalsReloadEvent;
 import org.maboroshi.partyanimals.command.PartyAnimalsCommand;
 import org.maboroshi.partyanimals.config.ConfigManager;
+import org.maboroshi.partyanimals.handler.ActionHandler;
 import org.maboroshi.partyanimals.handler.EffectHandler;
 import org.maboroshi.partyanimals.handler.HitCooldownHandler;
 import org.maboroshi.partyanimals.handler.ReflexHandler;
-import org.maboroshi.partyanimals.handler.RewardHandler;
 import org.maboroshi.partyanimals.hook.Placeholders;
 import org.maboroshi.partyanimals.listener.PinataListener;
 import org.maboroshi.partyanimals.listener.VoteListener;
@@ -38,7 +38,7 @@ public final class PartyAnimals extends JavaPlugin {
     private BossBarManager bossBarManager;
     private HitCooldownHandler hitCooldownHandler;
     private EffectHandler effectHandler;
-    private RewardHandler rewardHandler;
+    private ActionHandler actionHandler;
     private ReflexHandler reflexHandler;
     private VoteListener voteListener;
     private ScheduledTask voteReminderTask;
@@ -64,7 +64,7 @@ public final class PartyAnimals extends JavaPlugin {
         this.messageUtils = new MessageUtils(configManager);
         this.bossBarManager = new BossBarManager(this);
         this.effectHandler = new EffectHandler(log);
-        this.rewardHandler = new RewardHandler(this);
+        this.actionHandler = new ActionHandler(this);
         this.reflexHandler = new ReflexHandler(this);
 
         this.databaseManager = new DatabaseManager(this);
@@ -234,8 +234,8 @@ public final class PartyAnimals extends JavaPlugin {
         return effectHandler;
     }
 
-    public RewardHandler getRewardHandler() {
-        return rewardHandler;
+    public ActionHandler getActionHandler() {
+        return actionHandler;
     }
 
     public ReflexHandler getReflexHandler() {
