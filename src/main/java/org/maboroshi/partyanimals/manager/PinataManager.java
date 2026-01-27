@@ -97,11 +97,12 @@ public class PinataManager {
 
         String bossBarCountdown = config.getPinataConfig(templateId).timer.countdown.bar.text;
         var barSettings = pinataConfig.timer.countdown.bar;
+        boolean isRainbow = barSettings.color.equalsIgnoreCase("rainbow");
 
         BossBar bossBar = BossBar.bossBar(
                 messageUtils.parse(null, bossBarCountdown, messageUtils.tag("countdown", (int) countdownSeconds)),
                 1.0f,
-                barSettings.color,
+                isRainbow ? BossBar.Color.PINK : BossBar.Color.valueOf(barSettings.color),
                 barSettings.overlay);
 
         boolean shouldShowBar = barSettings.enabled;
@@ -119,6 +120,8 @@ public class PinataManager {
         long endTime = System.currentTimeMillis() + durationMillis;
 
         final int[] lastSeconds = {(int) countdownSeconds};
+        final int[] taskDurationTicks = {0};
+        final int[] colorIndex = {0};
 
         ScheduledTask scheduledTask = Bukkit.getRegionScheduler()
                 .runAtFixedRate(
@@ -160,6 +163,12 @@ public class PinataManager {
                                     bossBar.name(messageUtils.parse(
                                             null, bossBarCountdown, messageUtils.tag("countdown", displaySeconds)));
                                     lastSeconds[0] = displaySeconds;
+                                }
+                            }
+
+                            if (isRainbow) {
+                                if (++taskDurationTicks[0] % 5 == 0) {
+                                    bossBar.color(BossBar.Color.values()[++colorIndex[0] % BossBar.Color.values().length]);
                                 }
                             }
                         },
