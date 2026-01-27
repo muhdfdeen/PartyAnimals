@@ -36,7 +36,7 @@ public class BossBarManager {
                 messageUtils.tag("timer", timeStr));
 
         BossBar bossBar =
-                BossBar.bossBar(barName, 1.0f, pinataConfig.health.bar.color, pinataConfig.health.bar.overlay);
+                BossBar.bossBar(barName, 1.0f, BossBar.Color.valueOf(pinataConfig.health.bar.color), pinataConfig.health.bar.overlay);
 
         activeBossBars.put(pinata.getUniqueId(), bossBar);
         updateViewerList(pinata, bossBar, pinataConfig);
