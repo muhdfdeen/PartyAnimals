@@ -28,15 +28,23 @@ public final class MainConfig {
 
     @Configuration
     public static class MainConfiguration {
-
         @Comment("Enable debug mode to see detailed logs in the console.")
         public boolean debug = false;
 
-        @Comment("Database settings.")
-        public DatabaseSettings database = new DatabaseSettings();
-
         @Comment("Control which parts of the plugin should be active.")
         public ModuleSettings modules = new ModuleSettings();
+
+        @Comment("Database settings.")
+        public DatabaseSettings database = new DatabaseSettings();
+    }
+
+    @Configuration
+    public static class ModuleSettings {
+        @Comment("Toggle the pinata module.")
+        public PinataSettings pinata = new PinataSettings();
+
+        @Comment("Toggle the voting module.")
+        public VoteSettings vote = new VoteSettings();
     }
 
     @Configuration
@@ -76,15 +84,6 @@ public final class MainConfig {
 
         @Comment("Warn if a connection is held longer than this (Default: 10000).")
         public int leakDetectionThreshold = 10000;
-    }
-
-    @Configuration
-    public static class ModuleSettings {
-        @Comment("Toggle the pinata module.")
-        public PinataSettings pinata = new PinataSettings();
-
-        @Comment("Toggle the voting module.")
-        public VoteSettings vote = new VoteSettings();
     }
 
     @Configuration
@@ -139,13 +138,8 @@ public final class MainConfig {
                 new HashMap<>());
 
         @Comment("Actions to execute.")
-        public Map<String, CommandAction> actions = new HashMap<>(
-                Map.of(
-                        "reminder",
-                        new CommandAction(
-                                100.0,
-                                List.of(
-                                        "msg <player> <prefix> <yellow>Don't forget to vote for our server! <click:open_url:\\\"https://example.com/vote\\\"><u><blue>Click here to vote!</blue></u></click>"))));
+        public Map<String, CommandAction> actions = new HashMap<>(Map.of(
+                "reminder", new CommandAction(100.0, List.of("msg <player> Don't forget to vote for our server!"))));
     }
 
     @Configuration
@@ -153,18 +147,41 @@ public final class MainConfig {
         @Comment("Enable the community goal system?")
         public boolean enabled = false;
 
-        @Comment("How many votes are needed to trigger the rewards?")
+        @Comment("Number of votes required to reach the goal.")
         public int votesRequired = 50;
 
-        @Comment("Rewards to execute when the goal is reached.")
-        public Map<String, CommandAction> rewards = new HashMap<>();
+        @Comment("Actions to execute when the goal is reached.")
+        public Map<String, CommandAction> actions = new HashMap<>();
 
         public CommunityGoalSettings() {
-            this.rewards.put(
+            this.actions.put(
                     "community_reward",
                     new CommandAction(
-                            100.0, List.of("say <green>Community goal reached!", "pa pinata start default default")));
+                            100.0, List.of("say Community goal reached!", "pa pinata start default default")));
         }
+    }
+
+    @Configuration
+    public static class EventRegistry {
+        @Comment("Triggered when a single vote is received.")
+        public VoteEvent playerVote = new VoteEvent();
+    }
+
+    @Configuration
+    public static class VoteEvent {
+        @Comment("Enable this event.")
+        public boolean enabled = true;
+
+        @Comment("Vote limit settings.")
+        public VoteLimitSettings dailyLimit = new VoteLimitSettings();
+
+        @Comment("Visual/Audio effects.")
+        public EffectGroup effects = new EffectGroup(
+                new HashMap<>(Map.of("level-up", new SoundEffect("entity.player.levelup", 1f, 1f))), new HashMap<>());
+
+        @Comment("Actions to execute.")
+        public Map<String, CommandAction> actions = new HashMap<>(
+                Map.of("announce", new CommandAction(100.0, List.of("say Thank you <player> for voting!"))));
     }
 
     @Configuration
@@ -189,29 +206,6 @@ public final class MainConfig {
         @Comment("Actions to execute when the limit is reached (e.g. warn the player).")
         public Map<String, CommandAction> actions = new HashMap<>(Map.of(
                 "limit_reached",
-                new CommandAction(100.0, List.of("msg <player> <red>You have reached your daily vote reward limit!"))));
-    }
-
-    @Configuration
-    public static class VoteEvent {
-        @Comment("Enable this event.")
-        public boolean enabled = true;
-
-        @Comment("Vote limit settings.")
-        public VoteLimitSettings dailyLimit = new VoteLimitSettings();
-
-        @Comment("Visual/Audio effects.")
-        public EffectGroup effects = new EffectGroup(
-                new HashMap<>(Map.of("level-up", new SoundEffect("entity.player.levelup", 1f, 1f))), new HashMap<>());
-
-        @Comment("Rewards to give.")
-        public Map<String, CommandAction> rewards = new HashMap<>(
-                Map.of("announce", new CommandAction(100.0, List.of("say <green>Thank you <player> for voting!"))));
-    }
-
-    @Configuration
-    public static class EventRegistry {
-        @Comment("Triggered when a single vote is received.")
-        public VoteEvent playerVote = new VoteEvent();
+                new CommandAction(100.0, List.of("msg <player> You have reached your daily vote reward limit!"))));
     }
 }
