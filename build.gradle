@@ -9,16 +9,10 @@ version = '1.5.2'
 
 repositories {
     mavenCentral()
-    maven {
-        name = "papermc-repo"
-        url = "https://repo.papermc.io/repository/maven-public/"
-    }
-    maven {
-        url = 'https://repo.extendedclip.com/releases/'
-    }
-    maven {
-        url = 'https://jitpack.io'
-    }
+    maven { url = "https://repo.papermc.io/repository/maven-public/" }
+    maven { url = 'https://repo.extendedclip.com/releases/' }
+    maven { url = 'https://jitpack.io' }
+    maven { url = 'https://repo.codemc.io/repository/maven-public/' }
 }
 
 dependencies {
@@ -30,6 +24,7 @@ dependencies {
     implementation("org.bstats:bstats-bukkit:3.1.0")
     compileOnly("me.clip:placeholderapi:2.11.7")
     compileOnly("com.github.NuVotifier:NuVotifier:2.7.2")
+    compileOnly("de.tr7zw:item-nbt-api:2.15.5")
 }
 
 tasks.named('shadowJar') {
