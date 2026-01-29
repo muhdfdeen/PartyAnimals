@@ -17,10 +17,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.TextDisplay;
+import org.bukkit.entity.*;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -171,8 +168,8 @@ public class PinataManager {
 
         final PinataVariant selectedVariant = variant;
 
-        location.getWorld().spawn(spawnLocation, type.getEntityClass(), pinata -> {
-            if (pinata instanceof LivingEntity livingEntity) {
+        location.getWorld().spawn(spawnLocation, type.getEntityClass(), entity -> {
+            if (entity instanceof LivingEntity livingEntity) {
                 initializePinataEntity(
                         livingEntity, pinataConfig, selectedVariant, templateId, finalHealth, finalScale);
 
@@ -185,7 +182,13 @@ public class PinataManager {
                     activatePinata(livingEntity);
 
                     effectHandler.playEffects(pinataConfig.events.spawn.effects, location, false);
-                    actionHandler.process(null, pinataConfig.events.spawn.actions.values());
+                    actionHandler.process(null, pinataConfig.events.spawn.actions.values(), cmd -> {
+                        if (livingEntity instanceof LivingEntity livingPinata) {
+                            return plugin.getMessageUtils().parsePinataPlaceholders(livingPinata, cmd);
+                        } else {
+                            return cmd;
+                        }
+                    });
                 } else {
                     log.debug("Pinata spawn event was cancelled by an API event; removing entity.");
                     livingEntity.remove();

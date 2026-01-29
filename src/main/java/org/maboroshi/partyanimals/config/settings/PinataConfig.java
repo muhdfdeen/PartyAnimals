@@ -192,13 +192,13 @@ public final class PinataConfig {
     public static class HitCooldown {
         public boolean enabled = true;
 
-        @Comment("Duration in seconds.")
+        @Comment("Cooldown duration in seconds.")
         public double duration = 0.75;
 
         @Comment("If true, the cooldown is global (all players share the timer).")
         public boolean global = false;
 
-        @Comment({"Feedback type.", "Options: ACTION_BAR, CHAT"})
+        @Comment({"Feedback type.", "Options: ACTION_BAR, CHAT, NONE"})
         public String notificationType = "ACTION_BAR";
 
         public HitCooldown() {}
