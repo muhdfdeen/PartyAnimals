@@ -19,7 +19,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     compileOnly("de.exlll:configlib-paper:4.8.0")
     compileOnly("com.zaxxer:HikariCP:7.0.2")
-    compileOnly("com.mysql:mysql-connector-j:9.5.0")
+    compileOnly("com.mysql:mysql-connector-j:9.6.0")
     compileOnly("org.mariadb.jdbc:mariadb-java-client:3.5.7")
     implementation("org.bstats:bstats-bukkit:3.1.0")
     compileOnly("me.clip:placeholderapi:2.11.7")

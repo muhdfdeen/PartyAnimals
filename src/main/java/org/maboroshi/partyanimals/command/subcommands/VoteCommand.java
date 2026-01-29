@@ -14,7 +14,6 @@ import java.util.concurrent.CompletableFuture;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.maboroshi.partyanimals.PartyAnimals;
-import org.maboroshi.partyanimals.hook.VotifierHook;
 import org.maboroshi.partyanimals.hook.migration.PinataPartyMigration;
 import org.maboroshi.partyanimals.util.MessageUtils;
 
@@ -28,7 +27,7 @@ public class VoteCommand {
     }
 
     public LiteralArgumentBuilder<CommandSourceStack> build() {
-        var voteNode = Commands.literal("vote")
+        return Commands.literal("vote")
                 .requires(s -> s.getSender().hasPermission("partyanimals.vote"))
                 .then(Commands.literal("check")
                         .then(Commands.argument("player", StringArgumentType.word())
@@ -61,23 +60,6 @@ public class VoteCommand {
                             messageUtils.send(sender, "<yellow>Migration process finished. Check console for results.");
                             return com.mojang.brigadier.Command.SINGLE_SUCCESS;
                         })));
-
-        if (Bukkit.getPluginManager().isPluginEnabled("Votifier")) {
-
-            voteNode.then(Commands.literal("test")
-                    .requires(s -> s.getSender().hasPermission("partyanimals.vote.test"))
-                    .then(Commands.argument("player", StringArgumentType.word())
-                            .suggests(this::suggestPlayers)
-                            .executes(ctx -> handleTestSafe(ctx, "TestVote (Dry Run)"))));
-
-            voteNode.then(Commands.literal("send")
-                    .requires(s -> s.getSender().hasPermission("partyanimals.vote.send"))
-                    .then(Commands.argument("player", StringArgumentType.word())
-                            .suggests(this::suggestPlayers)
-                            .executes(ctx -> handleTestSafe(ctx, "TestVote"))));
-        }
-
-        return voteNode;
     }
 
     private CompletableFuture<Suggestions> suggestPlayers(
@@ -133,12 +115,6 @@ public class VoteCommand {
                     "<prefix> <gray>Old: <yellow>" + currentVotes + "</yellow> -> New: <aqua>" + newTotal + "</aqua>");
         });
 
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private int handleTestSafe(CommandContext<CommandSourceStack> ctx, String serviceName) {
-        String targetName = StringArgumentType.getString(ctx, "player");
-        VotifierHook.triggerTestVote(ctx.getSource().getSender(), targetName, serviceName, messageUtils);
         return Command.SINGLE_SUCCESS;
     }
 }
