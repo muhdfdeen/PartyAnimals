@@ -101,7 +101,7 @@ public final class PinataConfig {
         public boolean global = true;
 
         @Comment({"Bar color.", "See: https://jd.advntr.dev/api/4.25.0/net/kyori/adventure/bossbar/BossBar.Color.html"})
-        public BossBar.Color color = BossBar.Color.PURPLE;
+        public String color = "PURPLE";
 
         @Comment({
             "Bar overlay.",
@@ -115,7 +115,7 @@ public final class PinataConfig {
         public BossBarSettings() {}
 
         public BossBarSettings(
-                boolean enabled, boolean global, BossBar.Color color, BossBar.Overlay overlay, String text) {
+                boolean enabled, boolean global, String color, BossBar.Overlay overlay, String text) {
             this.enabled = enabled;
             this.global = global;
             this.color = color;
@@ -139,7 +139,7 @@ public final class PinataConfig {
         public BossBarSettings bar = new BossBarSettings(
                 true,
                 true,
-                BossBar.Color.GREEN,
+                "GREEN",
                 BossBar.Overlay.NOTCHED_10,
                 "<pinata> <health> <gray>/</gray> <max-health> <red>❤</red> <gray>[<timer>]</gray>");
     }
@@ -221,7 +221,7 @@ public final class PinataConfig {
                 new BossBarSettings(
                         true,
                         true,
-                        BossBar.Color.YELLOW,
+                        "YELLOW",
                         BossBar.Overlay.PROGRESS,
                         "A pinata party will begin in <white><countdown></white>. Get ready!"),
                 new EffectGroup(
