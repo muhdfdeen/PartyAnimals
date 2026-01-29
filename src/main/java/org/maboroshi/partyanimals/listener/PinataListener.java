@@ -159,7 +159,7 @@ public class PinataListener implements Listener {
             int actualMaxHealth = pinata.getPersistentDataContainer()
                     .getOrDefault(maxHealthKey, PersistentDataType.INTEGER, currentHits);
 
-            bossBarManager.updateBossBar(
+            bossBarManager.updatePinataBossBar(
                     pinata, currentHits, actualMaxHealth, pinataManager.getSpawnTimeKey(), pinataConfig);
         }
     }
@@ -182,8 +182,7 @@ public class PinataListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        bossBarManager.getBossBars().values().forEach(player::showBossBar);
+        bossBarManager.handleJoin(event.getPlayer());
     }
 
     private boolean checkPermission(Player player, PinataConfiguration pinataConfig) {

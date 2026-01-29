@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
-import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -20,7 +19,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Scoreboard;
@@ -54,7 +52,7 @@ public class PinataManager {
 
     private final Map<UUID, LivingEntity> activePinatas = new HashMap<>();
     private final Map<UUID, ScheduledTask> timeoutTasks = new HashMap<>();
-    private final Map<ScheduledTask, BossBar> activeCountdowns = new ConcurrentHashMap<>();
+    private final Map<ScheduledTask, UUID> activeCountdowns = new ConcurrentHashMap<>();
 
     public PinataManager(PartyAnimals plugin) {
         this.plugin = plugin;
@@ -88,40 +86,20 @@ public class PinataManager {
 
         double countdownSeconds = pinataConfig.timer.countdown.duration;
         if (countdownSeconds <= 0) {
-            log.debug("Countdown is set to 0 or less; spawning pinata immediately.");
             spawnPinata(location, templateId);
             return;
         }
 
         effectHandler.playEffects(pinataConfig.timer.countdown.start, location, true);
 
-        String bossBarCountdown = config.getPinataConfig(templateId).timer.countdown.bar.text;
-        var barSettings = pinataConfig.timer.countdown.bar;
-        boolean isRainbow = barSettings.color.equalsIgnoreCase("rainbow");
-
-        BossBar bossBar = BossBar.bossBar(
-                messageUtils.parse(null, bossBarCountdown, messageUtils.tag("countdown", (int) countdownSeconds)),
-                1.0f,
-                isRainbow ? BossBar.Color.PINK : BossBar.Color.valueOf(barSettings.color),
-                barSettings.overlay);
-
-        boolean shouldShowBar = barSettings.enabled;
-        boolean global = barSettings.global;
-
-        if (shouldShowBar) {
-            for (Player p : plugin.getServer().getOnlinePlayers()) {
-                if (global || p.getWorld().equals(location.getWorld())) {
-                    p.showBossBar(bossBar);
-                }
-            }
-        }
-
+        int totalSeconds = (int) countdownSeconds;
         long durationMillis = (long) (countdownSeconds * 1000);
         long endTime = System.currentTimeMillis() + durationMillis;
 
-        final int[] lastSeconds = {(int) countdownSeconds};
+        UUID countdownId = bossBarManager.createCountdownBossBar(location, pinataConfig, totalSeconds);
+
+        final int[] lastSeconds = {totalSeconds};
         final int[] taskDurationTicks = {0};
-        final int[] colorIndex = {0};
 
         ScheduledTask scheduledTask = Bukkit.getRegionScheduler()
                 .runAtFixedRate(
@@ -130,11 +108,10 @@ public class PinataManager {
                         (task) -> {
                             long now = System.currentTimeMillis();
                             long remainingMilis = endTime - now;
+                            int displaySeconds = (int) Math.ceil(remainingMilis / 1000.0);
 
                             if (remainingMilis <= 0) {
-                                for (Player p : plugin.getServer().getOnlinePlayers()) {
-                                    p.hideBossBar(bossBar);
-                                }
+                                bossBarManager.removeCountdownBossBar(countdownId);
                                 effectHandler.playEffects(pinataConfig.timer.countdown.end, location, true);
                                 spawnPinata(location, templateId);
                                 activeCountdowns.remove(task);
@@ -142,39 +119,18 @@ public class PinataManager {
                                 return;
                             }
 
-                            if (shouldShowBar) {
-                                float progress =
-                                        Math.max(0.0f, Math.min(1.0f, (float) remainingMilis / durationMillis));
-                                int displaySeconds = (int) Math.ceil(remainingMilis / 1000.0);
+                            bossBarManager.updateCountdownBar(
+                                    countdownId, displaySeconds, totalSeconds, pinataConfig, ++taskDurationTicks[0]);
 
-                                bossBar.progress(progress);
-
-                                for (Player p : plugin.getServer().getOnlinePlayers()) {
-                                    boolean inSameWorld = p.getWorld().equals(location.getWorld());
-                                    if (global || inSameWorld) {
-                                        p.showBossBar(bossBar);
-                                    } else {
-                                        p.hideBossBar(bossBar);
-                                    }
-                                }
-
-                                if (displaySeconds != lastSeconds[0]) {
-                                    effectHandler.playEffects(pinataConfig.timer.countdown.mid, location, true);
-                                    bossBar.name(messageUtils.parse(
-                                            null, bossBarCountdown, messageUtils.tag("countdown", displaySeconds)));
-                                    lastSeconds[0] = displaySeconds;
-                                }
-                            }
-
-                            if (isRainbow) {
-                                if (++taskDurationTicks[0] % 5 == 0) {
-                                    bossBar.color(BossBar.Color.values()[++colorIndex[0] % BossBar.Color.values().length]);
-                                }
+                            if (displaySeconds != lastSeconds[0]) {
+                                effectHandler.playEffects(pinataConfig.timer.countdown.mid, location, true);
+                                lastSeconds[0] = displaySeconds;
                             }
                         },
                         1L,
                         1L);
-        activeCountdowns.put(scheduledTask, bossBar);
+
+        activeCountdowns.put(scheduledTask, countdownId);
     }
 
     public void spawnPinata(Location location, String templateId) {
@@ -317,8 +273,8 @@ public class PinataManager {
                 .getOrDefault(max_health, PersistentDataType.INTEGER, currentHealth);
         int timeout = pinataConfig.timer.timeout.duration;
 
-        if (!bossBarManager.hasBossBar(livingEntity.getUniqueId())) {
-            bossBarManager.createBossBar(livingEntity, currentHealth, maxHealthVal, timeout, pinataConfig);
+        if (!bossBarManager.hasPinataBossBar(livingEntity.getUniqueId())) {
+            bossBarManager.createPinataBossBar(livingEntity, currentHealth, maxHealthVal, timeout, pinataConfig);
         }
 
         livingEntity
@@ -334,7 +290,7 @@ public class PinataManager {
                                 return;
                             }
 
-                            if (!bossBarManager.hasBossBar(livingEntity.getUniqueId())) {
+                            if (!bossBarManager.hasPinataBossBar(livingEntity.getUniqueId())) {
                                 task.cancel();
                                 return;
                             }
@@ -346,7 +302,8 @@ public class PinataManager {
                                     .getPersistentDataContainer()
                                     .getOrDefault(max_health, PersistentDataType.INTEGER, 0);
 
-                            bossBarManager.updateBossBar(livingEntity, currHealth, maxHealth, spawn_time, pinataConfig);
+                            bossBarManager.updatePinataBossBar(
+                                    livingEntity, currHealth, maxHealth, spawn_time, pinataConfig);
                         },
                         () -> {},
                         20L,
@@ -464,7 +421,8 @@ public class PinataManager {
 
             if (!java.util.List.of("FLEE", "ROAM", "NONE", "BOTH").contains(activeMovementType)) {
                 plugin.getPluginLogger()
-                        .warn("Unknown movement type '" + activeMovementType + "' for pinata " + mob.getUniqueId()
+                        .warn("Unknown movement type '" + activeMovementType + "' for pinata "
+                                + mob.getUniqueId()
                                 + ". Defaulting to BOTH.");
                 activeMovementType = "BOTH";
             }
@@ -500,7 +458,7 @@ public class PinataManager {
     }
 
     public void removeActiveBossBar(LivingEntity pinata) {
-        bossBarManager.removeBossBar(pinata.getUniqueId());
+        bossBarManager.removePinataBossBar(pinata.getUniqueId());
         activePinatas.remove(pinata.getUniqueId());
 
         ScheduledTask task = timeoutTasks.remove(pinata.getUniqueId());
@@ -598,16 +556,7 @@ public class PinataManager {
         timeoutTasks.values().forEach(ScheduledTask::cancel);
         timeoutTasks.clear();
 
-        for (var entry : activeCountdowns.entrySet()) {
-            ScheduledTask task = entry.getKey();
-            BossBar bar = entry.getValue();
-
-            task.cancel();
-
-            for (Player p : plugin.getServer().getOnlinePlayers()) {
-                p.hideBossBar(bar);
-            }
-        }
+        activeCountdowns.keySet().forEach(ScheduledTask::cancel);
         activeCountdowns.clear();
     }
 

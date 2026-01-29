@@ -114,8 +114,7 @@ public final class PinataConfig {
 
         public BossBarSettings() {}
 
-        public BossBarSettings(
-                boolean enabled, boolean global, String color, BossBar.Overlay overlay, String text) {
+        public BossBarSettings(boolean enabled, boolean global, String color, BossBar.Overlay overlay, String text) {
             this.enabled = enabled;
             this.global = global;
             this.color = color;
