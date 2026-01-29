@@ -145,7 +145,6 @@ public final class PinataConfig {
 
     @Configuration
     public static class ItemWhitelist {
-        @Comment("Only allow specific items to deal damage.")
         public boolean enabled = false;
 
         @Comment({"List of allowed material names.", "See: https://jd.papermc.io/paper/1.21.11/org/bukkit/Material.html"
@@ -162,16 +161,15 @@ public final class PinataConfig {
 
     @Configuration
     public static class HitCooldown {
-        @Comment("Enable attack speed limits.")
         public boolean enabled = true;
 
-        @Comment("Seconds between hits.")
+        @Comment("Cooldown duration in seconds.")
         public double duration = 0.75;
 
         @Comment("If true, the cooldown is global (all players share the timer).")
         public boolean global = false;
 
-        @Comment({"Feedback type.", "Options: ACTION_BAR, CHAT"})
+        @Comment({"Feedback type.", "Options: ACTION_BAR, CHAT, NONE"})
         public String notificationType = "ACTION_BAR";
 
         public HitCooldown() {}
