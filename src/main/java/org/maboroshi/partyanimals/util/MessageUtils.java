@@ -7,6 +7,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.maboroshi.partyanimals.config.ConfigManager;
 
@@ -53,5 +54,9 @@ public class MessageUtils {
 
     public TagResolver tagParsed(String key, String value) {
         return Placeholder.parsed(key, value);
+    }
+
+    public String parsePinataPlaceholders(LivingEntity pinata, String string) {
+        return string.replace("%entity_type%", pinata.getType().toString());
     }
 }

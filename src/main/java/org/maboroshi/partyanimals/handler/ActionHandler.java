@@ -2,6 +2,8 @@ package org.maboroshi.partyanimals.handler;
 
 import java.util.Collection;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
+
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -17,6 +19,10 @@ public class ActionHandler {
     }
 
     public void process(OfflinePlayer player, Collection<CommandAction> commands) {
+        process(player, commands, str -> str);
+    }
+
+    public void process(OfflinePlayer player, Collection<CommandAction> commands, Function<String, String> commandParser) {
         if (commands == null || commands.isEmpty()) return;
 
         for (CommandAction action : commands) {
@@ -34,10 +40,10 @@ public class ActionHandler {
 
             if (action.global) {
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    executeAction(onlinePlayer, action);
+                    executeAction(onlinePlayer, action, commandParser);
                 }
             } else {
-                executeAction(player, action);
+                executeAction(player, action, commandParser);
             }
 
             if (action.stopProcessing) {
@@ -46,15 +52,15 @@ public class ActionHandler {
         }
     }
 
-    private void executeAction(OfflinePlayer target, CommandAction action) {
+    private void executeAction(OfflinePlayer target, CommandAction action, Function<String, String> commandParser) {
         if (action.commands.isEmpty()) return;
         if (action.pickOneRandom) {
             int index = ThreadLocalRandom.current().nextInt(action.commands.size());
             String randomCmd = action.commands.get(index);
-            dispatch(target, randomCmd);
+            dispatch(target, commandParser.apply(randomCmd));
         } else {
             for (String cmd : action.commands) {
-                dispatch(target, cmd);
+                dispatch(target, commandParser.apply(cmd));
             }
         }
     }
