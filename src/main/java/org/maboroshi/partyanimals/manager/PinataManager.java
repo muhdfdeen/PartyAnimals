@@ -16,10 +16,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.TextDisplay;
+import org.bukkit.entity.*;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -158,8 +155,8 @@ public class PinataManager {
                 : baseHealth;
         final int finalHealth = Math.min(calculatedHealth, pinataConfig.health.maxHealth);
 
-        location.getWorld().spawn(spawnLocation, pinataType.getEntityClass(), pinata -> {
-            if (pinata instanceof LivingEntity livingEntity) {
+        Entity pinata = location.getWorld().spawn(spawnLocation, pinataType.getEntityClass(), entity -> {
+            if (entity instanceof LivingEntity livingEntity) {
                 initializePinataEntity(livingEntity, pinataConfig, templateId, finalHealth, finalScale);
 
                 var event = new PinataSpawnEvent(livingEntity, spawnLocation);
@@ -189,7 +186,13 @@ public class PinataManager {
         });
 
         if (plugin.getActionHandler() != null) {
-            plugin.getActionHandler().process(null, pinataConfig.events.spawn.rewards.values());
+            plugin.getActionHandler().process(null, pinataConfig.events.spawn.rewards.values(), cmd -> {
+                if (pinata instanceof LivingEntity livingPinata) {
+                    return plugin.getMessageUtils().parsePinataPlaceholders(livingPinata, cmd);
+                } else {
+                    return cmd;
+                }
+            });
         }
 
         String spawnMessage = config.getMessageConfig().pinata.events.spawnedNaturally;

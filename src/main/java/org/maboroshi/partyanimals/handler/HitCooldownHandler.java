@@ -73,6 +73,7 @@ public class HitCooldownHandler {
 
         switch (displayType.toLowerCase()) {
             case "action_bar", "actionbar" -> player.sendActionBar(component);
+            case "none" -> {}
             default -> player.sendMessage(component);
         }
     }

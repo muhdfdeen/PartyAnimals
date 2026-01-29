@@ -150,7 +150,8 @@ public class PinataListener implements Listener {
             }
 
             log.debug("Processing hit commands for player: " + player.getName());
-            actionHandler.process(player, pinataConfig.events.hit.rewards.values());
+            actionHandler.process(player, pinataConfig.events.hit.rewards.values(), cmd -> plugin.getMessageUtils()
+                    .parsePinataPlaceholders(pinata, cmd));
 
             String hitMessage = config.getMessageConfig().pinata.gameplay.hitSuccess;
             if (hitMessage != null && !hitMessage.isEmpty()) messageUtils.send(player, hitMessage);
@@ -239,13 +240,15 @@ public class PinataListener implements Listener {
         effectHandler.playEffects(pinataConfig.events.death.effects, pinata.getLocation(), false);
 
         log.debug("Processing last hit commands...");
-        actionHandler.process(player, pinataConfig.events.lastHit.rewards.values());
+        actionHandler.process(player, pinataConfig.events.lastHit.rewards.values(), cmd -> plugin.getMessageUtils()
+                .parsePinataPlaceholders(pinata, cmd));
 
         String lastHitMessage = config.getMessageConfig().pinata.gameplay.lastHit;
         messageUtils.send(player, lastHitMessage, messageUtils.tag("player", player.getName()));
 
         log.debug("Processing death commands...");
-        actionHandler.process(player, pinataConfig.events.death.rewards.values());
+        actionHandler.process(player, pinataConfig.events.death.rewards.values(), cmd -> plugin.getMessageUtils()
+                .parsePinataPlaceholders(pinata, cmd));
 
         String downedMessage = config.getMessageConfig().pinata.events.defeated;
         messageUtils.send(plugin.getServer(), downedMessage, messageUtils.tag("player", player.getName()));
