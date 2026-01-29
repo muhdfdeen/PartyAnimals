@@ -3,6 +3,8 @@ package org.maboroshi.partyanimals.handler;
 import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -101,23 +103,18 @@ public class ReflexHandler {
         if (blink.enabled && shouldTrigger(blink.chance)) {
             effectHandler.playEffects(blink.effects, pinata.getLocation(), false);
 
-            Location loc = pinata.getLocation();
-            double x = loc.getX() + (ThreadLocalRandom.current().nextDouble() - 0.5) * blink.distance * 2;
-            double z = loc.getZ() + (ThreadLocalRandom.current().nextDouble() - 0.5) * blink.distance * 2;
-            double y;
+            Location location = pinata.getLocation();
+            double x = location.getX() + (ThreadLocalRandom.current().nextDouble() - 0.5) * blink.distance * 2;
+            double z = location.getZ() + (ThreadLocalRandom.current().nextDouble() - 0.5) * blink.distance * 2;
+            Location target = findSafeY(pinata.getWorld(), x, z, location.getY(), 8);
 
-            if (blink.ignoreYLevel) {
-                y = pinata.getWorld().getHighestBlockYAt((int) x, (int) z) + 1;
-            } else {
-                y = loc.getY();
-            }
-
-            Location target = new Location(pinata.getWorld(), x, y, z);
-            if (!target.getBlock().isPassable()) return;
-            pinata.teleport(target);
-
-            if (!blink.commands.isEmpty()) {
-                actionHandler.process(attacker, blink.commands.values());
+            if (target != null) {
+                target.setYaw(location.getYaw());
+                target.setPitch(location.getPitch());
+                pinata.teleport(target);
+                if (!blink.commands.isEmpty()) {
+                    actionHandler.process(attacker, blink.commands.values());
+                }
             }
         }
 
@@ -158,5 +155,28 @@ public class ReflexHandler {
 
     public boolean shouldTrigger(double chance) {
         return ThreadLocalRandom.current().nextDouble(100.0) < chance;
+    }
+
+    private Location findSafeY(org.bukkit.World world, double x, double z, double startY, int verticalRange) {
+        Location target = new Location(world, x, startY, z);
+        if (isSafeLocation(target)) return target;
+
+        for (int i = 1; i <= verticalRange; i++) {
+            target.setY(startY + i);
+            if (isSafeLocation(target)) return target;
+
+            target.setY(startY - i);
+            if (isSafeLocation(target)) return target;
+        }
+
+        return null;
+    }
+
+    private boolean isSafeLocation(Location location) {
+        Block feet = location.getBlock();
+        if (feet.getRelative(BlockFace.DOWN).isPassable()) return false;
+        if (!feet.isPassable()) return false;
+        if (!feet.getRelative(BlockFace.UP).isPassable()) return false;
+        return true;
     }
 }
