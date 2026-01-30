@@ -4,6 +4,7 @@ import de.exlll.configlib.Comment;
 import de.exlll.configlib.ConfigLib;
 import de.exlll.configlib.Configuration;
 import de.exlll.configlib.NameFormatters;
+import de.exlll.configlib.PostProcess;
 import de.exlll.configlib.YamlConfigurationProperties;
 import de.exlll.configlib.YamlConfigurations;
 import java.io.File;
@@ -292,6 +293,22 @@ public final class PinataConfig {
 
         @Comment("Actions to execute when triggered.")
         public Map<String, CommandAction> actions = new HashMap<>();
+
+        private Map<String, CommandAction> rewards = null;
+        private Map<String, CommandAction> commands = null;
+
+        @PostProcess
+        private void migrateLegacyData() {
+            if (rewards != null && !rewards.isEmpty()) {
+                actions.putAll(rewards);
+                rewards = null;
+            }
+
+            if (commands != null && !commands.isEmpty()) {
+                actions.putAll(commands);
+                commands = null;
+            }
+        }
     }
 
     @Configuration
@@ -519,6 +536,22 @@ public final class PinataConfig {
 
         @Comment("Actions to execute when triggered.")
         public Map<String, CommandAction> actions = new HashMap<>();
+
+        private Map<String, CommandAction> rewards = null;
+        private Map<String, CommandAction> commands = null;
+
+        @PostProcess
+        private void migrateLegacyData() {
+            if (rewards != null && !rewards.isEmpty()) {
+                actions.putAll(rewards);
+                rewards = null;
+            }
+
+            if (commands != null && !commands.isEmpty()) {
+                actions.putAll(commands);
+                commands = null;
+            }
+        }
 
         public GameEvent() {}
 
