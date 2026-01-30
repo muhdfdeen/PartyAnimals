@@ -98,12 +98,9 @@ public class PinataCommand {
 
         plugin.getPinataManager().startCountdown(location, templateId);
 
-        String pinataName = config.getPinataConfig(templateId).appearance.name;
-
         messageUtils.send(
                 source.getSender(),
                 config.getMessageConfig().pinata.events.starting,
-                messageUtils.tagParsed("pinata", pinataName),
                 messageUtils.tagParsed(
                         "location", location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()));
         return Command.SINGLE_SUCCESS;
@@ -115,12 +112,9 @@ public class PinataCommand {
 
         plugin.getPinataManager().spawnPinata(location, templateId);
 
-        String pinataName = config.getPinataConfig(templateId).appearance.name;
-
         messageUtils.send(
                 source.getSender(),
                 config.getMessageConfig().pinata.events.spawned,
-                messageUtils.tagParsed("pinata", pinataName),
                 messageUtils.tagParsed(
                         "location", location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ()));
 
@@ -177,7 +171,7 @@ public class PinataCommand {
                 messageUtils.send(
                         source.getSender(),
                         config.getMessageConfig().pinata.admin.unknownTemplate,
-                        messageUtils.tagParsed("pinata", templateId));
+                        messageUtils.tagParsed("template", templateId));
                 return null;
             }
             SerializableLocation spawnLocation =
@@ -186,7 +180,6 @@ public class PinataCommand {
                 messageUtils.send(
                         source.getSender(),
                         config.getMessageConfig().pinata.admin.spawnPointUnknown,
-                        messageUtils.tagParsed("pinata", templateId),
                         messageUtils.tag("location", locationName));
                 return null;
             }

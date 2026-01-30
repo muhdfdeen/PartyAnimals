@@ -17,8 +17,8 @@ public class NameTagSettings {
     public String type = "TEXT";
 
     @Comment("Lines of text. Supports MiniMessage and placeholders.")
-    public List<String> text =
-            new ArrayList<>(List.of("<pinata>", "<health> <gray>/</gray> <max-health> <red>❤</red>", "<timer>"));
+    public List<String> text = new ArrayList<>(
+            List.of("<pinata_name>", "<pinata_health> <gray>/</gray> <pinata_max_health> <red>❤</red>", "<timer>"));
 
     @Comment("Text alignment. Options: LEFT, RIGHT, CENTER.")
     public TextDisplay.TextAlignment textAlignment = TextDisplay.TextAlignment.CENTER;

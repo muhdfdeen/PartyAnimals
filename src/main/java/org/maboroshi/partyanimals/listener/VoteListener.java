@@ -99,7 +99,7 @@ public class VoteListener implements Listener {
                         int currentTotal = databaseManager.incrementCommunityGoalProgress();
                         if (currentTotal % goalConfig.votesRequired == 0) {
                             Bukkit.getGlobalRegionScheduler().execute(plugin, () -> {
-                                actionHandler.process(null, goalConfig.rewards.values());
+                                actionHandler.process(null, goalConfig.actions.values());
                             });
                         }
                     }
@@ -126,7 +126,7 @@ public class VoteListener implements Listener {
                                                 if (!voteEvent.enabled) return;
                                                 effectHandler.playEffects(
                                                         voteEvent.effects, player.getLocation(), false);
-                                                actionHandler.process(player, voteEvent.rewards.values());
+                                                actionHandler.process(player, voteEvent.actions.values());
                                             },
                                             null);
                         } else {
@@ -144,7 +144,7 @@ public class VoteListener implements Listener {
             VoteEvent voteEvent = config.getMainConfig().modules.vote.events.playerVote;
             if (offlineSettings.queueRewards) {
                 Bukkit.getAsyncScheduler().runNow(plugin, (at) -> {
-                    for (var action : voteEvent.rewards.values()) {
+                    for (var action : voteEvent.actions.values()) {
                         if (shouldRun(action)) {
                             processActionForQueue(uuid, playerName, action);
                             if (action.stopProcessing) break;
@@ -153,7 +153,7 @@ public class VoteListener implements Listener {
                 });
             } else {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-                actionHandler.process(offlinePlayer, voteEvent.rewards.values());
+                actionHandler.process(offlinePlayer, voteEvent.actions.values());
             }
         }
     }

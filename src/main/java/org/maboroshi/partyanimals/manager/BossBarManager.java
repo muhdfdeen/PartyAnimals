@@ -90,15 +90,8 @@ public class BossBarManager {
     public void createPinataBossBar(
             LivingEntity pinata, int health, int maxHealth, int timeout, PinataConfiguration pinataConfig) {
         String rawMsg = pinataConfig.health.bar.text;
-        String timeStr = formatTime(timeout, pinataConfig);
 
-        Component barName = messageUtils.parse(
-                null,
-                rawMsg,
-                messageUtils.tagParsed("pinata", pinataConfig.appearance.name),
-                messageUtils.tag("health", health),
-                messageUtils.tag("max-health", maxHealth),
-                messageUtils.tag("timer", timeStr));
+        Component barName = messageUtils.parse(null, rawMsg, messageUtils.getPinataTags(pinata));
 
         BossBar bossBar = BossBar.bossBar(
                 barName, 1.0f, BossBar.Color.valueOf(pinataConfig.health.bar.color), pinataConfig.health.bar.overlay);
@@ -134,9 +127,7 @@ public class BossBarManager {
         bossBar.name(messageUtils.parse(
                 null,
                 pinataConfig.health.bar.text,
-                messageUtils.tagParsed("pinata", pinataConfig.appearance.name),
-                messageUtils.tag("health", currentHealth),
-                messageUtils.tag("max-health", maxHealth),
+                messageUtils.getPinataTags(pinata),
                 messageUtils.tag("timer", timeStr)));
 
         updateViewerList(

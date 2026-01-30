@@ -2,7 +2,6 @@ package org.maboroshi.partyanimals.listener;
 
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,6 +26,7 @@ import org.maboroshi.partyanimals.manager.BossBarManager;
 import org.maboroshi.partyanimals.manager.PinataManager;
 import org.maboroshi.partyanimals.util.Logger;
 import org.maboroshi.partyanimals.util.MessageUtils;
+import org.maboroshi.partyanimals.util.NamespacedKeys;
 
 public class PinataListener implements Listener {
     private final PartyAnimals plugin;
@@ -126,7 +126,7 @@ public class PinataListener implements Listener {
         event.setCancelled(true);
 
         int currentHits = pinata.getPersistentDataContainer()
-                .getOrDefault(pinataManager.getHealthKey(), PersistentDataType.INTEGER, 1);
+                .getOrDefault(NamespacedKeys.PINATA_HEALTH, PersistentDataType.INTEGER, 1);
         currentHits--;
 
         log.debug("Pinata "
@@ -142,7 +142,7 @@ public class PinataListener implements Listener {
             handlePinataDeath(pinata, player, pinataConfig);
         } else {
             pinata.getPersistentDataContainer()
-                    .set(pinataManager.getHealthKey(), PersistentDataType.INTEGER, currentHits);
+                    .set(NamespacedKeys.PINATA_HEALTH, PersistentDataType.INTEGER, currentHits);
             effectHandler.playEffects(pinataConfig.events.hit.effects, pinata.getLocation(), false);
 
             if (pinataConfig.appearance.damageFlash) {
@@ -150,18 +150,17 @@ public class PinataListener implements Listener {
             }
 
             log.debug("Processing hit commands for player: " + player.getName());
-            actionHandler.process(player, pinataConfig.events.hit.rewards.values(), cmd -> plugin.getMessageUtils()
+            actionHandler.process(player, pinataConfig.events.hit.actions.values(), cmd -> plugin.getMessageUtils()
                     .parsePinataPlaceholders(pinata, cmd));
 
             String hitMessage = config.getMessageConfig().pinata.gameplay.hitSuccess;
             if (hitMessage != null && !hitMessage.isEmpty()) messageUtils.send(player, hitMessage);
 
-            NamespacedKey maxHealthKey = pinataManager.getMaxHealthKey();
             int actualMaxHealth = pinata.getPersistentDataContainer()
-                    .getOrDefault(maxHealthKey, PersistentDataType.INTEGER, currentHits);
+                    .getOrDefault(NamespacedKeys.PINATA_MAX_HEALTH, PersistentDataType.INTEGER, currentHits);
 
             bossBarManager.updatePinataBossBar(
-                    pinata, currentHits, actualMaxHealth, pinataManager.getSpawnTimeKey(), pinataConfig);
+                    pinata, currentHits, actualMaxHealth, NamespacedKeys.PINATA_SPAWN_TIME, pinataConfig);
         }
     }
 
@@ -240,14 +239,14 @@ public class PinataListener implements Listener {
         effectHandler.playEffects(pinataConfig.events.death.effects, pinata.getLocation(), false);
 
         log.debug("Processing last hit commands...");
-        actionHandler.process(player, pinataConfig.events.lastHit.rewards.values(), cmd -> plugin.getMessageUtils()
+        actionHandler.process(player, pinataConfig.events.lastHit.actions.values(), cmd -> plugin.getMessageUtils()
                 .parsePinataPlaceholders(pinata, cmd));
 
         String lastHitMessage = config.getMessageConfig().pinata.gameplay.lastHit;
         messageUtils.send(player, lastHitMessage, messageUtils.tag("player", player.getName()));
 
         log.debug("Processing death commands...");
-        actionHandler.process(player, pinataConfig.events.death.rewards.values(), cmd -> plugin.getMessageUtils()
+        actionHandler.process(player, pinataConfig.events.death.actions.values(), cmd -> plugin.getMessageUtils()
                 .parsePinataPlaceholders(pinata, cmd));
 
         String downedMessage = config.getMessageConfig().pinata.events.defeated;

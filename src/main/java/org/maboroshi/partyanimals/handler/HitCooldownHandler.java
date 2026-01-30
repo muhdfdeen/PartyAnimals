@@ -1,6 +1,5 @@
 package org.maboroshi.partyanimals.handler;
 
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataHolder;
@@ -9,6 +8,7 @@ import org.maboroshi.partyanimals.PartyAnimals;
 import org.maboroshi.partyanimals.config.ConfigManager;
 import org.maboroshi.partyanimals.config.settings.PinataConfig.PinataConfiguration;
 import org.maboroshi.partyanimals.util.MessageUtils;
+import org.maboroshi.partyanimals.util.NamespacedKeys;
 
 public class HitCooldownHandler {
     private final PartyAnimals plugin;
@@ -31,9 +31,9 @@ public class HitCooldownHandler {
         long now = System.currentTimeMillis();
 
         PersistentDataHolder target = global ? pinata : player;
-        NamespacedKey key = plugin.getPinataManager().getCooldownKey();
 
-        long nextHit = target.getPersistentDataContainer().getOrDefault(key, PersistentDataType.LONG, 0L);
+        long nextHit = target.getPersistentDataContainer()
+                .getOrDefault(NamespacedKeys.PINATA_HIT_COOLDOWN, PersistentDataType.LONG, 0L);
 
         if (now < nextHit) {
             sendCooldownMessage(player, nextHit - now, pinataConfig);
@@ -55,9 +55,9 @@ public class HitCooldownHandler {
         long now = System.currentTimeMillis();
 
         PersistentDataHolder target = global ? pinata : player;
-        NamespacedKey key = plugin.getPinataManager().getCooldownKey();
 
-        target.getPersistentDataContainer().set(key, PersistentDataType.LONG, now + cooldownMillis);
+        target.getPersistentDataContainer()
+                .set(NamespacedKeys.PINATA_HIT_COOLDOWN, PersistentDataType.LONG, now + cooldownMillis);
     }
 
     private void sendCooldownMessage(Player player, long remainingMillis, PinataConfiguration pinataConfig) {
