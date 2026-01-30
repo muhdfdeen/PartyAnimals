@@ -14,3 +14,9 @@ dependencies:
     Votifier:
       load: BEFORE
       required: false
+    ModelEngine:
+      load: BEFORE
+      required: false
+    BetterModel:
+      load: BEFORE
+      required: false

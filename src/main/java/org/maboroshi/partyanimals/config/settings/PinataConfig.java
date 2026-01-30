@@ -81,8 +81,8 @@ public final class PinataConfig {
         })
         public List<String> types = List.of("LLAMA", "MULE");
 
-        @Comment("Weight for random selection (Higher number = higher chance).")
-        public double weight = 10.0;
+        @Comment("Model ID for ModelEngine or BetterModel. Leave empty to use vanilla mobs.")
+        public String modelId = "";
 
         @Comment("Custom name of the pinata entity.")
         public String name = "<gradient:#FF5555:#FF55FF>🪅 <bold>Party Pinata</bold></gradient>";
@@ -92,6 +92,9 @@ public final class PinataConfig {
 
         @Comment("Raw NBT data for the pinata entity.")
         public String nbt = "";
+
+        @Comment("Weight for random selection (Higher number = higher chance).")
+        public double weight = 10.0;
     }
 
     @Configuration
