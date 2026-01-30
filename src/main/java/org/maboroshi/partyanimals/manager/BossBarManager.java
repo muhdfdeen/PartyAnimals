@@ -24,12 +24,8 @@ public class BossBarManager {
     private final Map<UUID, Location> countdownLocations = new ConcurrentHashMap<>();
     private final Map<UUID, Boolean> countdownGlobalSettings = new ConcurrentHashMap<>();
 
-    private final NamespacedKey name;
-
     public BossBarManager(PartyAnimals plugin) {
         this.messageUtils = plugin.getMessageUtils();
-
-        this.name = new NamespacedKey(plugin, "name");
     }
 
     public UUID createCountdownBossBar(Location location, PinataConfiguration pinataConfig, int totalSeconds) {
@@ -94,16 +90,8 @@ public class BossBarManager {
     public void createPinataBossBar(
             LivingEntity pinata, int health, int maxHealth, int timeout, PinataConfiguration pinataConfig) {
         String rawMsg = pinataConfig.health.bar.text;
-        String timeStr = formatTime(timeout, pinataConfig);
-        String name = pinata.getPersistentDataContainer().get(this.name, PersistentDataType.STRING);
 
-        Component barName = messageUtils.parse(
-                null,
-                rawMsg,
-                messageUtils.tagParsed("pinata", name),
-                messageUtils.tag("health", health),
-                messageUtils.tag("max-health", maxHealth),
-                messageUtils.tag("timer", timeStr));
+        Component barName = messageUtils.parse(null, rawMsg, messageUtils.getPinataTags(pinata));
 
         BossBar bossBar = BossBar.bossBar(
                 barName, 1.0f, BossBar.Color.valueOf(pinataConfig.health.bar.color), pinataConfig.health.bar.overlay);
@@ -136,14 +124,10 @@ public class BossBarManager {
             timeStr = formatTime(remaining, pinataConfig);
         }
 
-        String name = pinata.getPersistentDataContainer().get(this.name, PersistentDataType.STRING);
-
         bossBar.name(messageUtils.parse(
                 null,
                 pinataConfig.health.bar.text,
-                messageUtils.tagParsed("pinata", name),
-                messageUtils.tag("health", currentHealth),
-                messageUtils.tag("max-health", maxHealth),
+                messageUtils.getPinataTags(pinata),
                 messageUtils.tag("timer", timeStr)));
 
         updateViewerList(

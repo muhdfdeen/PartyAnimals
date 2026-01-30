@@ -47,7 +47,7 @@ public final class PinataConfig {
         public NameTagSettings nameTag = new NameTagSettings(
                 true,
                 "TEXT",
-                List.of("<pinata>", "<health> <gray>/</gray> <max-health> <red>❤</red>", "<timer>"),
+                List.of("<pinata_name>", "<pinata_health> <gray>/</gray> <pinata_max_health> <red>❤</red>", "<timer>"),
                 TextAlignment.CENTER,
                 new BackgroundSettings(false, 64, 0, 0, 0),
                 new TextShadowSettings(true, 0, 0),
@@ -126,7 +126,7 @@ public final class PinataConfig {
                 true,
                 "GREEN",
                 BossBar.Overlay.NOTCHED_10,
-                "<pinata> <health> <gray>/</gray> <max-health> <red>❤</red> <gray>[<timer>]</gray>");
+                "<pinata_name> <pinata_health> <gray>/</gray> <pinata_max_health> <red>❤</red> <gray>[<timer>]</gray>");
     }
 
     @Configuration

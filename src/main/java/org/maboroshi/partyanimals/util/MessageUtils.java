@@ -9,6 +9,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 import org.maboroshi.partyanimals.config.ConfigManager;
 
 public class MessageUtils {
@@ -22,6 +23,23 @@ public class MessageUtils {
         this.hasPAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
     }
 
+    private record PinataData(String name, String template, String variant, int health, int maxHealth, String type) {
+        static PinataData from(LivingEntity entity) {
+            return new PinataData(
+                    entity.getPersistentDataContainer()
+                            .getOrDefault(NamespacedKeys.PINATA_NAME, PersistentDataType.STRING, "Unknown"),
+                    entity.getPersistentDataContainer()
+                            .getOrDefault(NamespacedKeys.PINATA_TEMPLATE, PersistentDataType.STRING, "Unknown"),
+                    entity.getPersistentDataContainer()
+                            .getOrDefault(NamespacedKeys.PINATA_VARIANT, PersistentDataType.STRING, "Unknown"),
+                    entity.getPersistentDataContainer()
+                            .getOrDefault(NamespacedKeys.PINATA_HEALTH, PersistentDataType.INTEGER, 0),
+                    entity.getPersistentDataContainer()
+                            .getOrDefault(NamespacedKeys.PINATA_MAX_HEALTH, PersistentDataType.INTEGER, 0),
+                    entity.getType().toString());
+        }
+    }
+
     public Component parse(Audience receiver, String message, TagResolver... tags) {
         if (message == null || message.isEmpty()) return Component.empty();
 
@@ -30,15 +48,16 @@ public class MessageUtils {
             parsedMessage = PlaceholderAPI.setPlaceholders(player, parsedMessage);
         }
 
-        String prefix = config.getMessageConfig().prefix;
-        TagResolver prefixTag = Placeholder.parsed("prefix", prefix != null ? prefix : "");
+        TagResolver prefixTag = Placeholder.parsed(
+                "prefix", config.getMessageConfig().prefix != null ? config.getMessageConfig().prefix : "");
 
-        TagResolver defaultTags = TagResolver.empty();
+        TagResolver finalResolver;
         if (receiver instanceof Player player) {
-            defaultTags = Placeholder.unparsed("player", player.getName());
+            finalResolver = TagResolver.resolver(
+                    TagResolver.resolver(tags), prefixTag, Placeholder.unparsed("player", player.getName()));
+        } else {
+            finalResolver = TagResolver.resolver(TagResolver.resolver(tags), prefixTag);
         }
-
-        TagResolver finalResolver = TagResolver.resolver(TagResolver.resolver(tags), defaultTags, prefixTag);
 
         return mm.deserialize(parsedMessage, finalResolver);
     }
@@ -56,7 +75,26 @@ public class MessageUtils {
         return Placeholder.parsed(key, value);
     }
 
+    public TagResolver getPinataTags(LivingEntity pinata) {
+        PinataData data = PinataData.from(pinata);
+        return TagResolver.resolver(
+                tagParsed("pinata_name", data.name),
+                tag("pinata_health", data.health),
+                tag("pinata_max_health", data.maxHealth),
+                tag("pinata_template", data.template),
+                tag("pinata_variant", data.variant),
+                tag("pinata_type", data.type));
+    }
+
     public String parsePinataPlaceholders(LivingEntity pinata, String string) {
-        return string.replace("<entity_type>", pinata.getType().toString());
+        if (string == null) return null;
+        PinataData data = PinataData.from(pinata);
+
+        return string.replace("<pinata_name>", data.name)
+                .replace("<pinata_template>", data.template)
+                .replace("<pinata_variant>", data.variant)
+                .replace("<pinata_health>", String.valueOf(data.health))
+                .replace("<pinata_max_health>", String.valueOf(data.maxHealth))
+                .replace("<pinata_type>", data.type);
     }
 }
